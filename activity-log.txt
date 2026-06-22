@@ -1,3 +1,4 @@
 2026-06-14 notes sync
 2026-06-18 docs refs
 2026-06-20 doc links
+2026-06-22 readme
