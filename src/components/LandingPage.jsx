@@ -61,7 +61,7 @@ export default function LandingPage() {
           <div className="relative top-[4vh] left-[2vw] shrink-0">
             <img
               ref={imageRef}
-              src="/second_a.png"
+              src="/images/second_a.png"
               alt=""
               className="h-[clamp(22rem,72vmin,92rem)] w-auto object-contain will-change-transform"
               style={{ transform: "translate3d(0px, 0px, 0) rotate(-2deg)" }}

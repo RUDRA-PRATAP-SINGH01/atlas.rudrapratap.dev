@@ -1,9 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "Druk";
+  src: url("/fonts/DrukCond-Super-Cy-Gr-Web.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+}
 
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Oswald", sans-serif;
+  --font-druk: "Druk", sans-serif;
   --font-sans: "Inter", sans-serif;
 }
 
