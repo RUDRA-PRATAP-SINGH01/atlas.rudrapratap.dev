@@ -37,7 +37,6 @@ const theadRowStyle = {
 };
 
 const tdStyle = { padding: "10px 16px" };
-const tdMonoStyle = { padding: "10px 16px", fontFamily: "monospace" };
 const tdBoldStyle = { padding: "10px 16px", fontWeight: 500, color: "#ffffff" };
 
 export default function LessonsLearnedDocsPage() {

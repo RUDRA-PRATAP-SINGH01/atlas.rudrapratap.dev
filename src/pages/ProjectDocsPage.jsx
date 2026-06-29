@@ -1,4 +1,5 @@
 import DocsNavbar from "../components/DocsNavbar";
+import { Link } from "react-router-dom";
 
 const docCards = [
   {
@@ -27,7 +28,7 @@ const docCards = [
     description:
       "Find the open-source repositories behind every project. Read the code, follow the commits, and learn directly from the implementations on GitHub.",
     icon: "github",
-    href: "https://github.com/rudrapratap-singh",
+    href: "https://github.com/RUDRA-PRATAP-SINGH01",
   },
 ];
 
@@ -145,6 +146,15 @@ function ArrowUpRight() {
 }
 
 export default function ProjectDocsPage() {
+  const handleMouseMove = (e) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty("--mouse-x", `${x}px`);
+    card.style.setProperty("--mouse-y", `${y}px`);
+  };
+
   return (
     <div className="project-docs-page min-h-[100dvh] bg-black">
       <DocsNavbar />
@@ -176,6 +186,7 @@ export default function ProjectDocsPage() {
                 id={card.title === "Reference" ? "reference-card" : undefined}
                 href={card.href ?? "#"}
                 className="project-docs-card"
+                onMouseMove={handleMouseMove}
                 {...(card.href?.startsWith("http")
                   ? { target: "_blank", rel: "noopener noreferrer" }
                   : {})}
@@ -204,23 +215,23 @@ export default function ProjectDocsPage() {
           </section>
 
           <section className="project-docs-featured-grid">
+            <Link to="/project-docs/guide/setup" className="project-docs-featured-card">
+              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/PebbleDB-img.png")' }} />
+              <div className="project-docs-featured-card-overlay" />
+              <div className="project-docs-featured-card-content">
+                <h3 className="project-docs-featured-card-title">PebbleDB</h3>
+                <p className="project-docs-featured-card-desc">A detailed breakdown of PebbleDB, a high-performance LSM-tree storage engine written in Go.</p>
+                <span className="project-docs-featured-card-arrow">
+                  <ArrowUpRight />
+                </span>
+              </div>
+            </Link>
             <a href="#" className="project-docs-featured-card">
               <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/Distributed-img.png")' }} />
               <div className="project-docs-featured-card-overlay" />
               <div className="project-docs-featured-card-content">
                 <h3 className="project-docs-featured-card-title">Distributed Systems</h3>
                 <p className="project-docs-featured-card-desc">Deep dives into sharding, replication, and consensus protocols like Raft and Paxos.</p>
-                <span className="project-docs-featured-card-arrow">
-                  <ArrowUpRight />
-                </span>
-              </div>
-            </a>
-            <a href="#" className="project-docs-featured-card">
-              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/PebbleDB-img.png")' }} />
-              <div className="project-docs-featured-card-overlay" />
-              <div className="project-docs-featured-card-content">
-                <h3 className="project-docs-featured-card-title">PebbleDB</h3>
-                <p className="project-docs-featured-card-desc">A detailed breakdown of PebbleDB, a high-performance LSM-tree storage engine written in Go.</p>
                 <span className="project-docs-featured-card-arrow">
                   <ArrowUpRight />
                 </span>

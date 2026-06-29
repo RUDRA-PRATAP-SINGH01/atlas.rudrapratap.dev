@@ -13,7 +13,7 @@ function highlightGo(code) {
   const placeholders = [];
   
   // 1. Strings: dual-quoted or backticks
-  html = html.replace(/("(?:\\.|[^"\\])*")|(\`(?:[^\`])*\`)/g, (match) => {
+  html = html.replace(/("(?:\\.|[^"\\])*")|(`(?:[^`])*`)/g, (match) => {
     const id = `___STR_PLACEHOLDER_${placeholders.length}___`;
     placeholders.push({ id, content: `<span style="color: #c084fc;">${match}</span>` });
     return id;
