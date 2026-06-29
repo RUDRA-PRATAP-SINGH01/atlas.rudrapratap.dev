@@ -30,6 +30,15 @@ import FlushPipelineDocsPage from "./pages/FlushPipelineDocsPage";
 import WalTruncationDocsPage from "./pages/WalTruncationDocsPage";
 import CompactionPipelineDocsPage from "./pages/CompactionPipelineDocsPage";
 import RecoveryPipelineDocsPage from "./pages/RecoveryPipelineDocsPage";
+import DesignDecisionsDocsPage from "./pages/DesignDecisionsDocsPage";
+import SystemInvariantsDocsPage from "./pages/SystemInvariantsDocsPage";
+import EngineeringTradeoffsDocsPage from "./pages/EngineeringTradeoffsDocsPage";
+import EvolutionDocsPage from "./pages/EvolutionDocsPage";
+import LessonsLearnedDocsPage from "./pages/LessonsLearnedDocsPage";
+import PerformanceOverviewDocsPage from "./pages/PerformanceOverviewDocsPage";
+import BenchmarkMethodologyDocsPage from "./pages/BenchmarkMethodologyDocsPage";
+import BenchmarkResultsDocsPage from "./pages/BenchmarkResultsDocsPage";
+import MemoryUsageDocsPage from "./pages/MemoryUsageDocsPage";
 
 export default function App() {
   return (
@@ -66,6 +75,15 @@ export default function App() {
         <Route path="/project-docs/guide/implementation/wal-truncate" element={<WalTruncationDocsPage />} />
         <Route path="/project-docs/guide/implementation/compaction-pipeline" element={<CompactionPipelineDocsPage />} />
         <Route path="/project-docs/guide/implementation/recovery-pipeline" element={<RecoveryPipelineDocsPage />} />
+        <Route path="/project-docs/guide/design-decisions" element={<DesignDecisionsDocsPage />} />
+        <Route path="/project-docs/guide/system-invariants" element={<SystemInvariantsDocsPage />} />
+        <Route path="/project-docs/guide/engineering-tradeoffs" element={<EngineeringTradeoffsDocsPage />} />
+        <Route path="/project-docs/guide/evolution" element={<EvolutionDocsPage />} />
+        <Route path="/project-docs/guide/lessons-learned" element={<LessonsLearnedDocsPage />} />
+        <Route path="/project-docs/guide/performance/benchmark-methodology" element={<BenchmarkMethodologyDocsPage />} />
+        <Route path="/project-docs/guide/performance/benchmark-results" element={<BenchmarkResultsDocsPage />} />
+        <Route path="/project-docs/guide/performance/memory-usage" element={<MemoryUsageDocsPage />} />
+        <Route path="/project-docs/guide/performance/read-write-performance" element={<PerformanceOverviewDocsPage />} />
       </Routes>
     </BrowserRouter>
   );
