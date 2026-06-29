@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
 import DocsNavbar from "../components/DocsNavbar";
+import DocsSidebar from "../components/DocsSidebar";
 
 const sidebarCategories = [
   {
@@ -27,57 +26,12 @@ const pageTopics = [
 ];
 
 export default function SetupDocsPage() {
-  const [isPebbleDbOpen, setIsPebbleDbOpen] = useState(true);
-
   return (
     <div className="guide-page min-h-[100dvh] bg-[#0b0b0b] text-[#d4d4d8]">
       <DocsNavbar />
       <div className="guide-layout-wrapper">
         {/* Left Sidebar */}
-        <aside className="guide-sidebar-left" aria-label="Documentation Categories">
-          <div className="guide-sidebar-left-content">
-            <div className="guide-sidebar-group">
-              <button
-                onClick={() => setIsPebbleDbOpen(!isPebbleDbOpen)}
-                className="guide-sidebar-dropdown-toggle"
-                aria-expanded={isPebbleDbOpen}
-              >
-                <span>PebbleDB</span>
-                <svg
-                  className={`chevron-icon ${isPebbleDbOpen ? "rotate-90" : ""}`}
-                  viewBox="0 0 24 24"
-                  width="14"
-                  height="14"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              {isPebbleDbOpen && (
-                <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-                  <li className="guide-sidebar-group-item">
-                    <Link
-                      to="/project-docs/guide"
-                      className="guide-sidebar-link"
-                    >
-                      Introduction
-                    </Link>
-                  </li>
-                  <li className="guide-sidebar-group-item">
-                    <Link
-                      to="/project-docs/guide/setup"
-                      className="guide-sidebar-link guide-sidebar-link--active"
-                    >
-                      Project Setup
-                    </Link>
-                  </li>
-                </ul>
-              )}
-            </div>
-          </div>
-        </aside>
+        <DocsSidebar />
 
         {/* Main Content Area */}
         <main className="guide-main-content">

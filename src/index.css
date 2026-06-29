@@ -1498,6 +1498,16 @@
     transform: rotate(90deg);
   }
 
+  .guide-sidebar-link-placeholder {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .guide-sidebar-link-placeholder:hover {
+    color: rgba(255, 255, 255, 0.45) !important;
+    background-color: transparent !important;
+  }
+
   @media (max-width: 1100px) {
     .guide-sidebar-right {
       display: none;
