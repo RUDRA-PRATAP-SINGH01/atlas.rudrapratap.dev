@@ -7,7 +7,7 @@ export default function DocsSidebar() {
   const [expanded, setExpanded] = useState({
     pebbleDb: true,
     architecture: location.pathname.startsWith("/project-docs/guide/architecture"),
-    coreComponents: false,
+    coreComponents: location.pathname.startsWith("/project-docs/guide/core-components"),
     internals: false,
     implementation: false,
     designDecisions: false,
@@ -149,13 +149,50 @@ export default function DocsSidebar() {
           </button>
           {expanded.coreComponents && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["Write-Ahead Log (WAL)", "MemTable", "Skip List", "SSTables", "Manifest", "Bloom Filter", "Block Cache", "Merge Iterator"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/core-components/wal" className={getLinkClass("/project-docs/guide/core-components/wal")}>
+                  Write-Ahead Log (WAL)
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/core-components/memtable" className={getLinkClass("/project-docs/guide/core-components/memtable")}>
+                  MemTable
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/core-components/skiplist" className={getLinkClass("/project-docs/guide/core-components/skiplist")}>
+                  Skip List
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/core-components/sstable" className={getLinkClass("/project-docs/guide/core-components/sstable")}>
+                  SSTables
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/core-components/manifest" className={getLinkClass("/project-docs/guide/core-components/manifest")}>
+                  Manifest
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link
+                  to="/project-docs/guide/core-components/bloom-filter"
+                  className={getLinkClass("/project-docs/guide/core-components/bloom-filter")}
+                >
+                  Bloom Filter
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link
+                  to="/project-docs/guide/core-components/block-cache"
+                  className={getLinkClass("/project-docs/guide/core-components/block-cache")}
+                >
+                  Block Cache
+                </Link>
+              </li>
+                <li key="Merge Iterator" className="guide-sidebar-group-item">
+                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">Merge Iterator</a>
                 </li>
-              ))}
             </ul>
           )}
         </div>

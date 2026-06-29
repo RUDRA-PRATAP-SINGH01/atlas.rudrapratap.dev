@@ -11,6 +11,13 @@ import ScanPathDocsPage from "./pages/ScanPathDocsPage";
 import CrashRecoveryDocsPage from "./pages/CrashRecoveryDocsPage";
 import ShutdownSequenceDocsPage from "./pages/ShutdownSequenceDocsPage";
 import ConcurrencyModelDocsPage from "./pages/ConcurrencyModelDocsPage";
+import WalDocsPage from "./pages/WalDocsPage";
+import MemtableDocsPage from "./pages/MemtableDocsPage";
+import SkipListDocsPage from "./pages/SkipListDocsPage";
+import SstableDocsPage from "./pages/SstableDocsPage";
+import ManifestDocsPage from "./pages/ManifestDocsPage";
+import BloomFilterDocsPage from "./pages/BloomFilterDocsPage";
+import BlockCacheDocsPage from "./pages/BlockCacheDocsPage";
 
 export default function App() {
   return (
@@ -28,6 +35,13 @@ export default function App() {
         <Route path="/project-docs/guide/architecture/crash-recovery" element={<CrashRecoveryDocsPage />} />
         <Route path="/project-docs/guide/architecture/shutdown-sequence" element={<ShutdownSequenceDocsPage />} />
         <Route path="/project-docs/guide/architecture/concurrency-model" element={<ConcurrencyModelDocsPage />} />
+        <Route path="/project-docs/guide/core-components/wal" element={<WalDocsPage />} />
+        <Route path="/project-docs/guide/core-components/memtable" element={<MemtableDocsPage />} />
+        <Route path="/project-docs/guide/core-components/skiplist" element={<SkipListDocsPage />} />
+        <Route path="/project-docs/guide/core-components/sstable" element={<SstableDocsPage />} />
+        <Route path="/project-docs/guide/core-components/manifest" element={<ManifestDocsPage />} />
+        <Route path="/project-docs/guide/core-components/bloom-filter" element={<BloomFilterDocsPage />} />
+        <Route path="/project-docs/guide/core-components/block-cache" element={<BlockCacheDocsPage />} />
       </Routes>
     </BrowserRouter>
   );

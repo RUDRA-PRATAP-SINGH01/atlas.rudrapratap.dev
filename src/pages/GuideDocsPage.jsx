@@ -1,21 +1,6 @@
 import DocsNavbar from "../components/DocsNavbar";
 import DocsSidebar from "../components/DocsSidebar";
 
-const sidebarCategories = [
-  {
-    title: "Introduction",
-    items: [
-      { label: "Introduction", active: true, href: "/project-docs/guide" },
-    ],
-  },
-  {
-    title: "Project Setup",
-    items: [
-      { label: "Project Setup", href: "/project-docs/guide/setup" },
-    ],
-  },
-];
-
 const pageTopics = [
   { label: "What is PebbleDB?", href: "#what-is-pebbledb" },
   { label: "Why databases exist", href: "#why-databases-exist" },

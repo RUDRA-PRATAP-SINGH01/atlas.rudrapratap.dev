@@ -1,21 +1,6 @@
 import DocsNavbar from "../components/DocsNavbar";
 import DocsSidebar from "../components/DocsSidebar";
 
-const sidebarCategories = [
-  {
-    title: "Introduction",
-    items: [
-      { label: "Introduction", href: "/project-docs/guide" },
-    ],
-  },
-  {
-    title: "Project Setup",
-    items: [
-      { label: "Project Setup", active: true, href: "/project-docs/guide/setup" },
-    ],
-  },
-];
-
 const pageTopics = [
   { label: "Prerequisites", href: "#prerequisites" },
   { label: "Repository Setup", href: "#repository-setup" },
