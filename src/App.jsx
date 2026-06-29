@@ -56,6 +56,7 @@ import ProjectStructureDocsPage from "./pages/ProjectStructureDocsPage";
 import SourceCodeTourDocsPage from "./pages/SourceCodeTourDocsPage";
 import DevelopmentTimelineDocsPage from "./pages/DevelopmentTimelineDocsPage";
 import MilestonesDocsPage from "./pages/MilestonesDocsPage";
+import ReferenceDocsPage from "./pages/ReferenceDocsPage";
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/project-docs" element={<ProjectDocsPage />} />
+        <Route path="/project-docs/reference" element={<ReferenceDocsPage />} />
         <Route path="/project-docs/guide" element={<IntroDocsPage />} />
         <Route path="/project-docs/guide/pebbledb/introduction" element={<GuideDocsPage />} />
         <Route path="/project-docs/guide/setup" element={<SetupDocsPage />} />

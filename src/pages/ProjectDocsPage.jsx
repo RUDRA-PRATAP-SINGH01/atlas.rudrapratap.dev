@@ -21,7 +21,7 @@ const docCards = [
     description:
       "Technical notes for each Atlas article. Quickly refer to definitions, diagrams, and implementation context.",
     icon: "reference",
-    href: "#reference-card",
+    href: "/project-docs/reference",
   },
   {
     title: "GitHub",
@@ -181,22 +181,35 @@ export default function ProjectDocsPage() {
 
           <section className="project-docs-cards" aria-label="Documentation sections">
             {docCards.map((card) => (
-              <a
-                key={card.title}
-                id={card.title === "Reference" ? "reference-card" : undefined}
-                href={card.href ?? "#"}
-                className="project-docs-card"
-                onMouseMove={handleMouseMove}
-                {...(card.href?.startsWith("http")
-                  ? { target: "_blank", rel: "noopener noreferrer" }
-                  : {})}
-              >
-                <span className="project-docs-card-icon">
-                  <DocCardIcon type={card.icon} />
-                </span>
-                <span className="project-docs-card-title">{card.title}</span>
-                <span className="project-docs-card-desc">{card.description}</span>
-              </a>
+              card.href?.startsWith("http") ? (
+                <a
+                  key={card.title}
+                  href={card.href}
+                  className="project-docs-card"
+                  onMouseMove={handleMouseMove}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="project-docs-card-icon">
+                    <DocCardIcon type={card.icon} />
+                  </span>
+                  <span className="project-docs-card-title">{card.title}</span>
+                  <span className="project-docs-card-desc">{card.description}</span>
+                </a>
+              ) : (
+                <Link
+                  key={card.title}
+                  to={card.href ?? "#"}
+                  className="project-docs-card"
+                  onMouseMove={handleMouseMove}
+                >
+                  <span className="project-docs-card-icon">
+                    <DocCardIcon type={card.icon} />
+                  </span>
+                  <span className="project-docs-card-title">{card.title}</span>
+                  <span className="project-docs-card-desc">{card.description}</span>
+                </Link>
+              )
             ))}
           </section>
 

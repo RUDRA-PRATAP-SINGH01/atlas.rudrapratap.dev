@@ -174,6 +174,11 @@
     color: #ffffff;
   }
 
+  .docs-navbar-link--active {
+    color: #ff5cad;
+    font-weight: 500;
+  }
+
   .docs-navbar-search {
     display: flex;
     align-items: center;

@@ -18,7 +18,8 @@ export default function DocsSidebar() {
     performance: location.pathname.startsWith("/project-docs/guide/performance"),
     testing: location.pathname.startsWith("/project-docs/guide/testing"),
     debugging: location.pathname.startsWith("/project-docs/guide/debugging"),
-    reference: location.pathname.startsWith("/project-docs/guide/reference"),
+    reference: location.pathname === "/project-docs/reference" ||
+               location.pathname.startsWith("/project-docs/guide/reference"),
     timeline: location.pathname.startsWith("/project-docs/guide/reference/development-timeline") ||
               location.pathname.startsWith("/project-docs/guide/reference/milestones"),
   });
@@ -475,6 +476,11 @@ export default function DocsSidebar() {
                 </button>
                 {expanded.reference && (
                   <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/reference" className={getLinkClass("/project-docs/reference")}>
+                        Reference Overview
+                      </Link>
+                    </li>
                     <li className="guide-sidebar-group-item">
                       <Link to="/project-docs/guide/reference/configuration" className={getLinkClass("/project-docs/guide/reference/configuration")}>
                         Configuration
