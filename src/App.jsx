@@ -39,6 +39,20 @@ import PerformanceOverviewDocsPage from "./pages/PerformanceOverviewDocsPage";
 import BenchmarkMethodologyDocsPage from "./pages/BenchmarkMethodologyDocsPage";
 import BenchmarkResultsDocsPage from "./pages/BenchmarkResultsDocsPage";
 import MemoryUsageDocsPage from "./pages/MemoryUsageDocsPage";
+import TestingStrategyDocsPage from "./pages/TestingStrategyDocsPage";
+import CrashTestingDocsPage from "./pages/CrashTestingDocsPage";
+import FailureInjectionDocsPage from "./pages/FailureInjectionDocsPage";
+import RaceDetectionDocsPage from "./pages/RaceDetectionDocsPage";
+import WalReplayBugDocsPage from "./pages/WalReplayBugDocsPage";
+import ManifestConsistencyDocsPage from "./pages/ManifestConsistencyDocsPage";
+import CompactionRaceDocsPage from "./pages/CompactionRaceDocsPage";
+import ReaderLifecycleDocsPage from "./pages/ReaderLifecycleDocsPage";
+import ScanLockContentionDocsPage from "./pages/ScanLockContentionDocsPage";
+import ShutdownOrderingDocsPage from "./pages/ShutdownOrderingDocsPage";
+import ConfigurationDocsPage from "./pages/ConfigurationDocsPage";
+import CliDocsPage from "./pages/CliDocsPage";
+import ProjectStructureDocsPage from "./pages/ProjectStructureDocsPage";
+import SourceCodeTourDocsPage from "./pages/SourceCodeTourDocsPage";
 
 export default function App() {
   return (
@@ -84,6 +98,20 @@ export default function App() {
         <Route path="/project-docs/guide/performance/benchmark-results" element={<BenchmarkResultsDocsPage />} />
         <Route path="/project-docs/guide/performance/memory-usage" element={<MemoryUsageDocsPage />} />
         <Route path="/project-docs/guide/performance/read-write-performance" element={<PerformanceOverviewDocsPage />} />
+        <Route path="/project-docs/guide/testing/testing-strategy" element={<TestingStrategyDocsPage />} />
+        <Route path="/project-docs/guide/testing/crash-testing" element={<CrashTestingDocsPage />} />
+        <Route path="/project-docs/guide/testing/failure-injection" element={<FailureInjectionDocsPage />} />
+        <Route path="/project-docs/guide/testing/race-detection" element={<RaceDetectionDocsPage />} />
+        <Route path="/project-docs/guide/debugging/wal-replay-bug" element={<WalReplayBugDocsPage />} />
+        <Route path="/project-docs/guide/debugging/manifest-consistency" element={<ManifestConsistencyDocsPage />} />
+        <Route path="/project-docs/guide/debugging/compaction-race" element={<CompactionRaceDocsPage />} />
+        <Route path="/project-docs/guide/debugging/reader-lifecycle" element={<ReaderLifecycleDocsPage />} />
+        <Route path="/project-docs/guide/debugging/scan-lock-contention" element={<ScanLockContentionDocsPage />} />
+        <Route path="/project-docs/guide/debugging/shutdown-ordering" element={<ShutdownOrderingDocsPage />} />
+        <Route path="/project-docs/guide/reference/configuration" element={<ConfigurationDocsPage />} />
+        <Route path="/project-docs/guide/reference/cli" element={<CliDocsPage />} />
+        <Route path="/project-docs/guide/reference/project-structure" element={<ProjectStructureDocsPage />} />
+        <Route path="/project-docs/guide/reference/source-code-tour" element={<SourceCodeTourDocsPage />} />
       </Routes>
     </BrowserRouter>
   );

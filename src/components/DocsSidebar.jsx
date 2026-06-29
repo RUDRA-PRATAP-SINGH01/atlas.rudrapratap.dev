@@ -16,9 +16,9 @@ export default function DocsSidebar() {
                     location.pathname.startsWith("/project-docs/guide/evolution") ||
                     location.pathname.startsWith("/project-docs/guide/lessons-learned"),
     performance: location.pathname.startsWith("/project-docs/guide/performance"),
-    testing: false,
-    debugging: false,
-    reference: false,
+    testing: location.pathname.startsWith("/project-docs/guide/testing"),
+    debugging: location.pathname.startsWith("/project-docs/guide/debugging"),
+    reference: location.pathname.startsWith("/project-docs/guide/reference"),
     timeline: false,
   });
 
@@ -382,13 +382,26 @@ export default function DocsSidebar() {
           </button>
           {expanded.testing && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["Testing Strategy", "Crash Testing", "Failure Injection", "Race Detection"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/testing/testing-strategy" className={getLinkClass("/project-docs/guide/testing/testing-strategy")}>
+                  Testing Strategy
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/testing/crash-testing" className={getLinkClass("/project-docs/guide/testing/crash-testing")}>
+                  Crash Testing
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/testing/failure-injection" className={getLinkClass("/project-docs/guide/testing/failure-injection")}>
+                  Failure Injection
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/testing/race-detection" className={getLinkClass("/project-docs/guide/testing/race-detection")}>
+                  Race Detection
+                </Link>
+              </li>
             </ul>
           )}
         </div>
@@ -405,13 +418,36 @@ export default function DocsSidebar() {
           </button>
           {expanded.debugging && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["WAL Replay Bug", "Manifest Consistency", "Compaction Race", "Reader Lifecycle", "Scan Lock Contention", "Shutdown Ordering"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/debugging/wal-replay-bug" className={getLinkClass("/project-docs/guide/debugging/wal-replay-bug")}>
+                  WAL Replay Bug
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/debugging/manifest-consistency" className={getLinkClass("/project-docs/guide/debugging/manifest-consistency")}>
+                  Manifest Consistency
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/debugging/compaction-race" className={getLinkClass("/project-docs/guide/debugging/compaction-race")}>
+                  Compaction Race
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/debugging/reader-lifecycle" className={getLinkClass("/project-docs/guide/debugging/reader-lifecycle")}>
+                  Reader Lifecycle
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/debugging/scan-lock-contention" className={getLinkClass("/project-docs/guide/debugging/scan-lock-contention")}>
+                  Scan Lock Contention
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/debugging/shutdown-ordering" className={getLinkClass("/project-docs/guide/debugging/shutdown-ordering")}>
+                  Shutdown Ordering
+                </Link>
+              </li>
             </ul>
           )}
         </div>
@@ -428,13 +464,26 @@ export default function DocsSidebar() {
           </button>
           {expanded.reference && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["Configuration", "CLI", "Project Structure", "Source Code Tour"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/reference/configuration" className={getLinkClass("/project-docs/guide/reference/configuration")}>
+                  Configuration
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/reference/cli" className={getLinkClass("/project-docs/guide/reference/cli")}>
+                  CLI
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/reference/project-structure" className={getLinkClass("/project-docs/guide/reference/project-structure")}>
+                  Project Structure
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/reference/source-code-tour" className={getLinkClass("/project-docs/guide/reference/source-code-tour")}>
+                  Source Code Tour
+                </Link>
+              </li>
             </ul>
           )}
         </div>
