@@ -2,6 +2,8 @@ import { useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "./Navbar";
+import PillButton from "./PillButton";
+import { useLocomotiveScroll } from "../hooks/useLocomotiveScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,30 +22,26 @@ const marqueeItems = [
 const MARQUEE_REPEATS = 4;
 const MARQUEE_DURATION = 4;
 
+const featuresPanel = {
+  id: "features",
+  title: "Interactive by design",
+  body: "Step through algorithms, data flows, and system boundaries with visuals that respond as you learn.",
+};
+
 const scrollPanels = [
-  {
-    id: "features",
-    title: "Interactive by design",
-    body: "Step through algorithms, data flows, and system boundaries with visuals that respond as you learn.",
-  },
   {
     id: "blogs",
     title: "Real-world case studies",
     body: "See how complex systems are reasoned about, decomposed, and explained from first principles.",
   },
-  {
-    id: "project-docs",
-    title: "Architecture breakdowns",
-    body: "Follow layered explanations that connect theory to production patterns engineers actually use.",
-  },
 ];
 
 export default function LandingPage() {
+  useLocomotiveScroll();
+
   const pageRef = useRef(null);
-  const heroRef = useRef(null);
   const imageWrapRef = useRef(null);
   const imageRef = useRef(null);
-  const marqueeRef = useRef(null);
   const marqueeTrackRef = useRef(null);
   const headlineRef = useRef(null);
   const subtitleRef = useRef(null);
@@ -62,6 +60,10 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
     let frameId = 0;
     let running = true;
 
@@ -92,6 +94,10 @@ export default function LandingPage() {
   }, [handleMouseMove]);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
     const ctx = gsap.context(() => {
       const headlineLines = headlineRef.current?.querySelectorAll("span");
       const subtitleLines = subtitleRef.current?.querySelectorAll("span");
@@ -99,116 +105,134 @@ export default function LandingPage() {
         ".hero-side-text span",
       );
 
-      const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+      if (prefersReducedMotion) {
+        gsap.set(
+          [
+            ...(headlineLines ?? []),
+            ...(subtitleLines ?? []),
+            ...(sideLines ?? []),
+            imageWrapRef.current,
+            ".hero-side-cross",
+            ".pill-button",
+            ".hero-marquee-stack",
+          ],
+          { clearProps: "all", opacity: 1, y: 0, scale: 1 },
+        );
+      } else {
+        const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      if (headlineLines?.length) {
-        intro.from(headlineLines, {
-          y: 72,
-          opacity: 0,
-          duration: 1,
-          stagger: 0.08,
-        });
-      }
+        if (headlineLines?.length) {
+          intro.from(headlineLines, {
+            y: 72,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.08,
+          });
+        }
 
-      if (subtitleLines?.length) {
+        if (subtitleLines?.length) {
+          intro.from(
+            subtitleLines,
+            {
+              y: 28,
+              opacity: 0,
+              duration: 0.85,
+              stagger: 0.06,
+            },
+            "-=0.55",
+          );
+        }
+
+        if (imageWrapRef.current) {
+          intro.from(
+            imageWrapRef.current,
+            {
+              y: 48,
+              opacity: 0,
+              scale: 0.94,
+              duration: 1.1,
+            },
+            "-=0.7",
+          );
+        }
+
+        if (sideLines?.length) {
+          intro.from(
+            sideLines,
+            {
+              y: 24,
+              opacity: 0,
+              duration: 0.8,
+              stagger: 0.05,
+            },
+            "-=0.65",
+          );
+        }
+
         intro.from(
-          subtitleLines,
+          ".hero-side-cross",
           {
-            y: 28,
+            scale: 0.6,
+            opacity: 0,
+            duration: 0.7,
+          },
+          "-=0.5",
+        );
+
+        intro.from(
+          ".pill-button",
+          {
+            y: 12,
+            opacity: 0,
+            duration: 0.75,
+            stagger: 0.1,
+          },
+          "-=0.4",
+        );
+
+        intro.from(
+          ".hero-marquee-stack",
+          {
+            y: 16,
             opacity: 0,
             duration: 0.85,
-            stagger: 0.06,
           },
-          "-=0.55",
+          "-=0.45",
         );
-      }
 
-      intro.from(
-        imageWrapRef.current,
-        {
-          y: 48,
-          opacity: 0,
-          scale: 0.94,
-          duration: 1.1,
-        },
-        "-=0.7",
-      );
+        gsap.utils.toArray(".scroll-panel").forEach((panel) => {
+          const title = panel.querySelector(".scroll-panel-title");
+          const body = panel.querySelector(".scroll-panel-body");
+          if (!title || !body) return;
 
-      if (sideLines?.length) {
-        intro.from(
-          sideLines,
-          {
-            y: 24,
+          gsap.from(title, {
+            y: 56,
             opacity: 0,
-            duration: 0.8,
-            stagger: 0.05,
-          },
-          "-=0.65",
-        );
-      }
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 78%",
+              toggleActions: "play none none reverse",
+            },
+          });
 
-      intro.from(
-        ".hero-side-cross",
-        {
-          scale: 0.6,
-          opacity: 0,
-          duration: 0.7,
-        },
-        "-=0.5",
-      );
-
-      intro.from(
-        ".hero-marquee",
-        {
-          y: 16,
-          opacity: 0,
-          duration: 0.85,
-        },
-        "-=0.45",
-      );
-
-      if (marqueeRef.current && heroRef.current) {
-        gsap.to(marqueeRef.current, {
-          y: () => window.innerHeight * -0.55,
-          ease: "none",
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: 0.6,
-          },
+          gsap.from(body, {
+            y: 36,
+            opacity: 0,
+            duration: 0.9,
+            delay: 0.08,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 72%",
+              toggleActions: "play none none reverse",
+            },
+          });
         });
       }
 
-      gsap.utils.toArray(".scroll-panel").forEach((panel) => {
-        const title = panel.querySelector(".scroll-panel-title");
-        const body = panel.querySelector(".scroll-panel-body");
-
-        gsap.from(title, {
-          y: 56,
-          opacity: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: panel,
-            start: "top 78%",
-            toggleActions: "play none none reverse",
-          },
-        });
-
-        gsap.from(body, {
-          y: 36,
-          opacity: 0,
-          duration: 0.9,
-          delay: 0.08,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: panel,
-            start: "top 72%",
-            toggleActions: "play none none reverse",
-          },
-        });
-      });
+      ScrollTrigger.refresh();
     }, pageRef);
 
     return () => ctx.revert();
@@ -217,6 +241,10 @@ export default function LandingPage() {
   useEffect(() => {
     const track = marqueeTrackRef.current;
     if (!track) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
 
     let marqueeTween = null;
 
@@ -241,9 +269,17 @@ export default function LandingPage() {
 
     window.addEventListener("resize", setupMarquee);
 
+    const handleViewportChange = () => {
+      setupMarquee();
+      window.dispatchEvent(new Event("resize"));
+    };
+
+    window.visualViewport?.addEventListener("resize", handleViewportChange);
+
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", setupMarquee);
+      window.visualViewport?.removeEventListener("resize", handleViewportChange);
       marqueeTween?.kill();
       gsap.set(track, { clearProps: "transform" });
     };
@@ -255,22 +291,23 @@ export default function LandingPage() {
 
       <section
         id="home"
-        ref={heroRef}
-        className="hero-section relative flex min-h-screen w-full flex-col overflow-hidden bg-black"
+        className="hero-section relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-black"
       >
-        <main className="landing-main hero-above-marquee relative z-10 flex flex-1 items-center justify-center px-8 md:px-12">
-          <div className="flex w-full max-w-[1400px] items-center justify-center gap-10 md:gap-16 lg:gap-20">
-            <div
-              className="relative top-[-6vh] left-[3vw] shrink-0"
-              data-scroll
-              data-scroll-repeat
-              data-scroll-speed="0.2"
-            >
+        <main
+          className="landing-main hero-above-marquee relative z-10 flex flex-1 items-center justify-center px-6 md:px-12"
+          data-scroll
+          data-scroll-repeat
+          data-scroll-speed="-1"
+        >
+          <div className="hero-content-grid">
+            <div className="hero-copy">
               <h1 ref={headlineRef} className="headline">
                 <span className="block text-white">Interactive Atlas</span>
                 <span className="block text-white">For Engineers.</span>
                 <span className="block text-[#666]">Built to Explain</span>
-                <span className="block text-[#666]">Complex Systems.</span>
+                <span className="headline-line headline-line--nowrap block text-[#666]">
+                  Complex Systems.
+                </span>
               </h1>
               <p ref={subtitleRef} className="subtitle">
                 <span className="block">
@@ -280,15 +317,14 @@ export default function LandingPage() {
                   visualizations, and practical case studies.
                 </span>
               </p>
+              <PillButton
+                href="/project-docs"
+                label="read project-docs"
+                variant="primary"
+              />
             </div>
 
-            <div
-              ref={imageWrapRef}
-              className="relative -top-[2vh] -left-[2vw] shrink-0"
-              data-scroll
-              data-scroll-repeat
-              data-scroll-speed="0.15"
-            >
+            <div ref={imageWrapRef} className="hero-logo-wrap">
               <img
                 ref={imageRef}
                 src="/images/final-a.png"
@@ -300,13 +336,7 @@ export default function LandingPage() {
               />
             </div>
 
-            <div
-              ref={sideBlockRef}
-              className="relative -top-[6vh] -left-[6.5vw] shrink-0"
-              data-scroll
-              data-scroll-repeat
-              data-scroll-speed="0.22"
-            >
+            <div ref={sideBlockRef} className="hero-side-wrap">
               <div className="hero-side-block">
                 <p className="hero-side-text">
                   <span className="block">Learn from first principles</span>
@@ -316,6 +346,12 @@ export default function LandingPage() {
                   <span className="block">architecture breakdowns,</span>
                   <span className="block">and real-world examples.</span>
                 </p>
+                <PillButton
+                  href="#blogs"
+                  label="read articles"
+                  variant="accent"
+                  size="sm"
+                />
                 <img
                   src="/images/decorative-cross.png"
                   alt=""
@@ -328,50 +364,56 @@ export default function LandingPage() {
           </div>
         </main>
 
-        <div
-          ref={marqueeRef}
-          className="hero-marquee mt-auto"
-          aria-label="Atlas highlights"
-        >
-          <div ref={marqueeTrackRef} className="hero-marquee-track">
-            {Array.from({ length: MARQUEE_REPEATS }, (_, copy) => (
-              <div
-                key={copy}
-                className="hero-marquee-content"
-                aria-hidden={copy > 0}
-              >
-                {marqueeItems.map((item) => (
-                  <span
-                    key={`${copy}-${item}`}
-                    className="hero-marquee-segment"
-                  >
-                    <span className="hero-marquee-item">{item}</span>
-                    <img
-                      src="/images/decorative-cross.png"
-                      alt=""
-                      aria-hidden="true"
-                      className="hero-marquee-cross"
-                      draggable={false}
-                    />
-                  </span>
-                ))}
-              </div>
-            ))}
+        <div className="hero-marquee-stack mt-auto">
+          <div className="hero-marquee" aria-label="Atlas highlights">
+            <div ref={marqueeTrackRef} className="hero-marquee-track">
+              {Array.from({ length: MARQUEE_REPEATS }, (_, copy) => (
+                <div
+                  key={copy}
+                  className="hero-marquee-content"
+                  aria-hidden={copy > 0}
+                >
+                  {marqueeItems.map((item) => (
+                    <span
+                      key={`${copy}-${item}`}
+                      className="hero-marquee-segment"
+                    >
+                      <span className="hero-marquee-item">{item}</span>
+                      <img
+                        src="/images/decorative-cross.png"
+                        alt=""
+                        aria-hidden="true"
+                        className="hero-marquee-cross"
+                        draggable={false}
+                      />
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      </section>
 
-        <footer className="flex w-full justify-end px-8 pb-8 md:px-12 md:pb-10">
-          <p className="font-poppins text-[11px] font-normal text-white/35 md:text-xs">
-            Atlas 2026
+      <section
+        id={featuresPanel.id}
+        className="features-section scroll-panel flex min-h-[100dvh] items-center px-6 md:px-12"
+      >
+        <div className="mx-auto w-full max-w-[1400px]">
+          <h2 className="scroll-panel-title scroll-panel-title--light">
+            {featuresPanel.title}
+          </h2>
+          <p className="scroll-panel-body scroll-panel-body--light">
+            {featuresPanel.body}
           </p>
-        </footer>
+        </div>
       </section>
 
       {scrollPanels.map((panel) => (
         <section
           key={panel.id}
           id={panel.id}
-          className="scroll-panel flex min-h-screen items-center bg-black px-8 md:px-12"
+          className="scroll-panel flex min-h-[100dvh] items-center bg-black px-6 md:px-12"
         >
           <div className="mx-auto w-full max-w-[1400px]">
             <h2 className="scroll-panel-title">{panel.title}</h2>

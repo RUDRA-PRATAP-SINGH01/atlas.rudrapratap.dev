@@ -1,8 +1,14 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
-import { useLocomotiveScroll } from "./hooks/useLocomotiveScroll";
+import ProjectDocsPage from "./pages/ProjectDocsPage";
 
 export default function App() {
-  useLocomotiveScroll();
-
-  return <LandingPage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/project-docs" element={<ProjectDocsPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }

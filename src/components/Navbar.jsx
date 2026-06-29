@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const navItems = [
   {
@@ -132,35 +133,35 @@ const navItems = [
   },
   {
     label: "Project-Docs",
-    href: "#project-docs",
+    href: "/project-docs",
     menu: {
       items: [
         {
           title: "Documentation",
           description:
             "Reference guides for navigating Atlas content and structure.",
-          href: "#project-docs",
+          href: "/project-docs",
           icon: "grid",
         },
         {
           title: "API Patterns",
           description:
             "Study interface design, contracts, and integration boundaries.",
-          href: "#project-docs",
+          href: "/project-docs",
           icon: "layers",
         },
         {
           title: "System Maps",
           description:
             "Browse indexed breakdowns of databases, networks, and services.",
-          href: "#project-docs",
+          href: "/project-docs",
           icon: "spark",
         },
         {
           title: "Contributing",
           description:
             "Learn how Atlas articles are organized and extended over time.",
-          href: "#project-docs",
+          href: "/project-docs",
           icon: "cube",
         },
       ],
@@ -169,13 +170,31 @@ const navItems = [
         titleAccent: "Docs",
         description:
           "Structured documentation for every Atlas guide — architecture notes, references, and implementation context.",
-        href: "#project-docs",
+        href: "/project-docs",
       },
     },
   },
 ];
 
-const sectionIds = navItems.map((item) => item.href.replace("#", ""));
+const sectionIds = navItems
+  .filter((item) => item.href.startsWith("#"))
+  .map((item) => item.href.slice(1));
+
+function resolveNavHref(href, pathname) {
+  if (href.startsWith("#")) {
+    return pathname === "/" ? href : `/${href}`;
+  }
+
+  return href;
+}
+
+function getNavKey(item) {
+  if (item.href.startsWith("#")) {
+    return item.href.slice(1);
+  }
+
+  return item.href.replace(/^\//, "") || "home";
+}
 
 function MenuIcon({ type }) {
   return (
@@ -188,10 +207,15 @@ function MenuIcon({ type }) {
 }
 
 export default function Navbar() {
+  const location = useLocation();
   const [hoveredLabel, setHoveredLabel] = useState(null);
   const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
+    if (location.pathname !== "/") {
+      return;
+    }
+
     const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean);
@@ -217,9 +241,25 @@ export default function Navbar() {
     sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
-  }, []);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname === "/project-docs") {
+      setActiveSection("project-docs");
+    }
+  }, [location.pathname]);
 
   const hoveredItem = navItems.find((item) => item.label === hoveredLabel);
+
+  const isNavActive = (item) => {
+    const key = getNavKey(item);
+
+    if (item.href.startsWith("/")) {
+      return location.pathname === item.href;
+    }
+
+    return location.pathname === "/" && activeSection === key;
+  };
 
   return (
     <header
@@ -227,7 +267,7 @@ export default function Navbar() {
       onMouseLeave={() => setHoveredLabel(null)}
     >
       <div className="navbar-container">
-        <a href="#home" className="navbar-logo" aria-label="Atlas home">
+        <a href="/" className="navbar-logo" aria-label="Atlas home">
           <img
             src="/images/final-a.png"
             alt=""
@@ -239,8 +279,7 @@ export default function Navbar() {
 
         <nav className="navbar-links" aria-label="Main navigation">
           {navItems.map((item) => {
-            const sectionId = item.href.replace("#", "");
-            const isActive = activeSection === sectionId;
+            const isActive = isNavActive(item);
             const isHovered = hoveredLabel === item.label;
 
             return (
@@ -250,7 +289,7 @@ export default function Navbar() {
                 onMouseEnter={() => setHoveredLabel(item.label)}
               >
                 <a
-                  href={item.href}
+                  href={resolveNavHref(item.href, location.pathname)}
                   className={[
                     "navbar-link",
                     (isActive || isHovered) && "navbar-link--active",
@@ -280,7 +319,11 @@ export default function Navbar() {
           <div className="navbar-mega">
             <div className="navbar-mega-grid">
               {hoveredItem.menu.items.map((entry) => (
-                <a key={entry.title} href={entry.href} className="navbar-mega-card">
+                <a
+                  key={entry.title}
+                  href={resolveNavHref(entry.href, location.pathname)}
+                  className="navbar-mega-card"
+                >
                   <MenuIcon type={entry.icon} />
                   <span className="navbar-mega-card-copy">
                     <span className="navbar-mega-card-title">{entry.title}</span>
@@ -290,7 +333,10 @@ export default function Navbar() {
               ))}
             </div>
 
-            <a href={hoveredItem.menu.featured.href} className="navbar-mega-featured">
+            <a
+              href={resolveNavHref(hoveredItem.menu.featured.href, location.pathname)}
+              className="navbar-mega-featured"
+            >
               <MenuIcon type="cube" />
               <span className="navbar-mega-featured-copy">
                 <span className="navbar-mega-featured-title">

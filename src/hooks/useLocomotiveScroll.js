@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import LocomotiveScroll from "locomotive-scroll";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 const NAVBAR_OFFSET = 72;
 
 export function useLocomotiveScroll() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
 
     const locomotiveScroll = new LocomotiveScroll({
@@ -66,6 +66,7 @@ export function useLocomotiveScroll() {
     };
 
     window.addEventListener("resize", handleResize);
+    window.visualViewport?.addEventListener("resize", handleResize);
     document.addEventListener("click", handleAnchorClick);
 
     const rafId = requestAnimationFrame(() => {
@@ -78,8 +79,11 @@ export function useLocomotiveScroll() {
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", handleResize);
+      window.visualViewport?.removeEventListener("resize", handleResize);
       document.removeEventListener("click", handleAnchorClick);
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      ScrollTrigger.clearScrollMemory();
+      ScrollTrigger.defaults({ scroller: undefined });
       locomotiveScroll.destroy();
     };
   }, []);
