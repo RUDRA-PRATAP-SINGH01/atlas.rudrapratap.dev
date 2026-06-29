@@ -22,6 +22,14 @@ import MergeIteratorDocsPage from "./pages/MergeIteratorDocsPage";
 import SstableLayoutDocsPage from "./pages/SstableLayoutDocsPage";
 import WalRecordFormatDocsPage from "./pages/WalRecordFormatDocsPage";
 import ManifestFormatDocsPage from "./pages/ManifestFormatDocsPage";
+import BlockFormatDocsPage from "./pages/BlockFormatDocsPage";
+import FileLayoutDocsPage from "./pages/FileLayoutDocsPage";
+import PackageStructureDocsPage from "./pages/PackageStructureDocsPage";
+import DbLifecycleDocsPage from "./pages/DbLifecycleDocsPage";
+import FlushPipelineDocsPage from "./pages/FlushPipelineDocsPage";
+import WalTruncationDocsPage from "./pages/WalTruncationDocsPage";
+import CompactionPipelineDocsPage from "./pages/CompactionPipelineDocsPage";
+import RecoveryPipelineDocsPage from "./pages/RecoveryPipelineDocsPage";
 
 export default function App() {
   return (
@@ -50,6 +58,14 @@ export default function App() {
         <Route path="/project-docs/guide/internals/sstable-layout" element={<SstableLayoutDocsPage />} />
         <Route path="/project-docs/guide/internals/wal-record-format" element={<WalRecordFormatDocsPage />} />
         <Route path="/project-docs/guide/internals/manifest-format" element={<ManifestFormatDocsPage />} />
+        <Route path="/project-docs/guide/internals/block-format" element={<BlockFormatDocsPage />} />
+        <Route path="/project-docs/guide/internals/file-layout" element={<FileLayoutDocsPage />} />
+        <Route path="/project-docs/guide/implementation/package-structure" element={<PackageStructureDocsPage />} />
+        <Route path="/project-docs/guide/implementation/db-lifecycle" element={<DbLifecycleDocsPage />} />
+        <Route path="/project-docs/guide/implementation/flush-pipeline" element={<FlushPipelineDocsPage />} />
+        <Route path="/project-docs/guide/implementation/wal-truncate" element={<WalTruncationDocsPage />} />
+        <Route path="/project-docs/guide/implementation/compaction-pipeline" element={<CompactionPipelineDocsPage />} />
+        <Route path="/project-docs/guide/implementation/recovery-pipeline" element={<RecoveryPipelineDocsPage />} />
       </Routes>
     </BrowserRouter>
   );

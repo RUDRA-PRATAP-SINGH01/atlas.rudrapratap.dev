@@ -9,7 +9,7 @@ export default function DocsSidebar() {
     architecture: location.pathname.startsWith("/project-docs/guide/architecture"),
     coreComponents: location.pathname.startsWith("/project-docs/guide/core-components"),
     internals: location.pathname.startsWith("/project-docs/guide/internals"),
-    implementation: false,
+    implementation: location.pathname.startsWith("/project-docs/guide/implementation"),
     designDecisions: false,
     performance: false,
     testing: false,
@@ -229,13 +229,16 @@ export default function DocsSidebar() {
                   Manifest Format
                 </Link>
               </li>
-              {["Block Format", "File Layout"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/internals/block-format" className={getLinkClass("/project-docs/guide/internals/block-format")}>
+                  Block Format
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/internals/file-layout" className={getLinkClass("/project-docs/guide/internals/file-layout")}>
+                  File Layout
+                </Link>
+              </li>
             </ul>
           )}
         </div>
@@ -252,13 +255,36 @@ export default function DocsSidebar() {
           </button>
           {expanded.implementation && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["Package Structure", "Database Lifecycle", "Flush Pipeline", "WAL Truncation", "Compaction Pipeline", "Recovery Pipeline"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/implementation/package-structure" className={getLinkClass("/project-docs/guide/implementation/package-structure")}>
+                  Package Structure
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/implementation/db-lifecycle" className={getLinkClass("/project-docs/guide/implementation/db-lifecycle")}>
+                  Database Lifecycle
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/implementation/flush-pipeline" className={getLinkClass("/project-docs/guide/implementation/flush-pipeline")}>
+                  Flush Pipeline
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/implementation/wal-truncate" className={getLinkClass("/project-docs/guide/implementation/wal-truncate")}>
+                  WAL Truncation
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/implementation/compaction-pipeline" className={getLinkClass("/project-docs/guide/implementation/compaction-pipeline")}>
+                  Compaction Pipeline
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/implementation/recovery-pipeline" className={getLinkClass("/project-docs/guide/implementation/recovery-pipeline")}>
+                  Recovery Pipeline
+                </Link>
+              </li>
             </ul>
           )}
         </div>
