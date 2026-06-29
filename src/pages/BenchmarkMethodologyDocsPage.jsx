@@ -53,6 +53,7 @@ const theadRowStyle = {
 
 const tdStyle = { padding: "10px 16px" };
 const tdBoldStyle = { padding: "10px 16px", fontWeight: 500, color: "#ffffff" };
+const tdMonoStyle = { padding: "10px 16px", fontFamily: "monospace" };
 
 export default function BenchmarkMethodologyDocsPage() {
   return (
@@ -225,12 +226,12 @@ go test -bench=BenchmarkScanThroughput -benchmem -count=1 ./internal/db`}</code>
                   <tbody>
                     <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)", background: "rgba(255, 255, 255, 0.02)" }}>
                       <td style={tdBoldStyle}>Default group commit</td>
-                      <td style={tdMono}>BenchmarkSequentialWrite as-is</td>
+                      <td style={tdMonoStyle}>BenchmarkSequentialWrite as-is</td>
                       <td style={tdStyle}>Batch WAL throughput</td>
                     </tr>
                     <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
                       <td style={tdBoldStyle}>Per-op durable</td>
-                      <td style={tdMono}>Options{`{SyncWrites: true}`} in custom bench</td>
+                      <td style={tdMonoStyle}>Options{`{SyncWrites: true}`} in custom bench</td>
                       <td style={tdStyle}>Fsync-per-write throughput</td>
                     </tr>
                   </tbody>

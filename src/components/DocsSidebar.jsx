@@ -10,8 +10,12 @@ export default function DocsSidebar() {
     coreComponents: location.pathname.startsWith("/project-docs/guide/core-components"),
     internals: location.pathname.startsWith("/project-docs/guide/internals"),
     implementation: location.pathname.startsWith("/project-docs/guide/implementation"),
-    designDecisions: false,
-    performance: false,
+    designDecisions: location.pathname.startsWith("/project-docs/guide/design-decisions") || 
+                    location.pathname.startsWith("/project-docs/guide/system-invariants") ||
+                    location.pathname.startsWith("/project-docs/guide/engineering-tradeoffs") ||
+                    location.pathname.startsWith("/project-docs/guide/evolution") ||
+                    location.pathname.startsWith("/project-docs/guide/lessons-learned"),
+    performance: location.pathname.startsWith("/project-docs/guide/performance"),
     testing: false,
     debugging: false,
     reference: false,
@@ -301,13 +305,31 @@ export default function DocsSidebar() {
           </button>
           {expanded.designDecisions && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["Design Decisions", "System Invariants", "Engineering Trade-offs", "Evolution", "Lessons Learned"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/design-decisions" className={getLinkClass("/project-docs/guide/design-decisions")}>
+                  Design Decisions
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/system-invariants" className={getLinkClass("/project-docs/guide/system-invariants")}>
+                  System Invariants
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/engineering-tradeoffs" className={getLinkClass("/project-docs/guide/engineering-tradeoffs")}>
+                  Engineering Trade-offs
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/evolution" className={getLinkClass("/project-docs/guide/evolution")}>
+                  Evolution
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/lessons-learned" className={getLinkClass("/project-docs/guide/lessons-learned")}>
+                  Lessons Learned
+                </Link>
+              </li>
             </ul>
           )}
         </div>
@@ -324,13 +346,26 @@ export default function DocsSidebar() {
           </button>
           {expanded.performance && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["Benchmark Methodology", "Benchmark Results", "Memory Usage", "Read & Write Performance"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/performance/benchmark-methodology" className={getLinkClass("/project-docs/guide/performance/benchmark-methodology")}>
+                  Benchmark Methodology
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/performance/benchmark-results" className={getLinkClass("/project-docs/guide/performance/benchmark-results")}>
+                  Benchmark Results
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/performance/memory-usage" className={getLinkClass("/project-docs/guide/performance/memory-usage")}>
+                  Memory Usage
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/performance/read-write-performance" className={getLinkClass("/project-docs/guide/performance/read-write-performance")}>
+                  Read & Write Performance
+                </Link>
+              </li>
             </ul>
           )}
         </div>
