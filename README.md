@@ -56,18 +56,20 @@ This repo contains the ATLAS web experience—the landing page and front-end she
 
 ```
 ├── public/
-│   ├── fonts/          # Web fonts
-│   ├── images/         # Static images
-│   ├── favicon.svg
-│   └── icons.svg
+│   ├── fonts/              # Poppins & Manrope (woff2)
+│   └── images/
+│       └── final-a.png     # Logo, hero image & favicon
 ├── src/
-│   ├── components/     # React components
+│   ├── components/
+│   │   ├── LandingPage.jsx
+│   │   └── Navbar.jsx
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
 ├── index.html
 ├── package.json
-└── vite.config.js
+├── vite.config.js
+└── README.md
 ```
 
 ### Getting started

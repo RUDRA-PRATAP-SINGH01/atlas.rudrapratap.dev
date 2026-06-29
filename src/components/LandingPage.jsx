@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
+import Navbar from "./Navbar";
 
-const PARALLAX_STRENGTH = 22;
+const PARALLAX_STRENGTH = 12;
 
 export default function LandingPage() {
   const imageRef = useRef(null);
@@ -19,8 +20,11 @@ export default function LandingPage() {
 
   useEffect(() => {
     let frameId;
+    let running = true;
 
     const animate = () => {
+      if (!running) return;
+
       currentOffset.current.x +=
         (targetOffset.current.x - currentOffset.current.x) * 0.12;
       currentOffset.current.y +=
@@ -38,32 +42,42 @@ export default function LandingPage() {
     frameId = requestAnimationFrame(animate);
 
     return () => {
+      running = false;
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(frameId);
     };
   }, [handleMouseMove]);
 
   return (
-    <div
-      className="relative flex h-full min-h-screen w-full flex-col bg-black"
-      onMouseMove={handleMouseMove}
-    >
-      <main className="flex flex-1 items-center justify-center px-8 md:px-12">
-        <div className="flex w-full max-w-[1400px] items-center justify-center gap-8 md:gap-12 lg:gap-16">
-          <p className="max-w-[220px] shrink-0 text-left text-[clamp(1.1rem,2.2vw,1.75rem)] leading-[1.35] font-medium tracking-tight text-white md:max-w-[280px]">
-            The Interactive Atlas
-            <br />
-            of Modern Software
-            <br />
-            Engineering.
-          </p>
+    <div className="relative flex h-full min-h-screen w-full flex-col bg-black">
+      <Navbar />
 
-          <div className="relative top-[4vh] left-[2vw] shrink-0">
+      <main className="landing-main flex flex-1 items-center justify-center px-8 md:px-12">
+        <div className="flex w-full max-w-[1400px] items-center justify-center gap-10 md:gap-16 lg:gap-20">
+          <div className="relative -top-[12vh] -left-[4vw] shrink-0">
+            <h1 className="headline">
+              <span className="block text-white">Interactive Atlas</span>
+              <span className="block text-white">For Engineers.</span>
+              <span className="block text-[#666]">Built to Explain</span>
+              <span className="block text-[#666]">Complex Systems.</span>
+            </h1>
+            <p className="subtitle">
+              <span className="block">
+                Engineering concepts explained through interactive articles,
+              </span>
+              <span className="block">
+                visualizations, and practical case studies.
+              </span>
+            </p>
+          </div>
+
+          <div className="relative -top-[2vh] -left-[9vw] shrink-0">
             <img
               ref={imageRef}
-              src="/images/second_a.png"
+              src="/images/final-a.png"
               alt=""
-              className="h-[clamp(22rem,72vmin,92rem)] w-auto object-contain will-change-transform"
+              aria-hidden="true"
+              className="hero-logo will-change-transform"
               style={{ transform: "translate3d(0px, 0px, 0) rotate(-2deg)" }}
               draggable={false}
             />
@@ -72,7 +86,9 @@ export default function LandingPage() {
       </main>
 
       <footer className="flex w-full justify-end px-8 pb-8 md:px-12 md:pb-10">
-        <p className="text-[11px] text-white/35 md:text-xs">Atlas 2026</p>
+        <p className="font-poppins text-[11px] font-normal text-white/35 md:text-xs">
+          Atlas 2026
+        </p>
       </footer>
     </div>
   );
