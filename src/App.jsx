@@ -18,6 +18,7 @@ import SstableDocsPage from "./pages/SstableDocsPage";
 import ManifestDocsPage from "./pages/ManifestDocsPage";
 import BloomFilterDocsPage from "./pages/BloomFilterDocsPage";
 import BlockCacheDocsPage from "./pages/BlockCacheDocsPage";
+import MergeIteratorDocsPage from "./pages/MergeIteratorDocsPage";
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/project-docs/guide/core-components/manifest" element={<ManifestDocsPage />} />
         <Route path="/project-docs/guide/core-components/bloom-filter" element={<BloomFilterDocsPage />} />
         <Route path="/project-docs/guide/core-components/block-cache" element={<BlockCacheDocsPage />} />
+        <Route path="/project-docs/guide/core-components/merge-iterator" element={<MergeIteratorDocsPage />} />
       </Routes>
     </BrowserRouter>
   );

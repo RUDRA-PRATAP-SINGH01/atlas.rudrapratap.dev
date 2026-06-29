@@ -190,8 +190,13 @@ export default function DocsSidebar() {
                   Block Cache
                 </Link>
               </li>
-                <li key="Merge Iterator" className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">Merge Iterator</a>
+                <li className="guide-sidebar-group-item">
+                  <Link
+                    to="/project-docs/guide/core-components/merge-iterator"
+                    className={getLinkClass("/project-docs/guide/core-components/merge-iterator")}
+                  >
+                    Merge Iterator
+                  </Link>
                 </li>
             </ul>
           )}
