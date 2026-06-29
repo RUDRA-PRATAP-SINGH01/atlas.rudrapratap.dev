@@ -53,6 +53,8 @@ import ConfigurationDocsPage from "./pages/ConfigurationDocsPage";
 import CliDocsPage from "./pages/CliDocsPage";
 import ProjectStructureDocsPage from "./pages/ProjectStructureDocsPage";
 import SourceCodeTourDocsPage from "./pages/SourceCodeTourDocsPage";
+import DevelopmentTimelineDocsPage from "./pages/DevelopmentTimelineDocsPage";
+import MilestonesDocsPage from "./pages/MilestonesDocsPage";
 
 export default function App() {
   return (
@@ -112,6 +114,8 @@ export default function App() {
         <Route path="/project-docs/guide/reference/cli" element={<CliDocsPage />} />
         <Route path="/project-docs/guide/reference/project-structure" element={<ProjectStructureDocsPage />} />
         <Route path="/project-docs/guide/reference/source-code-tour" element={<SourceCodeTourDocsPage />} />
+        <Route path="/project-docs/guide/reference/development-timeline" element={<DevelopmentTimelineDocsPage />} />
+        <Route path="/project-docs/guide/reference/milestones" element={<MilestonesDocsPage />} />
       </Routes>
     </BrowserRouter>
   );

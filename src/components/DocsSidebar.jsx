@@ -19,7 +19,8 @@ export default function DocsSidebar() {
     testing: location.pathname.startsWith("/project-docs/guide/testing"),
     debugging: location.pathname.startsWith("/project-docs/guide/debugging"),
     reference: location.pathname.startsWith("/project-docs/guide/reference"),
-    timeline: false,
+    timeline: location.pathname.startsWith("/project-docs/guide/reference/development-timeline") ||
+              location.pathname.startsWith("/project-docs/guide/reference/milestones"),
   });
 
   const toggleSection = (section) => {
@@ -500,13 +501,16 @@ export default function DocsSidebar() {
           </button>
           {expanded.timeline && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["Development Timeline", "Milestones"].map((item) => (
-                <li key={item} className="guide-sidebar-group-item">
-                  <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/reference/development-timeline" className={getLinkClass("/project-docs/guide/reference/development-timeline")}>
+                  Development Timeline
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/reference/milestones" className={getLinkClass("/project-docs/guide/reference/milestones")}>
+                  Milestones
+                </Link>
+              </li>
             </ul>
           )}
         </div>
