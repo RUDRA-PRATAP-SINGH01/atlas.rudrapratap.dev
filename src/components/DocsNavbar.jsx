@@ -14,7 +14,7 @@ export default function DocsNavbar() {
     <header className="docs-navbar">
       <div className="docs-navbar-container">
         <div className="docs-navbar-left">
-          <Link to="/" className="docs-navbar-logo" aria-label="Atlas home">
+          <Link to="/project-docs" className="docs-navbar-logo" aria-label="Atlas Docs home">
             <img
               src="/images/final-a.png"
               alt=""
