@@ -20,7 +20,6 @@ const marqueeItems = [
 ];
 
 const MARQUEE_REPEATS = 4;
-const MARQUEE_DURATION = 4;
 
 const featuresPanel = {
   id: "features",
@@ -38,6 +37,9 @@ const scrollPanels = [
 
 export default function LandingPage() {
   useLocomotiveScroll();
+
+  // Lower value = slower marquee (pixels moved per second).
+  const marqueePixelsPerSecond = 200;
 
   const pageRef = useRef(null);
   const imageWrapRef = useRef(null);
@@ -251,39 +253,56 @@ export default function LandingPage() {
     const setupMarquee = () => {
       const segment = track.querySelector(".hero-marquee-content");
       const loopWidth = segment?.offsetWidth ?? 0;
-      if (loopWidth <= 0) return;
+      if (loopWidth <= 0 || marqueePixelsPerSecond <= 0) return;
+
+      const duration = loopWidth / marqueePixelsPerSecond;
 
       marqueeTween?.kill();
       gsap.set(track, { x: -loopWidth });
       marqueeTween = gsap.to(track, {
         x: 0,
-        duration: MARQUEE_DURATION,
+        duration,
         ease: "none",
         repeat: -1,
       });
     };
 
-    const rafId = requestAnimationFrame(() => {
-      requestAnimationFrame(setupMarquee);
-    });
+    let cancelled = false;
+
+    const initMarquee = async () => {
+      try {
+        if (document.fonts?.ready) {
+          await document.fonts.ready;
+        }
+      } catch {
+        // Fall back to the current layout if font loading fails.
+      }
+
+      if (cancelled) return;
+
+      setupMarquee();
+    };
+
+    initMarquee();
 
     window.addEventListener("resize", setupMarquee);
 
     const handleViewportChange = () => {
       setupMarquee();
-      window.dispatchEvent(new Event("resize"));
     };
 
     window.visualViewport?.addEventListener("resize", handleViewportChange);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelled = true;
       window.removeEventListener("resize", setupMarquee);
       window.visualViewport?.removeEventListener("resize", handleViewportChange);
       marqueeTween?.kill();
-      gsap.set(track, { clearProps: "transform" });
+      if (track.isConnected) {
+        gsap.set(track, { clearProps: "transform" });
+      }
     };
-  }, []);
+  }, [marqueePixelsPerSecond]);
 
   return (
     <div ref={pageRef} className="page">
