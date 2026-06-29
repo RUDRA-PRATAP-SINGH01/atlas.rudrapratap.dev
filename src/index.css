@@ -1333,6 +1333,31 @@
     margin-top: 16px;
   }
 
+  .guide-mermaid {
+    background: #0e0e11;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+
+  .guide-mermaid svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .guide-mermaid--error {
+    font-family: "Fira Code", "Courier New", Courier, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #a1a1aa;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
   .guide-code-pre {
     margin: 0;
   }

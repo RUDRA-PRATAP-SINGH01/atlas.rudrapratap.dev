@@ -8,7 +8,7 @@ export default function DocsSidebar() {
     pebbleDb: true,
     architecture: location.pathname.startsWith("/project-docs/guide/architecture"),
     coreComponents: location.pathname.startsWith("/project-docs/guide/core-components"),
-    internals: false,
+    internals: location.pathname.startsWith("/project-docs/guide/internals"),
     implementation: false,
     designDecisions: false,
     performance: false,
@@ -214,7 +214,22 @@ export default function DocsSidebar() {
           </button>
           {expanded.internals && (
             <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
-              {["SSTable Layout", "WAL Record Format", "Manifest Format", "Block Format", "File Layout"].map((item) => (
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/internals/sstable-layout" className={getLinkClass("/project-docs/guide/internals/sstable-layout")}>
+                  SSTable Layout
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/internals/wal-record-format" className={getLinkClass("/project-docs/guide/internals/wal-record-format")}>
+                  WAL Record Format
+                </Link>
+              </li>
+              <li className="guide-sidebar-group-item">
+                <Link to="/project-docs/guide/internals/manifest-format" className={getLinkClass("/project-docs/guide/internals/manifest-format")}>
+                  Manifest Format
+                </Link>
+              </li>
+              {["Block Format", "File Layout"].map((item) => (
                 <li key={item} className="guide-sidebar-group-item">
                   <a href="#" onClick={preventDefaultLink} className="guide-sidebar-link guide-sidebar-link-placeholder">
                     {item}

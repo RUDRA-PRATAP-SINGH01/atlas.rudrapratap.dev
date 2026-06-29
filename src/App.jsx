@@ -19,6 +19,9 @@ import ManifestDocsPage from "./pages/ManifestDocsPage";
 import BloomFilterDocsPage from "./pages/BloomFilterDocsPage";
 import BlockCacheDocsPage from "./pages/BlockCacheDocsPage";
 import MergeIteratorDocsPage from "./pages/MergeIteratorDocsPage";
+import SstableLayoutDocsPage from "./pages/SstableLayoutDocsPage";
+import WalRecordFormatDocsPage from "./pages/WalRecordFormatDocsPage";
+import ManifestFormatDocsPage from "./pages/ManifestFormatDocsPage";
 
 export default function App() {
   return (
@@ -44,6 +47,9 @@ export default function App() {
         <Route path="/project-docs/guide/core-components/bloom-filter" element={<BloomFilterDocsPage />} />
         <Route path="/project-docs/guide/core-components/block-cache" element={<BlockCacheDocsPage />} />
         <Route path="/project-docs/guide/core-components/merge-iterator" element={<MergeIteratorDocsPage />} />
+        <Route path="/project-docs/guide/internals/sstable-layout" element={<SstableLayoutDocsPage />} />
+        <Route path="/project-docs/guide/internals/wal-record-format" element={<WalRecordFormatDocsPage />} />
+        <Route path="/project-docs/guide/internals/manifest-format" element={<ManifestFormatDocsPage />} />
       </Routes>
     </BrowserRouter>
   );
