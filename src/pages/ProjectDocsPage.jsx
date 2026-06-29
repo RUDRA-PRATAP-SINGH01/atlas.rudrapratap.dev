@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar";
+import DocsNavbar from "../components/DocsNavbar";
 
 const docCards = [
   {
@@ -6,18 +6,21 @@ const docCards = [
     description:
       "Everything you need to know to navigate Atlas. Dive deep into our content structure, reading paths, and best practices.",
     icon: "guide",
+    href: "/project-docs/guide",
   },
   {
     title: "Architecture Design",
     description:
       "Explore how each project is designed — system boundaries, data flows, scaling choices, and the engineering trade-offs behind every decision.",
     icon: "architecture",
+    href: "#featured-projects",
   },
   {
     title: "Reference",
     description:
       "Technical notes for each Atlas article. Quickly refer to definitions, diagrams, and implementation context.",
     icon: "reference",
+    href: "#reference-card",
   },
   {
     title: "GitHub",
@@ -144,10 +147,10 @@ function ArrowUpRight() {
 export default function ProjectDocsPage() {
   return (
     <div className="project-docs-page min-h-[100dvh] bg-black">
-      <Navbar />
+      <DocsNavbar />
       <main className="project-docs-main px-6 md:px-12">
         <div className="project-docs-inner mx-auto w-full max-w-[1400px]">
-          <section className="project-docs-hero">
+          <section id="guide" className="project-docs-hero">
             <div className="project-docs-hero-copy">
               <h1 className="project-docs-title">Project Documentation</h1>
               <p className="project-docs-lead">
@@ -170,6 +173,7 @@ export default function ProjectDocsPage() {
             {docCards.map((card) => (
               <a
                 key={card.title}
+                id={card.title === "Reference" ? "reference-card" : undefined}
                 href={card.href ?? "#"}
                 className="project-docs-card"
                 {...(card.href?.startsWith("http")
@@ -185,11 +189,11 @@ export default function ProjectDocsPage() {
             ))}
           </section>
 
-          <section className="project-docs-featured">
-            <h2 className="project-docs-featured-title">Featured Examples</h2>
+          <section id="featured-projects" className="project-docs-featured">
+            <h2 className="project-docs-featured-title">featured projects</h2>
             <div className="project-docs-featured-actions">
               <a href="#" className="project-docs-featured-link">
-                All examples
+                All projects
                 <ArrowUpRight />
               </a>
               <div className="project-docs-featured-arrows" aria-hidden="true">
@@ -198,6 +202,33 @@ export default function ProjectDocsPage() {
               </div>
             </div>
           </section>
+
+          <section className="project-docs-featured-grid">
+            <a href="#" className="project-docs-featured-card">
+              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/Distributed-img.png")' }} />
+              <div className="project-docs-featured-card-overlay" />
+              <div className="project-docs-featured-card-content">
+                <h3 className="project-docs-featured-card-title">Distributed Systems</h3>
+                <p className="project-docs-featured-card-desc">Deep dives into sharding, replication, and consensus protocols like Raft and Paxos.</p>
+                <span className="project-docs-featured-card-arrow">
+                  <ArrowUpRight />
+                </span>
+              </div>
+            </a>
+            <a href="#" className="project-docs-featured-card">
+              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/PebbleDB-img.png")' }} />
+              <div className="project-docs-featured-card-overlay" />
+              <div className="project-docs-featured-card-content">
+                <h3 className="project-docs-featured-card-title">PebbleDB</h3>
+                <p className="project-docs-featured-card-desc">A detailed breakdown of PebbleDB, a high-performance LSM-tree storage engine written in Go.</p>
+                <span className="project-docs-featured-card-arrow">
+                  <ArrowUpRight />
+                </span>
+              </div>
+            </a>
+          </section>
+
+
         </div>
       </main>
     </div>
