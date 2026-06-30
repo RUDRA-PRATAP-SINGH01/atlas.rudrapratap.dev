@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import DocsNavbar from "../components/DocsNavbar";
+import DocsNavbar from "@/components/docs/DocsNavbar";
 
 export default function NotFoundPage() {
   const { pathname } = useLocation();
