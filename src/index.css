@@ -616,9 +616,9 @@
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: flex-start;
-    gap: 44px;
+    gap: 28px;
     width: 95%;
     max-width: 1550px;
     z-index: 10;
@@ -651,17 +651,17 @@
     box-shadow: 0 12px 30px rgba(255, 92, 173, 0.15);
   }
 
-  .features-glass-card:nth-child(1) { transform: translateY(0px); }
-  .features-glass-card:nth-child(2) { transform: translateY(30px); }
-  .features-glass-card:nth-child(3) { transform: translateY(60px); }
-  .features-glass-card:nth-child(4) { transform: translateY(30px); }
-  .features-glass-card:nth-child(5) { transform: translateY(0px); }
+  .features-glass-card:nth-child(1) { transform: translateY(-30px); }
+  .features-glass-card:nth-child(2) { transform: translateY(25px); }
+  .features-glass-card:nth-child(3) { transform: translateY(85px); }
+  .features-glass-card:nth-child(4) { transform: translateY(25px); }
+  .features-glass-card:nth-child(5) { transform: translateY(-30px); }
 
-  .features-glass-card:nth-child(1):hover { transform: translateY(-8px); }
-  .features-glass-card:nth-child(2):hover { transform: translateY(22px); }
-  .features-glass-card:nth-child(3):hover { transform: translateY(52px); }
-  .features-glass-card:nth-child(4):hover { transform: translateY(22px); }
-  .features-glass-card:nth-child(5):hover { transform: translateY(-8px); }
+  .features-glass-card:nth-child(1):hover { transform: translateY(-38px); }
+  .features-glass-card:nth-child(2):hover { transform: translateY(17px); }
+  .features-glass-card:nth-child(3):hover { transform: translateY(77px); }
+  .features-glass-card:nth-child(4):hover { transform: translateY(17px); }
+  .features-glass-card:nth-child(5):hover { transform: translateY(-38px); }
 
   .features-card-num {
     font-family: monospace;

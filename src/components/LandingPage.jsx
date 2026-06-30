@@ -278,7 +278,7 @@ export default function LandingPage() {
         const cards = document.querySelectorAll(".features-glass-card");
         if (cards.length) {
           gsap.from(cards, {
-            y: 90,
+            y: "+=90",
             opacity: 0,
             scale: 0.95,
             duration: 1.15,
