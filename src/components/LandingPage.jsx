@@ -8,6 +8,7 @@ import { useLocomotiveScroll } from "../hooks/useLocomotiveScroll";
 gsap.registerPlugin(ScrollTrigger);
 
 const PARALLAX_STRENGTH = 12;
+const PARALLAX_EPSILON = 0.05;
 
 const marqueeItems = [
   "DISTRIBUTED SYSTEMS",
@@ -57,29 +58,54 @@ export default function LandingPage() {
 
     let frameId = 0;
     let running = true;
+    let animating = false;
 
-    const animate = () => {
-      if (!running) return;
-
-      currentOffset.current.x +=
-        (targetOffset.current.x - currentOffset.current.x) * 0.12;
-      currentOffset.current.y +=
-        (targetOffset.current.y - currentOffset.current.y) * 0.12;
-
-      if (imageRef.current) {
-        const { x, y } = currentOffset.current;
-        imageRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(-2deg)`;
-      }
-
-      frameId = requestAnimationFrame(animate);
+    const applyTransform = () => {
+      if (!imageRef.current) return;
+      const { x, y } = currentOffset.current;
+      imageRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(-2deg)`;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    frameId = requestAnimationFrame(animate);
+    const tick = () => {
+      if (!running) {
+        animating = false;
+        return;
+      }
+
+      const dx = targetOffset.current.x - currentOffset.current.x;
+      const dy = targetOffset.current.y - currentOffset.current.y;
+
+      if (Math.abs(dx) < PARALLAX_EPSILON && Math.abs(dy) < PARALLAX_EPSILON) {
+        currentOffset.current.x = targetOffset.current.x;
+        currentOffset.current.y = targetOffset.current.y;
+        applyTransform();
+        animating = false;
+        return;
+      }
+
+      currentOffset.current.x += dx * 0.12;
+      currentOffset.current.y += dy * 0.12;
+      applyTransform();
+      frameId = requestAnimationFrame(tick);
+    };
+
+    const startLoop = () => {
+      if (!running || animating) return;
+      animating = true;
+      frameId = requestAnimationFrame(tick);
+    };
+
+    const onMouseMove = (event) => {
+      handleMouseMove(event);
+      startLoop();
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
 
     return () => {
       running = false;
-      window.removeEventListener("mousemove", handleMouseMove);
+      animating = false;
+      window.removeEventListener("mousemove", onMouseMove);
       cancelAnimationFrame(frameId);
     };
   }, [handleMouseMove]);
@@ -243,17 +269,19 @@ export default function LandingPage() {
         });
 
         // Features headline lines slide-in from left (reversible parallax scroll - speed optimized)
-        const lineSystems = document.querySelector(".features-headline-line--systems");
-        const lineYouCan = document.querySelector(".features-headline-line--you-can");
-        const lineSee = document.querySelector(".features-headline-line--see");
+        const root = pageRef.current;
+        const featuresSection = root?.querySelector(".features-section");
+        const lineSystems = root?.querySelector(".features-headline-line--systems");
+        const lineYouCan = root?.querySelector(".features-headline-line--you-can");
+        const lineSee = root?.querySelector(".features-headline-line--see");
 
-        if (lineSystems && lineYouCan && lineSee) {
+        if (lineSystems && lineYouCan && lineSee && featuresSection) {
           gsap.from(lineSystems, {
             x: -300,
             opacity: 0,
             ease: "none",
             scrollTrigger: {
-              trigger: ".features-section",
+              trigger: featuresSection,
               start: "top bottom",
               end: "top 25%",
               scrub: 0.8,
@@ -264,7 +292,7 @@ export default function LandingPage() {
             opacity: 0,
             ease: "none",
             scrollTrigger: {
-              trigger: ".features-section",
+              trigger: featuresSection,
               start: "top bottom",
               end: "top 25%",
               scrub: 1.0,
@@ -275,7 +303,7 @@ export default function LandingPage() {
             opacity: 0,
             ease: "none",
             scrollTrigger: {
-              trigger: ".features-section",
+              trigger: featuresSection,
               start: "top bottom",
               end: "top 25%",
               scrub: 1.2,
@@ -284,8 +312,8 @@ export default function LandingPage() {
         }
 
         // Features glass cards reveal (reversible staggered parallax rise - speed optimized)
-        const cards = document.querySelectorAll(".features-glass-card");
-        if (cards.length) {
+        const cards = root?.querySelectorAll(".features-glass-card");
+        if (cards?.length && featuresSection) {
           gsap.from(cards, {
             y: "+=150",
             opacity: 0,
@@ -293,7 +321,7 @@ export default function LandingPage() {
             stagger: 0.12,
             ease: "none",
             scrollTrigger: {
-              trigger: ".features-section",
+              trigger: featuresSection,
               start: "top bottom",
               end: "top 35%",
               scrub: 0.8,
@@ -382,9 +410,6 @@ export default function LandingPage() {
       >
         <main
           className="landing-main hero-above-marquee relative z-10 flex flex-1 items-center justify-center px-6 md:px-12"
-          data-scroll
-          data-scroll-repeat
-          data-scroll-speed="-1"
         >
           <div className="hero-content-grid">
             <div className="hero-copy">
@@ -418,6 +443,8 @@ export default function LandingPage() {
                 alt=""
                 aria-hidden="true"
                 className="hero-logo will-change-transform"
+                width={1023}
+                height={1537}
                 style={{ transform: "translate3d(0px, 0px, 0) rotate(-2deg)" }}
                 draggable={false}
               />
@@ -434,7 +461,7 @@ export default function LandingPage() {
                   <span className="block">and real-world examples.</span>
                 </p>
                 <PillButton
-                  href="#blogs"
+                  href="/blog"
                   label="read articles"
                   variant="accent"
                   size="sm"
@@ -444,6 +471,8 @@ export default function LandingPage() {
                   alt=""
                   aria-hidden="true"
                   className="hero-side-cross"
+                  width={1024}
+                  height={1024}
                   draggable={false}
                 />
               </div>
@@ -471,6 +500,10 @@ export default function LandingPage() {
                         alt=""
                         aria-hidden="true"
                         className="hero-marquee-cross"
+                        width={1024}
+                        height={1024}
+                        loading="lazy"
+                        decoding="async"
                         draggable={false}
                       />
                     </span>
@@ -491,6 +524,10 @@ export default function LandingPage() {
             src="/images/features-page.png"
             alt=""
             className="features-image"
+            width={1680}
+            height={936}
+            loading="lazy"
+            decoding="async"
             draggable={false}
           />
         </div>

@@ -1,48 +1,97 @@
 import { useEffect, useId, useRef, useState } from "react";
-import mermaid from "mermaid";
 
+const svgCache = new Map();
+const renderPromises = new Map();
+
+let mermaidModule = null;
 let mermaidInitialized = false;
 
-function initMermaid() {
-  if (mermaidInitialized) return;
+async function getMermaid() {
+  if (!mermaidModule) {
+    mermaidModule = (await import("mermaid")).default;
+  }
 
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: "dark",
-    securityLevel: "strict",
-    themeVariables: {
-      primaryColor: "#18181b",
-      primaryTextColor: "#ffffff",
-      primaryBorderColor: "#ff5cad",
-      lineColor: "#71717a",
-      secondaryColor: "#0e0e11",
-      tertiaryColor: "#18181b",
-      fontFamily: "Poppins, system-ui, sans-serif",
-    },
-    flowchart: {
-      htmlLabels: true,
-      curve: "basis",
-    },
-  });
+  if (!mermaidInitialized) {
+    mermaidModule.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      themeVariables: {
+        primaryColor: "#18181b",
+        primaryTextColor: "#ffffff",
+        primaryBorderColor: "#ff5cad",
+        lineColor: "#71717a",
+        secondaryColor: "#0e0e11",
+        tertiaryColor: "#18181b",
+        fontFamily: "Poppins, system-ui, sans-serif",
+      },
+      flowchart: {
+        htmlLabels: true,
+        curve: "basis",
+      },
+    });
+    mermaidInitialized = true;
+  }
 
-  mermaidInitialized = true;
+  return mermaidModule;
+}
+
+function chartKey(chart) {
+  return chart.trim();
+}
+
+async function renderCached(chart, renderId) {
+  const key = chartKey(chart);
+
+  if (svgCache.has(key)) {
+    return svgCache.get(key);
+  }
+
+  if (renderPromises.has(key)) {
+    return renderPromises.get(key);
+  }
+
+  const promise = (async () => {
+    const mermaid = await getMermaid();
+    const { svg } = await mermaid.render(renderId, key);
+    svgCache.set(key, svg);
+    return svg;
+  })();
+
+  renderPromises.set(key, promise);
+
+  try {
+    return await promise;
+  } catch (error) {
+    renderPromises.delete(key);
+    throw error;
+  } finally {
+    if (svgCache.has(key)) {
+      renderPromises.delete(key);
+    }
+  }
 }
 
 export default function DocsMermaid({ chart, className = "" }) {
   const containerRef = useRef(null);
   const reactId = useId();
-  const [svg, setSvg] = useState("");
+  const [svg, setSvg] = useState(() => svgCache.get(chartKey(chart)) ?? "");
   const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
+    const key = chartKey(chart);
+
+    if (svgCache.has(key)) {
+      setSvg(svgCache.get(key));
+      setError("");
+      return undefined;
+    }
 
     const renderChart = async () => {
-      initMermaid();
-
       try {
         const id = `mermaid-${reactId.replace(/:/g, "")}`;
-        const { svg: renderedSvg } = await mermaid.render(id, chart.trim());
+        const renderedSvg = await renderCached(chart, id);
 
         if (!cancelled) {
           setSvg(renderedSvg);

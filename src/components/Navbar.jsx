@@ -76,7 +76,7 @@ const navItems = [
           title: "Technical Reference",
           description:
             "Milestones, development timeline, and specifications.",
-          href: "/project-docs/guide/reference",
+          href: "/project-docs/reference",
           icon: "spark",
         },
         {
@@ -163,6 +163,12 @@ export default function Navbar() {
     const key = getNavKey(item);
 
     if (item.href.startsWith("/")) {
+      if (item.href === "/project-docs") {
+        return location.pathname.startsWith("/project-docs");
+      }
+      if (item.href === "/blog") {
+        return location.pathname.startsWith("/blog");
+      }
       return location.pathname === item.href;
     }
 

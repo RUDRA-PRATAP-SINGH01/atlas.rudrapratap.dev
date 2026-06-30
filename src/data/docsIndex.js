@@ -1,170 +1,401 @@
 export const docsIndex = [
   {
+    title: "Project Documentation Hub",
+    category: "General",
+    description: "Landing page for Atlas project documentation, guide cards, and featured projects.",
+    href: "/project-docs",
+    keywords: "project docs hub landing featured projects atlas documentation",
+  },
+  {
+    title: "Reference Overview",
+    category: "Reference",
+    description: "Bibliography, algorithms, packages, environment variables, and internal doc index.",
+    href: "/project-docs/reference",
+    keywords: "reference bibliography papers algorithms packages environment variables index",
+  },
+  {
     title: "Overview & Welcome",
     category: "General",
     description: "Welcome to Atlas Docs. Dive deep into content structure, reading paths, and best practices.",
     href: "/project-docs/guide",
-    keywords: "welcome overview reading paths guide help docs intro introduction"
+    keywords: "welcome overview reading paths guide help docs intro introduction",
   },
   {
     title: "Introduction to PebbleDB",
     category: "PebbleDB",
     description: "High-performance LSM-tree storage engine written in Go, inspired by LevelDB and RocksDB.",
     href: "/project-docs/guide/pebbledb/introduction",
-    keywords: "introduction pebbledb go storage engine rocksdb leveldb"
+    keywords: "introduction pebbledb go storage engine rocksdb leveldb",
   },
   {
     title: "Project Setup",
     category: "PebbleDB",
     description: "How to initialize, run, and import PebbleDB. Workspace configurations and dependency management.",
     href: "/project-docs/guide/setup",
-    keywords: "setup installation compile run command build import dependencies"
+    keywords: "setup installation compile run command build import dependencies",
   },
   {
     title: "LSM Tree Fundamentals",
     category: "PebbleDB",
     description: "Core principles of Log-Structured Merge Trees: write path, memtable, compaction, read amplification.",
     href: "/project-docs/guide/lsm-fundamentals",
-    keywords: "lsm tree log structured merge fundamentals write path compaction amplification"
+    keywords: "lsm tree log structured merge fundamentals write path compaction amplification",
   },
   {
     title: "System Overview",
     category: "Architecture",
     description: "Overall design of PebbleDB, component boundaries, internal data flow, and worker go-routines.",
     href: "/project-docs/guide/architecture/system-overview",
-    keywords: "system overview architecture design flow workers go-routines boundaries"
+    keywords: "system overview architecture design flow workers go-routines boundaries",
   },
   {
     title: "Write Path",
     category: "Architecture",
     description: "Detailed step-by-step walkthrough of DB write operations, batching, WAL syncing, and memtable insertions.",
     href: "/project-docs/guide/architecture/write-path",
-    keywords: "write path batch write operation put delete insert sync locking"
+    keywords: "write path batch write operation put delete insert sync locking",
   },
   {
     title: "Read Path",
     category: "Architecture",
     description: "Point lookup lifecycle. Searching active memtable, frozen memtables, and multi-level SSTables.",
     href: "/project-docs/guide/architecture/read-path",
-    keywords: "read path get point lookup keys versioning seek find"
+    keywords: "read path get point lookup keys versioning seek find",
   },
   {
     title: "Scan Path",
     category: "Architecture",
     description: "Range query implementation. Orchestrating iterators, merging streams, and sorting keys dynamically.",
     href: "/project-docs/guide/architecture/scan-path",
-    keywords: "scan path range query iterator merge sorting key ordering seek"
+    keywords: "scan path range query iterator merge sorting key ordering seek",
   },
   {
     title: "Crash Recovery",
     category: "Architecture",
     description: "WAL replay mechanisms, checkpointing, manifest validation, and state reconciliation after dirty shutdown.",
     href: "/project-docs/guide/architecture/crash-recovery",
-    keywords: "crash recovery wal replay checkpoint manifest validation consistency safety"
+    keywords: "crash recovery wal replay checkpoint manifest validation consistency safety",
   },
   {
     title: "Shutdown Sequence",
     category: "Architecture",
     description: "Graceful process exit sequence. Waiting for flusher/compactor, closing WAL and manifest logs safely.",
     href: "/project-docs/guide/architecture/shutdown-sequence",
-    keywords: "shutdown sequence graceful close compactor flusher locks close exit"
+    keywords: "shutdown sequence graceful close compactor flusher locks close exit",
   },
   {
     title: "Concurrency Model",
     category: "Architecture",
     description: "Concurrent read-write safety. Reader lifecycle, COW slices, mutex bounds, and writer synchronization.",
     href: "/project-docs/guide/architecture/concurrency-model",
-    keywords: "concurrency model read write lock mutex synchronization cow slices"
+    keywords: "concurrency model read write lock mutex synchronization cow slices",
   },
   {
     title: "Write-Ahead Log (WAL)",
     category: "Core Components",
     description: "Durability engine. Structured binary record formats, active file syncs, and log rotation.",
     href: "/project-docs/guide/core-components/wal",
-    keywords: "wal write ahead log durability binary records log rotation fsync sync"
+    keywords: "wal write ahead log durability binary records log rotation fsync sync",
   },
   {
     title: "MemTable",
     category: "Core Components",
     description: "In-memory sorted write buffer using a lock-free probabilistic SkipList structure.",
     href: "/project-docs/guide/core-components/memtable",
-    keywords: "memtable skiplist write buffer sorted memory locks concurrent"
+    keywords: "memtable skiplist write buffer sorted memory locks concurrent",
   },
   {
     title: "Skip List",
     category: "Core Components",
     description: "Concurrent lock-free sorted SkipList structure, node towers, and search/insert complexity.",
     href: "/project-docs/guide/core-components/skiplist",
-    keywords: "skiplist skip list concurrent sorted index search tower complexity"
+    keywords: "skiplist skip list concurrent sorted index search tower complexity",
   },
   {
     title: "Sorted String Tables (SSTables)",
     category: "Core Components",
     description: "On-disk layout of immutable files: blocks, indexes, footer, filters, and block caches.",
     href: "/project-docs/guide/core-components/sstable",
-    keywords: "sstable sorted string table block index footer block cache file layout"
+    keywords: "sstable sorted string table block index footer block cache file layout",
   },
   {
     title: "Manifest",
     category: "Core Components",
     description: "Single source of truth tracking live SSTables, directory changes, and commit records.",
     href: "/project-docs/guide/core-components/manifest",
-    keywords: "manifest tracking sstables active version directory recovery record"
+    keywords: "manifest tracking sstables active version directory recovery record",
   },
   {
     title: "Bloom Filter",
     category: "Core Components",
     description: "Probabilistic membership check to prevent expensive disk reads for non-existent keys.",
     href: "/project-docs/guide/core-components/bloom-filter",
-    keywords: "bloom filter lookup point key hashing false positive optimization"
+    keywords: "bloom filter lookup point key hashing false positive optimization",
   },
   {
     title: "Block Cache",
     category: "Core Components",
     description: "LRU-based in-memory cache for decompressed SSTable blocks to speed up repeat reads.",
     href: "/project-docs/guide/core-components/block-cache",
-    keywords: "block cache cache lru memory read speed decompression page cache"
+    keywords: "block cache cache lru memory read speed decompression page cache",
   },
   {
     title: "Merge Iterator",
     category: "Core Components",
     description: "Priority queue iterator heap that combines sorted keys from multiple levels and memtables.",
     href: "/project-docs/guide/core-components/merge-iterator",
-    keywords: "merge iterator heap sorting keys priority queue range scan"
+    keywords: "merge iterator heap sorting keys priority queue range scan",
+  },
+  {
+    title: "SSTable Layout",
+    category: "Storage Engine Internals",
+    description: "On-disk SSTable file regions: data blocks, index, Bloom filter, and 48-byte footer.",
+    href: "/project-docs/guide/internals/sstable-layout",
+    keywords: "sstable layout format footer index bloom blocks on-disk binary",
+  },
+  {
+    title: "WAL Record Format",
+    category: "Storage Engine Internals",
+    description: "Binary WAL record encoding with CRC32-IEEE checksums and size limits.",
+    href: "/project-docs/guide/internals/wal-record-format",
+    keywords: "wal record format binary crc32 encoding decoding checksum",
+  },
+  {
+    title: "Manifest Format",
+    category: "Storage Engine Internals",
+    description: "Manifest record envelope, edit tags, replay state machine, and rotation protocol.",
+    href: "/project-docs/guide/internals/manifest-format",
+    keywords: "manifest format envelope newfile deletefile setfileset rotation crc",
+  },
+  {
+    title: "Block Format",
+    category: "Storage Engine Internals",
+    description: "Data and index block entry encoding, iteration, and seek algorithms.",
+    href: "/project-docs/guide/internals/block-format",
+    keywords: "block format data block index block iterator seek encoding",
+  },
+  {
+    title: "File Layout",
+    category: "Storage Engine Internals",
+    description: "Database directory catalog, transient files, crash recovery truth table, and atomic writes.",
+    href: "/project-docs/guide/internals/file-layout",
+    keywords: "file layout directory current manifest wal sst wal.flush orphan",
+  },
+  {
+    title: "Package Structure",
+    category: "Implementation",
+    description: "PebbleDB package layout, dependency boundaries, and module organization.",
+    href: "/project-docs/guide/implementation/package-structure",
+    keywords: "package structure internal cmd layout modules dependencies",
+  },
+  {
+    title: "Database Lifecycle",
+    category: "Implementation",
+    description: "Open, close, and recovery lifecycle of a PebbleDB database instance.",
+    href: "/project-docs/guide/implementation/db-lifecycle",
+    keywords: "database lifecycle open close recovery init shutdown",
+  },
+  {
+    title: "Flush Pipeline",
+    category: "Implementation",
+    description: "Memtable freeze, SSTable write, manifest commit, and WAL checkpoint sequence.",
+    href: "/project-docs/guide/implementation/flush-pipeline",
+    keywords: "flush pipeline memtable sstable manifest wal checkpoint",
+  },
+  {
+    title: "WAL Truncation",
+    category: "Implementation",
+    description: "Copy-rename WAL tail truncation after flush and checkpoint durability.",
+    href: "/project-docs/guide/implementation/wal-truncate",
+    keywords: "wal truncation truncate copy rename checkpoint tail",
+  },
+  {
+    title: "Compaction Pipeline",
+    category: "Implementation",
+    description: "Oldest-2 compaction merge, reader discard, and manifest file deletion.",
+    href: "/project-docs/guide/implementation/compaction-pipeline",
+    keywords: "compaction pipeline merge oldest-2 sstable discard manifest",
+  },
+  {
+    title: "Recovery Pipeline",
+    category: "Implementation",
+    description: "Directory scan, manifest replay, WAL replay offset, and orphan quarantine.",
+    href: "/project-docs/guide/implementation/recovery-pipeline",
+    keywords: "recovery pipeline replay manifest wal orphan quarantine open",
+  },
+  {
+    title: "Design Decisions",
+    category: "Design",
+    description: "Key engineering decisions including LSM over B-Tree, SkipList memtable, and group commit.",
+    href: "/project-docs/guide/design-decisions",
+    keywords: "design decisions lsm btree skiplist group commit tradeoffs",
+  },
+  {
+    title: "System Invariants",
+    category: "Design",
+    description: "Formal invariants governing manifest authority, reader lifecycle, and durability ordering.",
+    href: "/project-docs/guide/system-invariants",
+    keywords: "system invariants manifest reader wal durability ordering",
+  },
+  {
+    title: "Engineering Trade-offs",
+    category: "Design",
+    description: "Catalog of gains, sacrifices, and explicit non-goals in PebbleDB.",
+    href: "/project-docs/guide/engineering-tradeoffs",
+    keywords: "engineering tradeoffs sacrifices non-goals scope durability performance",
+  },
+  {
+    title: "Evolution",
+    category: "Design",
+    description: "How PebbleDB architecture evolved across development phases.",
+    href: "/project-docs/guide/evolution",
+    keywords: "evolution architecture history phases development growth",
+  },
+  {
+    title: "Lessons Learned",
+    category: "Design",
+    description: "Post-build reflections on concurrency, durability, testing, and platform quirks.",
+    href: "/project-docs/guide/lessons-learned",
+    keywords: "lessons learned reflections concurrency windows testing durability",
+  },
+  {
+    title: "Benchmark Methodology",
+    category: "Performance",
+    description: "Hardware setup, workload definitions, and measurement methodology for benchmarks.",
+    href: "/project-docs/guide/performance/benchmark-methodology",
+    keywords: "benchmark methodology hardware workload measurement setup",
+  },
+  {
+    title: "Benchmark Results",
+    category: "Performance",
+    description: "Throughput and latency results for write, read, and scan workloads.",
+    href: "/project-docs/guide/performance/benchmark-results",
+    keywords: "benchmark results throughput latency read write scan performance",
+  },
+  {
+    title: "Memory Usage",
+    category: "Performance",
+    description: "Memory consumption across memtable, block cache, Bloom filters, and WAL buffers.",
+    href: "/project-docs/guide/performance/memory-usage",
+    keywords: "memory usage memtable bloom filter block cache sizing",
+  },
+  {
+    title: "Read & Write Performance",
+    category: "Performance",
+    description: "Performance characteristics of hot paths, amplification, and tuning knobs.",
+    href: "/project-docs/guide/performance/read-write-performance",
+    keywords: "read write performance amplification hot path tuning throughput",
+  },
+  {
+    title: "Testing Strategy",
+    category: "Testing",
+    description: "Layered testing approach: unit, integration, race detection, and CI matrix.",
+    href: "/project-docs/guide/testing/testing-strategy",
+    keywords: "testing strategy unit integration ci race github actions",
+  },
+  {
+    title: "Crash Testing",
+    category: "Testing",
+    description: "Crash injection at I/O boundaries and recovery consistency verification.",
+    href: "/project-docs/guide/testing/crash-testing",
+    keywords: "crash testing injection recovery pebbledb_crash_at durability",
+  },
+  {
+    title: "Failure Injection",
+    category: "Testing",
+    description: "Simulated I/O and state failures to validate error handling paths.",
+    href: "/project-docs/guide/testing/failure-injection",
+    keywords: "failure injection io errors simulated faults testing",
+  },
+  {
+    title: "Race Detection",
+    category: "Testing",
+    description: "Go race detector usage and concurrency bug fixes in PebbleDB.",
+    href: "/project-docs/guide/testing/race-detection",
+    keywords: "race detection go race detector concurrency data race",
+  },
+  {
+    title: "WAL Replay Bug",
+    category: "Debugging",
+    description: "Postmortem on duplicate WAL replay and wal.flush checkpoint fix.",
+    href: "/project-docs/guide/debugging/wal-replay-bug",
+    keywords: "wal replay bug postmortem checkpoint duplicate freeze offset",
+  },
+  {
+    title: "Manifest Consistency",
+    category: "Debugging",
+    description: "Manifest ordering constraints, quarantine protocol, and metadata divergence prevention.",
+    href: "/project-docs/guide/debugging/manifest-consistency",
+    keywords: "manifest consistency quarantine ordering metadata divergence",
+  },
+  {
+    title: "Compaction Race",
+    category: "Debugging",
+    description: "Reader reference counting fix for compaction vs in-flight Get/Scan races.",
+    href: "/project-docs/guide/debugging/compaction-race",
+    keywords: "compaction race reader ref unref discard lifecycle",
+  },
+  {
+    title: "Reader Lifecycle",
+    category: "Debugging",
+    description: "SSTable reader open list, block cache keys, and shutdown garbage collection.",
+    href: "/project-docs/guide/debugging/reader-lifecycle",
+    keywords: "reader lifecycle sstable ref close shutdown block cache",
+  },
+  {
+    title: "Scan Lock Contention",
+    category: "Debugging",
+    description: "Snapshot copy-on-read design to reduce scan/write lock contention.",
+    href: "/project-docs/guide/debugging/scan-lock-contention",
+    keywords: "scan lock contention snapshot copy on read mutex",
+  },
+  {
+    title: "Shutdown Ordering",
+    category: "Debugging",
+    description: "Background worker stop order before closing WAL and file handles.",
+    href: "/project-docs/guide/debugging/shutdown-ordering",
+    keywords: "shutdown ordering workers close wal manifest handles",
   },
   {
     title: "Command-Line Interface (CLI)",
     category: "Reference",
     description: "Reference guide for PebbleDB's diagnostic tools, benchmarks, and debug CLI options.",
     href: "/project-docs/guide/reference/cli",
-    keywords: "cli command line interface binary diagnostics run benchmark tools"
+    keywords: "cli command line interface binary diagnostics run benchmark tools",
   },
   {
     title: "Configuration Reference",
     category: "Reference",
     description: "Options struct configuration parameters: memtable size, block cache bounds, and write batch settings.",
     href: "/project-docs/guide/reference/configuration",
-    keywords: "configuration options parameters settings bounds options struct sizes"
+    keywords: "configuration options parameters settings bounds options struct sizes",
   },
   {
     title: "Project Directory Structure",
     category: "Reference",
     description: "Directory tree explanation for internal/, cmd/, internal/db, and visual layouts.",
     href: "/project-docs/guide/reference/project-structure",
-    keywords: "project structure directories layout internal cmd package package structure"
+    keywords: "project structure directories layout internal cmd package package structure",
   },
   {
     title: "Source Code Tour",
     category: "Reference",
     description: "Step-by-step walkthrough of major files, packages, interfaces, and code structures.",
     href: "/project-docs/guide/reference/source-code-tour",
-    keywords: "source code tour walk file package classes functions interfaces"
+    keywords: "source code tour walk file package classes functions interfaces",
   },
   {
     title: "Development Timeline",
     category: "Reference",
     description: "Chronological milestones, feature releases, and major design changes in PebbleDB.",
     href: "/project-docs/guide/reference/development-timeline",
-    keywords: "development timeline history milestones dates version releases logs"
-  }
+    keywords: "development timeline history milestones dates version releases logs",
+  },
+  {
+    title: "Milestones",
+    category: "Reference",
+    description: "Feature milestone checkpoints and invariant validation stages.",
+    href: "/project-docs/guide/reference/milestones",
+    keywords: "milestones checkpoints features invariants releases stages",
+  },
 ];

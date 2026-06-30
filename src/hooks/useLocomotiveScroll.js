@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
 import LocomotiveScroll from "locomotive-scroll";
+import "locomotive-scroll/dist/locomotive-scroll.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -81,7 +82,6 @@ export function useLocomotiveScroll() {
       window.removeEventListener("resize", handleResize);
       window.visualViewport?.removeEventListener("resize", handleResize);
       document.removeEventListener("click", handleAnchorClick);
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
       ScrollTrigger.clearScrollMemory();
       ScrollTrigger.defaults({ scroller: undefined });
       locomotiveScroll.destroy();

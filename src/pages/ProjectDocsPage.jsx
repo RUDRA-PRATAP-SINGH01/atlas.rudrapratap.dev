@@ -199,7 +199,7 @@ export default function ProjectDocsPage() {
               ) : (
                 <Link
                   key={card.title}
-                  to={card.href ?? "#"}
+                  to={card.href}
                   className="project-docs-card"
                   onMouseMove={handleMouseMove}
                 >
@@ -216,10 +216,10 @@ export default function ProjectDocsPage() {
           <section id="featured-projects" className="project-docs-featured">
             <h2 className="project-docs-featured-title">featured projects</h2>
             <div className="project-docs-featured-actions">
-              <a href="#" className="project-docs-featured-link">
+              <span className="project-docs-featured-link project-docs-featured-link--disabled" aria-disabled="true">
                 All projects
                 <ArrowUpRight />
-              </a>
+              </span>
               <div className="project-docs-featured-arrows" aria-hidden="true">
                 <span className="project-docs-featured-arrow">&lt;</span>
                 <span className="project-docs-featured-arrow">&gt;</span>
@@ -239,17 +239,15 @@ export default function ProjectDocsPage() {
                 </span>
               </div>
             </Link>
-            <a href="#" className="project-docs-featured-card">
+            <div className="project-docs-featured-card project-docs-featured-card--disabled" aria-disabled="true">
               <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/Distributed-img.png")' }} />
               <div className="project-docs-featured-card-overlay" />
               <div className="project-docs-featured-card-content">
                 <h3 className="project-docs-featured-card-title">Distributed Systems</h3>
-                <p className="project-docs-featured-card-desc">Deep dives into sharding, replication, and consensus protocols like Raft and Paxos.</p>
-                <span className="project-docs-featured-card-arrow">
-                  <ArrowUpRight />
-                </span>
+                <p className="project-docs-featured-card-desc">Coming soon — sharding, replication, and consensus protocols like Raft and Paxos.</p>
+                <span className="project-docs-featured-card-badge">Coming soon</span>
               </div>
-            </a>
+            </div>
           </section>
 
 
