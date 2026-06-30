@@ -23,8 +23,6 @@ const MARQUEE_REPEATS = 4;
 
 const featuresSectionId = "features";
 
-// Third section ID
-const blogsSectionId = "blogs";
 
 export default function LandingPage() {
   useLocomotiveScroll();
