@@ -12,11 +12,8 @@ export default function BlogPage() {
           </svg>
           Back to Home
         </Link>
-        <div className="blog-coming-soon-card">
-          <div className="blog-coming-soon-glow" />
-          <h1 className="blog-title">COMING SOON</h1>
-          <p className="blog-subtitle">We're writing deep-dive engineering articles. Stay tuned!</p>
-        </div>
+        <h1 className="blog-title-big">COMING SOON</h1>
+        <p className="blog-subtitle-big">Will drop soon</p>
       </div>
     </div>
   );

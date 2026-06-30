@@ -127,8 +127,8 @@ export default function LandingPage() {
           intro.from(headlineLines, {
             y: 72,
             opacity: 0,
-            duration: 1,
-            stagger: 0.08,
+            duration: 0.6,
+            stagger: 0.04,
           });
         }
 
@@ -138,10 +138,10 @@ export default function LandingPage() {
             {
               y: 28,
               opacity: 0,
-              duration: 0.85,
-              stagger: 0.06,
+              duration: 0.5,
+              stagger: 0.03,
             },
-            "-=0.55",
+            "-=0.4",
           );
         }
 
@@ -152,9 +152,9 @@ export default function LandingPage() {
               y: 48,
               opacity: 0,
               scale: 0.94,
-              duration: 1.1,
+              duration: 0.7,
             },
-            "-=0.7",
+            "-=0.5",
           );
         }
 
@@ -164,10 +164,10 @@ export default function LandingPage() {
             {
               y: 24,
               opacity: 0,
-              duration: 0.8,
-              stagger: 0.05,
+              duration: 0.5,
+              stagger: 0.03,
             },
-            "-=0.65",
+            "-=0.45",
           );
         }
 
@@ -176,9 +176,9 @@ export default function LandingPage() {
           {
             scale: 0.6,
             opacity: 0,
-            duration: 0.7,
+            duration: 0.4,
           },
-          "-=0.5",
+          "-=0.35",
         );
 
         intro.from(
@@ -186,10 +186,10 @@ export default function LandingPage() {
           {
             y: 12,
             opacity: 0,
-            duration: 0.75,
-            stagger: 0.1,
+            duration: 0.45,
+            stagger: 0.05,
           },
-          "-=0.4",
+          "-=0.3",
         );
 
         intro.from(
@@ -197,9 +197,9 @@ export default function LandingPage() {
           {
             y: 16,
             opacity: 0,
-            duration: 0.85,
+            duration: 0.5,
           },
-          "-=0.45",
+          "-=0.3",
         );
 
         gsap.utils.toArray(".scroll-panel").forEach((panel) => {
@@ -233,7 +233,7 @@ export default function LandingPage() {
           });
         });
 
-        // Features headline lines slide-in from left (reversible parallax scroll)
+        // Features headline lines slide-in from left (reversible parallax scroll - speed optimized)
         const lineSystems = document.querySelector(".features-headline-line--systems");
         const lineYouCan = document.querySelector(".features-headline-line--you-can");
         const lineSee = document.querySelector(".features-headline-line--see");
@@ -246,8 +246,8 @@ export default function LandingPage() {
             scrollTrigger: {
               trigger: ".features-section",
               start: "top bottom",
-              end: "bottom center",
-              scrub: 1.5,
+              end: "top 25%",
+              scrub: 0.8,
             },
           });
           gsap.from(lineYouCan, {
@@ -257,8 +257,8 @@ export default function LandingPage() {
             scrollTrigger: {
               trigger: ".features-section",
               start: "top bottom",
-              end: "bottom center",
-              scrub: 1.8,
+              end: "top 25%",
+              scrub: 1.0,
             },
           });
           gsap.from(lineSee, {
@@ -268,26 +268,26 @@ export default function LandingPage() {
             scrollTrigger: {
               trigger: ".features-section",
               start: "top bottom",
-              end: "bottom center",
-              scrub: 2.1,
+              end: "top 25%",
+              scrub: 1.2,
             },
           });
         }
 
-        // Features glass cards reveal (reversible staggered parallax rise)
+        // Features glass cards reveal (reversible staggered parallax rise - speed optimized)
         const cards = document.querySelectorAll(".features-glass-card");
         if (cards.length) {
           gsap.from(cards, {
             y: "+=150",
             opacity: 0,
             scale: 0.92,
-            stagger: 0.15,
+            stagger: 0.12,
             ease: "none",
             scrollTrigger: {
               trigger: ".features-section",
               start: "top bottom",
-              end: "center center",
-              scrub: 1.5,
+              end: "top 35%",
+              scrub: 0.8,
             },
           });
         }

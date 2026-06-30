@@ -491,7 +491,7 @@
 
   .hero-content-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr) minmax(0, 0.6fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 0.6fr);
     align-items: center;
     gap: clamp(1.25rem, 3.5vw, 5rem);
     width: 100%;
@@ -523,7 +523,7 @@
 
   .hero-logo {
     object-fit: contain;
-    width: clamp(220px, 32vw, 480px);
+    width: clamp(250px, 36vw, 550px);
     max-width: 100%;
     height: auto;
     display: block;
@@ -930,6 +930,14 @@
       justify-items: center;
       text-align: center;
       gap: clamp(1.5rem, 4vh, 2.5rem);
+    }
+
+    .hero-logo-wrap {
+      display: none;
+    }
+
+    .hero-side-cross {
+      display: none;
     }
 
     .hero-copy,
@@ -1802,9 +1810,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 32px;
+    gap: 20px;
     width: 90%;
-    max-width: 600px;
+    max-width: 800px;
+    text-align: center;
   }
 
   .blog-back-home {
@@ -1822,50 +1831,26 @@
     color: #ff5cad;
   }
 
-  .blog-coming-soon-card {
-    position: relative;
-    width: 100%;
-    background: rgba(20, 20, 20, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 16px;
-    padding: 64px 48px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
-  }
-
-  .blog-coming-soon-glow {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at center, rgba(255, 92, 173, 0.08), transparent 50%);
-    pointer-events: none;
-  }
-
-  .blog-title {
-    font-size: 40px;
+  .blog-title-big {
+    font-family: var(--font-manrope), "Manrope", system-ui, sans-serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    text-transform: uppercase;
     color: #ffffff;
-    background: linear-gradient(135deg, #ffffff 0%, #ff5cad 100%);
+    background: linear-gradient(135deg, #ffffff 10%, #ff5cad 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin: 0;
+    margin: 20px 0 0 0;
   }
 
-  .blog-subtitle {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.6);
+  .blog-subtitle-big {
+    font-family: var(--font-manrope), "Manrope", system-ui, sans-serif;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: rgba(255, 255, 255, 0.5);
     line-height: 1.6;
     margin: 0;
-    max-width: 400px;
+    max-width: 600px;
   }
 }
