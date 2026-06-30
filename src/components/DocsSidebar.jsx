@@ -91,6 +91,30 @@ export default function DocsSidebar() {
       <aside className={`guide-sidebar-left ${isMobileOpen ? "guide-sidebar-left--mobile-open" : ""}`} aria-label="Documentation Categories">
         <div className="guide-sidebar-left-content">
         
+        {/* Back to Docs Hub Link */}
+        <div className="guide-sidebar-group" style={{ marginBottom: 12 }}>
+          <Link 
+            to="/project-docs" 
+            className="guide-sidebar-link"
+            style={{ 
+              fontSize: 12, 
+              fontWeight: "600", 
+              color: "rgba(255, 255, 255, 0.45)", 
+              display: "flex", 
+              alignItems: "center",
+              gap: "6px",
+              padding: "4px 12px", 
+              textDecoration: "none"
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" style={{ verticalAlign: 'middle' }}>
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Docs Hub
+          </Link>
+        </div>
+
         {/* Top-level Introduction/Overview Link */}
         <div className="guide-sidebar-group" style={{ marginBottom: 16 }}>
           <Link 

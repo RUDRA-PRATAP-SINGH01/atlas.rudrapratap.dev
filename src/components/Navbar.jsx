@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
   {
@@ -48,88 +48,10 @@ const navItems = [
   {
     label: "Features",
     href: "#features",
-    menu: {
-      items: [
-        {
-          title: "Interactive Articles",
-          description:
-            "Follow concepts step-by-step with visuals that respond as you learn.",
-          href: "#features",
-          icon: "grid",
-        },
-        {
-          title: "Architecture Views",
-          description:
-            "See how components connect across layers, boundaries, and flows.",
-          href: "#features",
-          icon: "layers",
-        },
-        {
-          title: "Live Visualizations",
-          description:
-            "Manipulate models and watch system behavior change in real time.",
-          href: "#features",
-          icon: "spark",
-        },
-        {
-          title: "Deep Dives",
-          description:
-            "Go beyond summaries with structured, engineer-grade explanations.",
-          href: "#features",
-          icon: "cube",
-        },
-      ],
-      featured: {
-        title: "Atlas",
-        titleAccent: "Features",
-        description:
-          "Everything you need to understand hard systems — from algorithms and data flows to production patterns.",
-        href: "#features",
-      },
-    },
   },
   {
     label: "Blogs",
     href: "/blog",
-    menu: {
-      items: [
-        {
-          title: "Engineering Notes",
-          description:
-            "Short essays on how complex ideas are reasoned about and taught.",
-          href: "/blog",
-          icon: "grid",
-        },
-        {
-          title: "Case Studies",
-          description:
-            "Real-world breakdowns of architecture decisions and tradeoffs.",
-          href: "/blog",
-          icon: "layers",
-        },
-        {
-          title: "Systems Thinking",
-          description:
-            "Posts that connect theory to patterns used in production.",
-          href: "/blog",
-          icon: "spark",
-        },
-        {
-          title: "Release Notes",
-          description:
-            "What is new in Atlas — articles, guides, and interactive demos.",
-          href: "/blog",
-          icon: "cube",
-        },
-      ],
-      featured: {
-        title: "Atlas",
-        titleAccent: "Blog",
-        description:
-          "Read how engineers learn, explain, and reason about systems — from first principles to real deployments.",
-        href: "/blog",
-      },
-    },
   },
   {
     label: "Project-Docs",
@@ -137,41 +59,34 @@ const navItems = [
     menu: {
       items: [
         {
-          title: "Documentation",
+          title: "GUIDE",
           description:
-            "Reference guides for navigating Atlas content and structure.",
-          href: "/project-docs",
+            "Step-by-step introduction, fundamentals, and setup guides.",
+          href: "/project-docs/guide/pebbledb/introduction",
           icon: "grid",
         },
         {
-          title: "API Patterns",
+          title: "Architecture Design",
           description:
-            "Study interface design, contracts, and integration boundaries.",
-          href: "/project-docs",
+            "Deep dive into system boundaries, write paths, read paths, and concurrency.",
+          href: "/project-docs/guide/architecture/system-overview",
           icon: "layers",
         },
         {
-          title: "System Maps",
+          title: "Technical Reference",
           description:
-            "Browse indexed breakdowns of databases, networks, and services.",
-          href: "/project-docs",
+            "Milestones, development timeline, and specifications.",
+          href: "/project-docs/guide/reference",
           icon: "spark",
         },
         {
-          title: "Contributing",
+          title: "GitHub Repository",
           description:
-            "Learn how Atlas articles are organized and extended over time.",
-          href: "/project-docs",
+            "View the complete open-source PebbleDB implementation.",
+          href: "https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB",
           icon: "cube",
         },
       ],
-      featured: {
-        title: "Project",
-        titleAccent: "Docs",
-        description:
-          "Structured documentation for every Atlas guide — architecture notes, references, and implementation context.",
-        href: "/project-docs",
-      },
     },
   },
 ];
@@ -179,14 +94,6 @@ const navItems = [
 const sectionIds = navItems
   .filter((item) => item.href.startsWith("#"))
   .map((item) => item.href.slice(1));
-
-function resolveNavHref(href, pathname) {
-  if (href.startsWith("#")) {
-    return pathname === "/" ? href : `/${href}`;
-  }
-
-  return href;
-}
 
 function getNavKey(item) {
   if (item.href.startsWith("#")) {
@@ -196,6 +103,7 @@ function getNavKey(item) {
   return item.href.replace(/^\//, "") || "home";
 }
 
+// Custom icon rendering for the mega menu
 function MenuIcon({ type }) {
   return (
     <span className={`navbar-mega-icon navbar-mega-icon--${type}`} aria-hidden="true">
@@ -244,7 +152,7 @@ export default function Navbar() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (location.pathname === "/project-docs") {
+    if (location.pathname.startsWith("/project-docs")) {
       setActiveSection("project-docs");
     }
   }, [location.pathname]);
@@ -261,13 +169,70 @@ export default function Navbar() {
     return location.pathname === "/" && activeSection === key;
   };
 
+  // Nav link rendering utility (handles Router Links vs regular Anchors)
+  const renderNavLink = (item, isActive, isHovered) => {
+    const className = [
+      "navbar-link",
+      (isActive || isHovered) && "navbar-link--active",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    const isExternal = item.href.startsWith("http");
+    const isHash = item.href.startsWith("#");
+
+    if (isExternal) {
+      return (
+        <a
+          href={item.href}
+          className={className}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {item.label}
+        </a>
+      );
+    }
+
+    if (isHash && location.pathname !== "/") {
+      return (
+        <Link
+          to={`/${item.href}`}
+          className={className}
+        >
+          {item.label}
+        </Link>
+      );
+    }
+
+    if (isHash) {
+      return (
+        <a
+          href={item.href}
+          className={className}
+        >
+          {item.label}
+        </a>
+      );
+    }
+
+    return (
+      <Link
+        to={item.href}
+        className={className}
+      >
+        {item.label}
+      </Link>
+    );
+  };
+
   return (
     <header
       className="navbar"
       onMouseLeave={() => setHoveredLabel(null)}
     >
       <div className="navbar-container">
-        <a href="/" className="navbar-logo" aria-label="Atlas home">
+        <Link to="/" className="navbar-logo" aria-label="Atlas home">
           <img
             src="/images/final-a.png"
             alt=""
@@ -275,7 +240,7 @@ export default function Navbar() {
             draggable={false}
           />
           <span className="navbar-logo-text">tlas</span>
-        </a>
+        </Link>
 
         <nav className="navbar-links" aria-label="Main navigation">
           {navItems.map((item) => {
@@ -288,18 +253,7 @@ export default function Navbar() {
                 className="navbar-item"
                 onMouseEnter={() => setHoveredLabel(item.label)}
               >
-                <a
-                  href={resolveNavHref(item.href, location.pathname)}
-                  className={[
-                    "navbar-link",
-                    (isActive || isHovered) && "navbar-link--active",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {item.label}
-                </a>
+                {renderNavLink(item, isActive, isHovered)}
               </div>
             );
           })}
@@ -318,38 +272,136 @@ export default function Navbar() {
         {hoveredItem?.menu && (
           <div className="navbar-mega">
             <div className="navbar-mega-grid">
-              {hoveredItem.menu.items.map((entry) => (
-                <a
-                  key={entry.title}
-                  href={resolveNavHref(entry.href, location.pathname)}
-                  className="navbar-mega-card"
-                >
-                  <MenuIcon type={entry.icon} />
-                  <span className="navbar-mega-card-copy">
-                    <span className="navbar-mega-card-title">{entry.title}</span>
-                    <span className="navbar-mega-card-desc">{entry.description}</span>
-                  </span>
-                </a>
-              ))}
+              {hoveredItem.menu.items.map((entry) => {
+                const isExternal = entry.href.startsWith("http");
+                const isHash = entry.href.startsWith("#");
+
+                if (isExternal) {
+                  return (
+                    <a
+                      key={entry.title}
+                      href={entry.href}
+                      className="navbar-mega-card"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setHoveredLabel(null)}
+                    >
+                      <MenuIcon type={entry.icon} />
+                      <span className="navbar-mega-card-copy">
+                        <span className="navbar-mega-card-title">{entry.title}</span>
+                        <span className="navbar-mega-card-desc">{entry.description}</span>
+                      </span>
+                    </a>
+                  );
+                }
+
+                if (isHash && location.pathname !== "/") {
+                  return (
+                    <Link
+                      key={entry.title}
+                      to={`/${entry.href}`}
+                      className="navbar-mega-card"
+                      onClick={() => setHoveredLabel(null)}
+                    >
+                      <MenuIcon type={entry.icon} />
+                      <span className="navbar-mega-card-copy">
+                        <span className="navbar-mega-card-title">{entry.title}</span>
+                        <span className="navbar-mega-card-desc">{entry.description}</span>
+                      </span>
+                    </Link>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={entry.title}
+                    to={entry.href}
+                    className="navbar-mega-card"
+                    onClick={() => setHoveredLabel(null)}
+                  >
+                    <MenuIcon type={entry.icon} />
+                    <span className="navbar-mega-card-copy">
+                      <span className="navbar-mega-card-title">{entry.title}</span>
+                      <span className="navbar-mega-card-desc">{entry.description}</span>
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
 
-            <a
-              href={resolveNavHref(hoveredItem.menu.featured.href, location.pathname)}
-              className="navbar-mega-featured"
-            >
-              <MenuIcon type="cube" />
-              <span className="navbar-mega-featured-copy">
-                <span className="navbar-mega-featured-title">
-                  {hoveredItem.menu.featured.title}{" "}
-                  <span className="navbar-mega-featured-accent">
-                    {hoveredItem.menu.featured.titleAccent}
+            {hoveredItem.menu.featured && (() => {
+              const isExternal = hoveredItem.menu.featured.href.startsWith("http");
+              const isHash = hoveredItem.menu.featured.href.startsWith("#");
+
+              if (isExternal) {
+                return (
+                  <a
+                    href={hoveredItem.menu.featured.href}
+                    className="navbar-mega-featured"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setHoveredLabel(null)}
+                  >
+                    <MenuIcon type="cube" />
+                    <span className="navbar-mega-featured-copy">
+                      <span className="navbar-mega-featured-title">
+                        {hoveredItem.menu.featured.title}{" "}
+                        <span className="navbar-mega-featured-accent">
+                          {hoveredItem.menu.featured.titleAccent}
+                        </span>
+                      </span>
+                      <span className="navbar-mega-featured-desc">
+                        {hoveredItem.menu.featured.description}
+                      </span>
+                    </span>
+                  </a>
+                );
+              }
+
+              if (isHash && location.pathname !== "/") {
+                return (
+                  <Link
+                    to={`/${hoveredItem.menu.featured.href}`}
+                    className="navbar-mega-featured"
+                    onClick={() => setHoveredLabel(null)}
+                  >
+                    <MenuIcon type="cube" />
+                    <span className="navbar-mega-featured-copy">
+                      <span className="navbar-mega-featured-title">
+                        {hoveredItem.menu.featured.title}{" "}
+                        <span className="navbar-mega-featured-accent">
+                          {hoveredItem.menu.featured.titleAccent}
+                        </span>
+                      </span>
+                      <span className="navbar-mega-featured-desc">
+                        {hoveredItem.menu.featured.description}
+                      </span>
+                    </span>
+                  </Link>
+                );
+              }
+
+              return (
+                <Link
+                  to={hoveredItem.menu.featured.href}
+                  className="navbar-mega-featured"
+                  onClick={() => setHoveredLabel(null)}
+                >
+                  <MenuIcon type="cube" />
+                  <span className="navbar-mega-featured-copy">
+                    <span className="navbar-mega-featured-title">
+                      {hoveredItem.menu.featured.title}{" "}
+                      <span className="navbar-mega-featured-accent">
+                        {hoveredItem.menu.featured.titleAccent}
+                      </span>
+                    </span>
+                    <span className="navbar-mega-featured-desc">
+                      {hoveredItem.menu.featured.description}
+                    </span>
                   </span>
-                </span>
-                <span className="navbar-mega-featured-desc">
-                  {hoveredItem.menu.featured.description}
-                </span>
-              </span>
-            </a>
+                </Link>
+              );
+            })()}
           </div>
         )}
       </div>

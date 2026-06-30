@@ -532,14 +532,14 @@
 
   .hero-section {
     isolation: isolate;
-    min-height: 100dvh;
-    min-height: 100svh;
+    min-height: 86dvh;
+    min-height: 86svh;
   }
 
   .hero-above-marquee {
     will-change: transform;
     padding-top: var(--navbar-height);
-    padding-bottom: clamp(1rem, 3vh, 2.5rem);
+    padding-bottom: clamp(0.75rem, 2vh, 1.5rem);
   }
 
   .hero-marquee-stack {
@@ -548,7 +548,7 @@
     width: 100vw;
     margin-left: -50vw;
     margin-top: auto;
-    padding-top: clamp(2.5rem, 12vh, 9rem);
+    padding-top: clamp(1rem, 6vh, 4rem);
     z-index: 40;
   }
 
@@ -1948,4 +1948,156 @@
     margin: 0;
     max-width: 600px;
   }
+
+  /* Global Documentation Search Overlay & Modal Styles */
+  .docs-search-overlay-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+  }
+
+  .docs-search-modal-container {
+    background: #0e0e11;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    max-height: 80dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 92, 173, 0.15);
+  }
+
+  .docs-search-modal-header {
+    display: flex;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 14px;
+  }
+
+  .docs-search-modal-icon {
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .docs-search-modal-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-family: var(--font-poppins), "Poppins", system-ui, sans-serif;
+    font-size: 15px;
+  }
+
+  .docs-search-modal-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: var(--font-manrope), "Manrope", system-ui, sans-serif;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .docs-search-modal-close:hover {
+    background: rgba(255, 92, 173, 0.2);
+    color: #ffffff;
+  }
+
+  .docs-search-modal-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  .docs-search-modal-empty {
+    font-family: var(--font-poppins), "Poppins", system-ui, sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    padding: 40px 0;
+    line-height: 1.6;
+  }
+
+  .docs-search-modal-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .docs-search-result-item {
+    padding: 14px 18px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .docs-search-result-item:hover {
+    background: rgba(255, 92, 173, 0.08);
+    border-color: rgba(255, 92, 173, 0.25);
+  }
+
+  .docs-search-result-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .docs-search-result-category {
+    font-family: var(--font-manrope), "Manrope", system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: #ff5cad;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .docs-search-result-title {
+    font-family: var(--font-manrope), "Manrope", system-ui, sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .docs-search-result-desc {
+    font-family: var(--font-poppins), "Poppins", system-ui, sans-serif;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .hero-ascii-cat {
+    color: #ffffff;
+    font-family: monospace;
+    font-size: clamp(6px, 1.1vw, 15px);
+    line-height: 1.25;
+    text-align: center;
+    margin: 0 auto;
+    white-space: pre;
+    opacity: 0.95;
+    will-change: transform, opacity;
+  }
 }
+

@@ -23,13 +23,8 @@ const MARQUEE_REPEATS = 4;
 
 const featuresSectionId = "features";
 
-const scrollPanels = [
-  {
-    id: "blogs",
-    title: "Real-world case studies",
-    body: "See how complex systems are reasoned about, decomposed, and explained from first principles.",
-  },
-];
+// Third section ID
+const blogsSectionId = "blogs";
 
 export default function LandingPage() {
   useLocomotiveScroll();
@@ -205,32 +200,48 @@ export default function LandingPage() {
         gsap.utils.toArray(".scroll-panel").forEach((panel) => {
           const title = panel.querySelector(".scroll-panel-title");
           const body = panel.querySelector(".scroll-panel-body");
-          if (!title || !body) return;
+          const asciiCat = panel.querySelector(".hero-ascii-cat");
 
-          gsap.from(title, {
-            y: 56,
-            opacity: 0,
-            duration: 0.9,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: panel,
-              start: "top 78%",
-              toggleActions: "play none none reverse",
-            },
-          });
+          if (title && body) {
+            gsap.from(title, {
+              y: 56,
+              opacity: 0,
+              duration: 0.9,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: panel,
+                start: "top 78%",
+                toggleActions: "play none none reverse",
+              },
+            });
 
-          gsap.from(body, {
-            y: 36,
-            opacity: 0,
-            duration: 0.9,
-            delay: 0.08,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: panel,
-              start: "top 72%",
-              toggleActions: "play none none reverse",
-            },
-          });
+            gsap.from(body, {
+              y: 36,
+              opacity: 0,
+              duration: 0.9,
+              delay: 0.08,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: panel,
+                start: "top 72%",
+                toggleActions: "play none none reverse",
+              },
+            });
+          }
+
+          if (asciiCat) {
+            gsap.from(asciiCat, {
+              y: 46,
+              opacity: 0,
+              duration: 0.9,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: panel,
+                start: "top 74%",
+                toggleActions: "play none none reverse",
+              },
+            });
+          }
         });
 
         // Features headline lines slide-in from left (reversible parallax scroll - speed optimized)
@@ -536,18 +547,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {scrollPanels.map((panel) => (
-        <section
-          key={panel.id}
-          id={panel.id}
-          className="scroll-panel flex min-h-[100dvh] items-center bg-black px-6 md:px-12"
-        >
-          <div className="mx-auto w-full max-w-[1400px]">
-            <h2 className="scroll-panel-title">{panel.title}</h2>
-            <p className="scroll-panel-body">{panel.body}</p>
-          </div>
-        </section>
-      ))}
     </div>
   );
 }
