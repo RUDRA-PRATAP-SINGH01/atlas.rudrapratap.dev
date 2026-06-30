@@ -57,12 +57,14 @@ import SourceCodeTourDocsPage from "./pages/SourceCodeTourDocsPage";
 import DevelopmentTimelineDocsPage from "./pages/DevelopmentTimelineDocsPage";
 import MilestonesDocsPage from "./pages/MilestonesDocsPage";
 import ReferenceDocsPage from "./pages/ReferenceDocsPage";
+import BlogPage from "./pages/BlogPage";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/blog" element={<BlogPage />} />
         <Route path="/project-docs" element={<ProjectDocsPage />} />
         <Route path="/project-docs/reference" element={<ReferenceDocsPage />} />
         <Route path="/project-docs/guide" element={<IntroDocsPage />} />

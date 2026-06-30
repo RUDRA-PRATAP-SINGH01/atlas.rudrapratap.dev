@@ -233,61 +233,61 @@ export default function LandingPage() {
           });
         });
 
-        // Features headline lines slide-in from left (reversible)
+        // Features headline lines slide-in from left (reversible parallax scroll)
         const lineSystems = document.querySelector(".features-headline-line--systems");
         const lineYouCan = document.querySelector(".features-headline-line--you-can");
         const lineSee = document.querySelector(".features-headline-line--see");
 
         if (lineSystems && lineYouCan && lineSee) {
           gsap.from(lineSystems, {
-            x: -250,
+            x: -300,
             opacity: 0,
-            duration: 1.1,
-            ease: "power3.out",
+            ease: "none",
             scrollTrigger: {
               trigger: ".features-section",
-              start: "top 78%",
-              toggleActions: "play none none reverse",
+              start: "top bottom",
+              end: "bottom center",
+              scrub: 1.5,
             },
           });
           gsap.from(lineYouCan, {
-            x: -250,
+            x: -450,
             opacity: 0,
-            duration: 1.2,
-            ease: "power3.out",
+            ease: "none",
             scrollTrigger: {
               trigger: ".features-section",
-              start: "top 75%",
-              toggleActions: "play none none reverse",
+              start: "top bottom",
+              end: "bottom center",
+              scrub: 1.8,
             },
           });
           gsap.from(lineSee, {
-            x: -250,
+            x: -600,
             opacity: 0,
-            duration: 1.3,
-            ease: "power3.out",
+            ease: "none",
             scrollTrigger: {
               trigger: ".features-section",
-              start: "top 72%",
-              toggleActions: "play none none reverse",
+              start: "top bottom",
+              end: "bottom center",
+              scrub: 2.1,
             },
           });
         }
 
-        // Features glass cards reveal (reversible)
+        // Features glass cards reveal (reversible staggered parallax rise)
         const cards = document.querySelectorAll(".features-glass-card");
         if (cards.length) {
           gsap.from(cards, {
-            y: "+=90",
+            y: "+=150",
             opacity: 0,
-            scale: 0.95,
-            duration: 1.15,
-            stagger: 0.08,
-            ease: "power3.out",
+            scale: 0.92,
+            stagger: 0.15,
+            ease: "none",
             scrollTrigger: {
               trigger: ".features-section",
-              start: "top 66%",
-              toggleActions: "play none none reverse",
+              start: "top bottom",
+              end: "center center",
+              scrub: 1.5,
             },
           });
         }

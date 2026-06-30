@@ -90,35 +90,35 @@ const navItems = [
   },
   {
     label: "Blogs",
-    href: "#blogs",
+    href: "/blog",
     menu: {
       items: [
         {
           title: "Engineering Notes",
           description:
             "Short essays on how complex ideas are reasoned about and taught.",
-          href: "#blogs",
+          href: "/blog",
           icon: "grid",
         },
         {
           title: "Case Studies",
           description:
             "Real-world breakdowns of architecture decisions and tradeoffs.",
-          href: "#blogs",
+          href: "/blog",
           icon: "layers",
         },
         {
           title: "Systems Thinking",
           description:
             "Posts that connect theory to patterns used in production.",
-          href: "#blogs",
+          href: "/blog",
           icon: "spark",
         },
         {
           title: "Release Notes",
           description:
             "What is new in Atlas — articles, guides, and interactive demos.",
-          href: "#blogs",
+          href: "/blog",
           icon: "cube",
         },
       ],
@@ -127,7 +127,7 @@ const navItems = [
         titleAccent: "Blog",
         description:
           "Read how engineers learn, explain, and reason about systems — from first principles to real deployments.",
-        href: "#blogs",
+        href: "/blog",
       },
     },
   },
