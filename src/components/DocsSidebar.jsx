@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function DocsSidebar() {
   const location = useLocation();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Auto-close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   const [expanded, setExpanded] = useState({
     pebbleDb: true,
@@ -54,8 +60,36 @@ export default function DocsSidebar() {
   );
 
   return (
-    <aside className="guide-sidebar-left" aria-label="Documentation Categories">
-      <div className="guide-sidebar-left-content">
+    <>
+      <button 
+        className="guide-mobile-menu-toggle"
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        aria-label="Toggle Documentation Navigation Menu"
+      >
+        {isMobileOpen ? (
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        )}
+        <span>docs menu</span>
+      </button>
+
+      {isMobileOpen && (
+        <div 
+          className="guide-mobile-menu-overlay"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      <aside className={`guide-sidebar-left ${isMobileOpen ? "guide-sidebar-left--mobile-open" : ""}`} aria-label="Documentation Categories">
+        <div className="guide-sidebar-left-content">
         
         {/* Top-level Introduction/Overview Link */}
         <div className="guide-sidebar-group" style={{ marginBottom: 16 }}>
@@ -537,5 +571,6 @@ export default function DocsSidebar() {
 
       </div>
     </aside>
+    </>
   );
 }
