@@ -135,6 +135,8 @@ atlas.rudrapratap.dev/
 │   └── main.jsx
 ├── index.html
 ├── jsconfig.json               # @ path alias for editor tooling
+├── netlify.toml                # Netlify build, SPA redirects, cache headers
+├── .nvmrc                      # Node 22 for local + Netlify
 ├── package.json
 ├── vite.config.js
 └── README.md
@@ -195,13 +197,61 @@ Open [http://localhost:5173](http://localhost:5173).
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | Run Oxlint |
 
-### Deploy
+### Deploy on Netlify
+
+This project is ready to deploy on Netlify as a static SPA. I configured:
+
+- `netlify.toml` — build command, publish directory, Node version, SPA redirects, cache headers
+- `public/_redirects` — backup SPA fallback copied into `dist/` on build
+- `.nvmrc` — Node 22 (matches Netlify build environment)
+
+**Option A: Connect Git (recommended)**
+
+1. Push this repo to GitHub.
+2. In [Netlify](https://app.netlify.com/), click **Add new site** → **Import an existing project**.
+3. Select the repository. Netlify reads `netlify.toml` automatically:
+   - **Build command:** `npm run build`
+   - **Publish directory:** `dist`
+4. Click **Deploy site**. No environment variables are required.
+5. After deploy, open **Domain settings** and add `atlas.rudrapratap.dev` (or your custom domain). Point DNS to Netlify as instructed.
+
+**Option B: Netlify CLI**
+
+```bash
+npm install -g netlify-cli
+npm run build
+netlify deploy --prod --dir=dist
+```
+
+**Option C: Drag and drop**
 
 ```bash
 npm run build
 ```
 
-Deploy the `dist/` directory to any static host (Vercel, Netlify, Cloudflare Pages, GitHub Pages, etc.). For client-side routing, configure the host to serve `index.html` for unknown paths. I included a `_redirects` file in `public/` for Netlify.
+Upload the `dist/` folder at [Netlify Drop](https://app.netlify.com/drop). Re-upload after each change (Git deploy is easier long term).
+
+**Verify after deploy**
+
+- `/` loads the landing page
+- `/project-docs/guide/architecture/write-path` loads directly (no 404)
+- Refresh on any doc route still works (SPA redirect)
+- `Ctrl+K` search works on docs pages
+
+**Local production preview**
+
+```bash
+npm run build
+npm run preview
+```
+
+### Deploy elsewhere
+
+```bash
+npm run build
+```
+
+Deploy the `dist/` directory to Vercel, Cloudflare Pages, GitHub Pages, or any static host. Configure SPA fallback so all routes serve `index.html`.
 
 ### Performance decisions I made
 

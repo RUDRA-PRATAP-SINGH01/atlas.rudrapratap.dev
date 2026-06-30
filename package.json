@@ -9,6 +9,9 @@
     "lint": "oxlint",
     "preview": "vite preview"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "gsap": "^3.15.0",
     "locomotive-scroll": "^5.0.1",
