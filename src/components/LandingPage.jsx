@@ -21,11 +21,7 @@ const marqueeItems = [
 
 const MARQUEE_REPEATS = 4;
 
-const featuresPanel = {
-  id: "features",
-  title: "Interactive by design",
-  body: "Step through algorithms, data flows, and system boundaries with visuals that respond as you learn.",
-};
+const featuresSectionId = "features";
 
 const scrollPanels = [
   {
@@ -117,6 +113,10 @@ export default function LandingPage() {
             ".hero-side-cross",
             ".pill-button",
             ".hero-marquee-stack",
+            ".features-headline-line--systems",
+            ".features-headline-line--you-can",
+            ".features-headline-line--see",
+            ".features-glass-card",
           ],
           { clearProps: "all", opacity: 1, y: 0, scale: 1 },
         );
@@ -232,6 +232,65 @@ export default function LandingPage() {
             },
           });
         });
+
+        // Features headline lines slide-in from left (reversible)
+        const lineSystems = document.querySelector(".features-headline-line--systems");
+        const lineYouCan = document.querySelector(".features-headline-line--you-can");
+        const lineSee = document.querySelector(".features-headline-line--see");
+
+        if (lineSystems && lineYouCan && lineSee) {
+          gsap.from(lineSystems, {
+            x: -250,
+            opacity: 0,
+            duration: 1.1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".features-section",
+              start: "top 78%",
+              toggleActions: "play none none reverse",
+            },
+          });
+          gsap.from(lineYouCan, {
+            x: -250,
+            opacity: 0,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".features-section",
+              start: "top 75%",
+              toggleActions: "play none none reverse",
+            },
+          });
+          gsap.from(lineSee, {
+            x: -250,
+            opacity: 0,
+            duration: 1.3,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".features-section",
+              start: "top 72%",
+              toggleActions: "play none none reverse",
+            },
+          });
+        }
+
+        // Features glass cards reveal (reversible)
+        const cards = document.querySelectorAll(".features-glass-card");
+        if (cards.length) {
+          gsap.from(cards, {
+            y: 90,
+            opacity: 0,
+            scale: 0.95,
+            duration: 1.15,
+            stagger: 0.08,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".features-section",
+              start: "top 66%",
+              toggleActions: "play none none reverse",
+            },
+          });
+        }
       }
 
       ScrollTrigger.refresh();
@@ -415,16 +474,65 @@ export default function LandingPage() {
       </section>
 
       <section
-        id={featuresPanel.id}
-        className="features-section scroll-panel flex min-h-[100dvh] items-center px-6 md:px-12"
+        id={featuresSectionId}
+        className="features-section scroll-panel flex min-h-[100dvh] items-center"
       >
-        <div className="mx-auto w-full max-w-[1400px]">
-          <h2 className="scroll-panel-title scroll-panel-title--light">
-            {featuresPanel.title}
-          </h2>
-          <p className="scroll-panel-body scroll-panel-body--light">
-            {featuresPanel.body}
-          </p>
+        <div className="features-image-wrap" aria-hidden="true">
+          <img
+            src="/images/features-page.png"
+            alt=""
+            className="features-image"
+            draggable={false}
+          />
+        </div>
+
+        <div className="features-section-layout flex flex-col justify-center items-center">
+          <div className="features-copy">
+            <h2 className="features-headline" aria-label="Systems you can see">
+              <span className="features-headline-line features-headline-line--systems">SYSTEMS</span>
+              <span className="features-headline-line features-headline-line--you-can">YOU CAN</span>
+              <span className="features-headline-line features-headline-line--see">SEE</span>
+            </h2>
+          </div>
+
+          {/* Staggered Glassmorphism Cards */}
+          <div className="features-cards-container">
+            {[
+              {
+                num: "01",
+                title: "Interactive Articles",
+                desc: "Learn complex engineering concepts through visual explanations and interactive diagrams.",
+              },
+              {
+                num: "02",
+                title: "Architecture Deep Dives",
+                desc: "Explore production-inspired designs behind distributed systems, databases, and modern infrastructure.",
+              },
+              {
+                num: "03",
+                title: "Engineering Projects",
+                desc: "Complete implementations built from scratch, with source code, benchmarks, and design decisions.",
+              },
+              {
+                num: "04",
+                title: "Case Studies",
+                desc: "Understand how real systems work through practical breakdowns, trade-offs, and failure analysis.",
+              },
+              {
+                num: "05",
+                title: "Visual Simulations",
+                desc: "See write paths, compaction, consensus, networking, and recovery come alive with animations.",
+              },
+            ].map((card) => (
+              <div key={card.num} className="features-glass-card">
+                <span className="features-card-num">{card.num}</span>
+                <div className="features-card-body">
+                  <h3 className="features-card-title">{card.title}</h3>
+                  <p className="features-card-desc">{card.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
