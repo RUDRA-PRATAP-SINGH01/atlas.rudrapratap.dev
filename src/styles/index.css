@@ -85,10 +85,20 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    background: rgba(20, 20, 20, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.06);
+    isolation: isolate;
+  }
+
+  .navbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: rgba(20, 20, 20, 0.42);
+    -webkit-backdrop-filter: blur(20px) saturate(1.25);
+    backdrop-filter: blur(20px) saturate(1.25);
+    transform: translateZ(0);
   }
 
   .docs-navbar {
@@ -574,7 +584,6 @@
     flex-shrink: 0;
     background: #000000;
     overflow: hidden;
-    isolation: isolate;
   }
 
   .features-image-wrap {
@@ -614,28 +623,30 @@
 
   .features-cards-container {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    margin: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     gap: 32px;
     width: 95%;
     max-width: 1650px;
+    height: fit-content;
+    max-height: calc(100% - 2rem);
     z-index: 10;
     pointer-events: none;
     transition: all 0.3s ease;
   }
 
   .features-glass-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     flex: 1;
     min-width: 270px;
     max-width: 310px;
     min-height: 420px;
-    background: rgba(20, 20, 20, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
     padding: 40px 32px;
@@ -646,6 +657,25 @@
     gap: 16px;
     pointer-events: auto;
     transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  .features-glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background-color: rgba(20, 20, 20, 0.42);
+    -webkit-backdrop-filter: blur(20px) saturate(1.25);
+    backdrop-filter: blur(20px) saturate(1.25);
+    transform: translateZ(0);
+    pointer-events: none;
+  }
+
+  .features-card-num,
+  .features-card-body {
+    position: relative;
+    z-index: 1;
   }
 
   .features-glass-card:hover {
@@ -724,6 +754,8 @@
 
     .features-cards-container {
       position: relative;
+      inset: auto;
+      margin: 0;
       top: auto;
       left: auto;
       transform: none;
@@ -732,6 +764,8 @@
       justify-content: center;
       gap: 24px;
       margin-top: 40px;
+      max-height: none;
+      height: auto;
     }
 
     .features-glass-card {

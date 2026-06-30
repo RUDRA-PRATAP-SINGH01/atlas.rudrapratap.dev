@@ -526,7 +526,6 @@ export default function LandingPage() {
             className="features-image"
             width={1680}
             height={936}
-            loading="lazy"
             decoding="async"
             draggable={false}
           />
