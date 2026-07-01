@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 function highlightGo(code) {
   if (typeof code !== "string") return code;
@@ -60,12 +60,49 @@ function highlightGo(code) {
 }
 
 export default function GoCodeBlock({ children }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (typeof children !== "string") return;
+    navigator.clipboard.writeText(children).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(err => {
+      console.error("Failed to copy code: ", err);
+    });
+  };
+
   return (
     <div
       className="guide-code-block-container"
       style={{ marginTop: 8, marginBottom: 20 }}
     >
-      <pre className="guide-code-pre" style={{ background: "#0e0e11", border: "1px solid #27272a", borderRadius: "8px", padding: "16px", overflowX: "auto" }}>
+      <button 
+        onClick={handleCopy}
+        className={`guide-copy-code-btn ${copied ? "copied" : ""}`}
+      >
+        {copied ? (
+          <>
+            <svg className="guide-copy-code-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Copied!</span>
+          </>
+        ) : (
+          <>
+            <svg className="guide-copy-code-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copy</span>
+          </>
+        )}
+      </button>
+      <pre 
+        data-gocodeblock="true"
+        className="guide-code-pre" 
+        style={{ background: "#0e0e11", border: "1px solid #27272a", borderRadius: "8px", padding: "16px", overflowX: "auto" }}
+      >
         <code className="guide-code-lines" style={{ fontFamily: "monospace", fontSize: "13px", lineHeight: "1.6", color: "#e4e4e7" }}>
           {highlightGo(children)}
         </code>
