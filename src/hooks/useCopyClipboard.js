@@ -1,6 +1,40 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.top = "0";
+      textarea.style.left = "0";
+      textarea.style.width = "2em";
+      textarea.style.height = "2em";
+      textarea.style.padding = "0";
+      textarea.style.border = "none";
+      textarea.style.outline = "none";
+      textarea.style.boxShadow = "none";
+      textarea.style.background = "transparent";
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (successful) {
+        resolve();
+      } else {
+        reject(new Error("Fallback copy command failed"));
+      }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 export function useCopyClipboard() {
   const location = useLocation();
 
@@ -41,7 +75,7 @@ export function useCopyClipboard() {
           // Clean up carriage returns or extra newlines that may break shell/copy
           const cleanCode = codeText.replace(/\r\n/g, "\n").trim();
 
-          navigator.clipboard.writeText(cleanCode).then(() => {
+          copyTextToClipboard(cleanCode).then(() => {
             button.classList.add("copied");
             button.querySelector("span").textContent = "Copied!";
             const originalSvg = button.querySelector("svg").innerHTML;

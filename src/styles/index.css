@@ -1560,6 +1560,7 @@
     flex-grow: 1;
     padding: 40px 48px;
     min-width: 0;
+    overflow-x: hidden;
   }
 
   .guide-main-container {
@@ -1693,6 +1694,11 @@
 
   .guide-code-pre {
     margin: 0;
+    position: relative;
+    overflow-x: auto !important;
+    max-width: 100%;
+    display: block;
+    -webkit-overflow-scrolling: touch;
   }
 
   .guide-code-lines {
@@ -2322,6 +2328,46 @@
 
   .guide-copy-code-btn:hover .guide-copy-code-icon {
     transform: scale(1.05);
+  }
+
+  /* Table Responsiveness */
+  .guide-body-text table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Guide Mobile Adaptations */
+  @media (max-width: 800px) {
+    .guide-main-content {
+      padding: 24px 16px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .guide-main-title {
+      font-size: 26px !important;
+      line-height: 1.2 !important;
+    }
+    .guide-sub-heading {
+      font-size: 18px !important;
+      line-height: 1.3 !important;
+      margin-top: 24px !important;
+    }
+    .guide-body-text {
+      font-size: 14px !important;
+      line-height: 1.65 !important;
+    }
+    .guide-code-lines {
+      font-size: 12px !important;
+    }
+    .guide-copy-code-btn {
+      padding: 4px 8px !important;
+      font-size: 11px !important;
+      top: 8px !important;
+      right: 8px !important;
+    }
   }
 }
 

@@ -59,12 +59,46 @@ function highlightGo(code) {
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.top = "0";
+      textarea.style.left = "0";
+      textarea.style.width = "2em";
+      textarea.style.height = "2em";
+      textarea.style.padding = "0";
+      textarea.style.border = "none";
+      textarea.style.outline = "none";
+      textarea.style.boxShadow = "none";
+      textarea.style.background = "transparent";
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (successful) {
+        resolve();
+      } else {
+        reject(new Error("Fallback copy command failed"));
+      }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 export default function GoCodeBlock({ children }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     if (typeof children !== "string") return;
-    navigator.clipboard.writeText(children).then(() => {
+    copyTextToClipboard(children).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }).catch(err => {
