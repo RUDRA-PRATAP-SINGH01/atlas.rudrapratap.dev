@@ -239,15 +239,17 @@ export default function ProjectDocsPage() {
                 </span>
               </div>
             </Link>
-            <div className="project-docs-featured-card project-docs-featured-card--disabled" aria-disabled="true">
+            <Link to="/project-docs/guide/rate-limiter/introduction" className="project-docs-featured-card">
               <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/Distributed-img.png")' }} />
               <div className="project-docs-featured-card-overlay" />
               <div className="project-docs-featured-card-content">
-                <h3 className="project-docs-featured-card-title">Distributed Systems</h3>
-                <p className="project-docs-featured-card-desc">Coming soon — sharding, replication, and consensus protocols like Raft and Paxos.</p>
-                <span className="project-docs-featured-card-badge">Coming soon</span>
+                <h3 className="project-docs-featured-card-title">Distributed Rate Limiter</h3>
+                <p className="project-docs-featured-card-desc">A production-grade distributed rate limiting platform written in Go, featuring Redis-backed atomic Lua scripts, Sentinel HA, and circuit breakers.</p>
+                <span className="project-docs-featured-card-arrow">
+                  <ArrowUpRight />
+                </span>
               </div>
-            </div>
+            </Link>
           </section>
 
 
