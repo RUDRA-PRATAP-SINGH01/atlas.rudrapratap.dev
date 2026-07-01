@@ -11,7 +11,12 @@ export default function DocsSidebar() {
   }, [location.pathname]);
 
   const [expanded, setExpanded] = useState({
-    pebbleDb: true,
+    pebbleDb: !location.pathname.startsWith("/project-docs/guide/rate-limiter"),
+    rateLimit: location.pathname.startsWith("/project-docs/guide/rate-limiter"),
+    rlArchitecture: location.pathname.startsWith("/project-docs/guide/rate-limiter/architecture") || location.pathname.startsWith("/project-docs/guide/rate-limiter/request-lifecycle"),
+    rlCore: location.pathname.startsWith("/project-docs/guide/rate-limiter/lua-scripts") || location.pathname.startsWith("/project-docs/guide/rate-limiter/hierarchical") || location.pathname.startsWith("/project-docs/guide/rate-limiter/circuit-breaker") || location.pathname.startsWith("/project-docs/guide/rate-limiter/idempotency"),
+    rlInfra: location.pathname.startsWith("/project-docs/guide/rate-limiter/redis-ha") || location.pathname.startsWith("/project-docs/guide/rate-limiter/routing"),
+    rlOps: location.pathname.startsWith("/project-docs/guide/rate-limiter/configuration") || location.pathname.startsWith("/project-docs/guide/rate-limiter/observability") || location.pathname.startsWith("/project-docs/guide/rate-limiter/benchmarks"),
     architecture: location.pathname.startsWith("/project-docs/guide/architecture"),
     coreComponents: location.pathname.startsWith("/project-docs/guide/core-components"),
     internals: location.pathname.startsWith("/project-docs/guide/internals"),
@@ -616,6 +621,160 @@ export default function DocsSidebar() {
                     <li className="guide-sidebar-group-item">
                       <Link to="/project-docs/guide/improvements/proposed-fixes" className={getLinkClass("/project-docs/guide/improvements/proposed-fixes")}>
                         Proposed Fixes
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+            </div>
+          )}
+        </div>
+
+        {/* ─── DISTRIBUTED RATE LIMITER SECTION ─── */}
+        <div className="guide-sidebar-group" style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <button
+            onClick={() => toggleSection("rateLimit")}
+            className="guide-sidebar-dropdown-toggle"
+            aria-expanded={expanded.rateLimit}
+            style={{ fontWeight: "bold", color: "#ff5cad" }}
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{
+                fontSize: 9, padding: "2px 5px", borderRadius: 4,
+                background: "rgba(255,92,173,0.15)", color: "#ff5cad",
+                fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase"
+              }}>NEW</span>
+              Distributed Rate Limiter
+            </span>
+            {renderChevron(expanded.rateLimit)}
+          </button>
+
+          {expanded.rateLimit && (
+            <div style={{ marginLeft: 8, borderLeft: "1px solid rgba(255,92,173,0.1)", paddingLeft: 8 }}>
+
+              {/* Top-level intro */}
+              <ul className="guide-sidebar-group-list" style={{ marginTop: 6, marginBottom: 12 }}>
+                <li className="guide-sidebar-group-item">
+                  <Link to="/project-docs/guide/rate-limiter/introduction" className={getLinkClass("/project-docs/guide/rate-limiter/introduction")}>
+                    Introduction
+                  </Link>
+                </li>
+              </ul>
+
+              {/* Architecture sub-section */}
+              <div className="guide-sidebar-group">
+                <button
+                  onClick={() => toggleSection("rlArchitecture")}
+                  className="guide-sidebar-dropdown-toggle"
+                  aria-expanded={expanded.rlArchitecture}
+                >
+                  <span>Architecture</span>
+                  {renderChevron(expanded.rlArchitecture)}
+                </button>
+                {expanded.rlArchitecture && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/architecture" className={getLinkClass("/project-docs/guide/rate-limiter/architecture")}>
+                        System Architecture
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/request-lifecycle" className={getLinkClass("/project-docs/guide/rate-limiter/request-lifecycle")}>
+                        Request Lifecycle
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* Core Engine sub-section */}
+              <div className="guide-sidebar-group">
+                <button
+                  onClick={() => toggleSection("rlCore")}
+                  className="guide-sidebar-dropdown-toggle"
+                  aria-expanded={expanded.rlCore}
+                >
+                  <span>Core Engine</span>
+                  {renderChevron(expanded.rlCore)}
+                </button>
+                {expanded.rlCore && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/lua-scripts" className={getLinkClass("/project-docs/guide/rate-limiter/lua-scripts")}>
+                        Algorithms &amp; Lua Scripts
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/hierarchical" className={getLinkClass("/project-docs/guide/rate-limiter/hierarchical")}>
+                        Hierarchical Quotas
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/circuit-breaker" className={getLinkClass("/project-docs/guide/rate-limiter/circuit-breaker")}>
+                        Circuit Breaker
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/idempotency" className={getLinkClass("/project-docs/guide/rate-limiter/idempotency")}>
+                        Idempotency Layer
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* Infrastructure sub-section */}
+              <div className="guide-sidebar-group">
+                <button
+                  onClick={() => toggleSection("rlInfra")}
+                  className="guide-sidebar-dropdown-toggle"
+                  aria-expanded={expanded.rlInfra}
+                >
+                  <span>Infrastructure</span>
+                  {renderChevron(expanded.rlInfra)}
+                </button>
+                {expanded.rlInfra && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/redis-ha" className={getLinkClass("/project-docs/guide/rate-limiter/redis-ha")}>
+                        Redis &amp; Sentinel HA
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/routing" className={getLinkClass("/project-docs/guide/rate-limiter/routing")}>
+                        Intelligent Routing
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* Operations sub-section */}
+              <div className="guide-sidebar-group">
+                <button
+                  onClick={() => toggleSection("rlOps")}
+                  className="guide-sidebar-dropdown-toggle"
+                  aria-expanded={expanded.rlOps}
+                >
+                  <span>Operations</span>
+                  {renderChevron(expanded.rlOps)}
+                </button>
+                {expanded.rlOps && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/configuration" className={getLinkClass("/project-docs/guide/rate-limiter/configuration")}>
+                        Configuration Reference
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/observability" className={getLinkClass("/project-docs/guide/rate-limiter/observability")}>
+                        Observability
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/benchmarks" className={getLinkClass("/project-docs/guide/rate-limiter/benchmarks")}>
+                        Benchmarks &amp; Performance
                       </Link>
                     </li>
                   </ul>

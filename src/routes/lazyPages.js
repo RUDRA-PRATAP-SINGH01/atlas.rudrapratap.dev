@@ -76,3 +76,16 @@ export const ProductionFailuresPage = lazy(() => import("@/pages/docs/guide/impr
 export const RequiredFeaturesPage = lazy(() => import("@/pages/docs/guide/improvements/RequiredFeaturesPage"));
 export const ProposedFixesPage = lazy(() => import("@/pages/docs/guide/improvements/ProposedFixesPage"));
 
+// Distributed Rate Limiter Pages
+export const RLIntroductionPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLIntroductionPage"));
+export const RLArchitecturePage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLArchitecturePage"));
+export const RLRequestLifecyclePage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLRequestLifecyclePage"));
+export const RLLuaScriptsPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLLuaScriptsPage"));
+export const RLCircuitBreakerPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLCircuitBreakerPage"));
+export const RLConfigurationPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLConfigurationPage"));
+export const RLHierarchicalPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLHierarchicalPage"));
+export const RLIdempotencyPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLIdempotencyPage"));
+export const RLRedisHaPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLRedisHaPage"));
+export const RLRoutingPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLRoutingPage"));
+export const RLObservabilityPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLObservabilityPage"));
+export const RLBenchmarksPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLBenchmarksPage"));
