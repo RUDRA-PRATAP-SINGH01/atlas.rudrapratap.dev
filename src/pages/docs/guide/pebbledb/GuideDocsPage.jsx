@@ -88,6 +88,21 @@ export default function GuideDocsPage() {
           <div className="guide-main-container">
             <h1 className="guide-main-title" id="introduction">Introduction</h1>
             
+            <div className="warning-banner" style={{
+              background: "rgba(239, 68, 68, 0.08)",
+              border: "1px solid rgba(239, 68, 68, 0.25)",
+              borderRadius: "8px",
+              padding: "16px",
+              marginTop: "20px",
+              marginBottom: "24px",
+              color: "#fca5a5",
+              fontSize: "14px",
+              lineHeight: "1.6"
+            }}>
+              <strong style={{ color: "#ef4444", display: "block", fontSize: "15px", marginBottom: "6px" }}>⚠️ Not Production Ready</strong>
+              PebbleDB is an educational, first-principles implementation of an LSM-tree storage engine. While executed cleanly according to correct design patterns, it is a learning project containing critical limitations that make it unsuitable for production environments or handling valuable data.
+            </div>
+
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <h2 className="guide-sub-heading" id="what-is-pebbledb" style={{ fontSize: 22, color: "#ffffff", marginTop: 28, marginBottom: 12 }}>What is PebbleDB?</h2>
               <p>

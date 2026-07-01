@@ -70,3 +70,9 @@ export const ProjectStructureDocsPage = lazy(() => import("@/pages/docs/guide/re
 export const SourceCodeTourDocsPage = lazy(() => import("@/pages/docs/guide/reference/SourceCodeTourDocsPage"));
 export const DevelopmentTimelineDocsPage = lazy(() => import("@/pages/docs/guide/reference/DevelopmentTimelineDocsPage"));
 export const MilestonesDocsPage = lazy(() => import("@/pages/docs/guide/reference/MilestonesDocsPage"));
+
+// Improvements and Fallbacks Pages
+export const ProductionFailuresPage = lazy(() => import("@/pages/docs/guide/improvements/ProductionFailuresPage"));
+export const RequiredFeaturesPage = lazy(() => import("@/pages/docs/guide/improvements/RequiredFeaturesPage"));
+export const ProposedFixesPage = lazy(() => import("@/pages/docs/guide/improvements/ProposedFixesPage"));
+

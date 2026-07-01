@@ -63,6 +63,9 @@ export default function AppRoutes() {
       <Route path="/project-docs/guide/reference/source-code-tour" element={<Pages.SourceCodeTourDocsPage />} />
       <Route path="/project-docs/guide/reference/development-timeline" element={<Pages.DevelopmentTimelineDocsPage />} />
       <Route path="/project-docs/guide/reference/milestones" element={<Pages.MilestonesDocsPage />} />
+      <Route path="/project-docs/guide/improvements/production-failures" element={<Pages.ProductionFailuresPage />} />
+      <Route path="/project-docs/guide/improvements/required-features" element={<Pages.RequiredFeaturesPage />} />
+      <Route path="/project-docs/guide/improvements/proposed-fixes" element={<Pages.ProposedFixesPage />} />
       <Route path="*" element={<Pages.NotFoundPage />} />
     </Routes>
   );

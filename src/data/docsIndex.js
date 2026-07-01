@@ -392,6 +392,27 @@ export const docsIndex = [
     keywords: "development timeline history milestones dates version releases logs",
   },
   {
+    title: "Production Failures",
+    category: "Fallbacks & Improvements",
+    description: "In-depth analysis of PebbleDB failures: memory leaks, deadlocks, consistency gaps, silent block corruption, and locking issues.",
+    href: "/project-docs/guide/improvements/production-failures",
+    keywords: "failures production fallbacks limitations memory leak deadlock race condition silent data corruption fsync lock out of memory oom",
+  },
+  {
+    title: "Required Features",
+    category: "Fallbacks & Improvements",
+    description: "Essential architecture additions needed for production readiness: Leveled LSM, checksum validation, block binary search, and priority queues.",
+    href: "/project-docs/guide/improvements/required-features",
+    keywords: "required features improvements leveled lsm block checksum directory fsync binary search restart points merge iterator min-heap",
+  },
+  {
+    title: "Proposed Fixes",
+    category: "Fallbacks & Improvements",
+    description: "Concrete Go code recommendations and structural fixes for key-value visibility, file handle leaks, and safe Close actions.",
+    href: "/project-docs/guide/improvements/proposed-fixes",
+    keywords: "proposed fixes solutions implementation code guidelines close locking staging batch visibility allreaders",
+  },
+  {
     title: "Milestones",
     category: "Reference",
     description: "Feature milestone checkpoints and invariant validation stages.",

@@ -42,6 +42,19 @@ export default function IntroDocsPage() {
                 <p style={{ fontSize: 14, lineHeight: 1.6, color: "#a1a1aa" }}>
                   An embedded, single-process, Log-Structured Merge (LSM) key-value engine written in Go. PebbleDB implements concurrent write pipelines, group-commits, background compaction threads, binary WAL replay checkpoints, and space-efficient Bloom filters.
                 </p>
+                <div style={{
+                  background: "rgba(239, 68, 68, 0.06)",
+                  border: "1px solid rgba(239, 68, 68, 0.2)",
+                  borderRadius: "6px",
+                  padding: "10px 14px",
+                  fontSize: "12.5px",
+                  lineHeight: "1.5",
+                  color: "#fca5a5",
+                  marginTop: "12px",
+                  marginBottom: "12px"
+                }}>
+                  <strong>⚠️ Educational Learning Project:</strong> PebbleDB is not production-ready. It is a first-principles educational implementation built to explore storage engine components and layout trade-offs.
+                </div>
                 <div style={{ display: "flex", gap: "16px", marginTop: "16px", flexWrap: "wrap" }}>
                   <a 
                     href="https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB" 

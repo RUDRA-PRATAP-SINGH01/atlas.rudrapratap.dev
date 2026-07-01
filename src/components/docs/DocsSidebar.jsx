@@ -28,6 +28,7 @@ export default function DocsSidebar() {
                location.pathname.startsWith("/project-docs/guide/reference"),
     timeline: location.pathname.startsWith("/project-docs/guide/reference/development-timeline") ||
               location.pathname.startsWith("/project-docs/guide/reference/milestones"),
+    improvements: location.pathname.startsWith("/project-docs/guide/improvements"),
   });
 
   const toggleSection = (section) => {
@@ -583,6 +584,38 @@ export default function DocsSidebar() {
                     <li className="guide-sidebar-group-item">
                       <Link to="/project-docs/guide/reference/milestones" className={getLinkClass("/project-docs/guide/reference/milestones")}>
                         Milestones
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* Fallbacks & Improvements Section */}
+              <div className="guide-sidebar-group">
+                <button
+                  onClick={() => toggleSection("improvements")}
+                  className="guide-sidebar-dropdown-toggle"
+                  aria-expanded={expanded.improvements}
+                  style={{ color: "#ff5cad" }}
+                >
+                  <span>Fallbacks &amp; Improvements</span>
+                  {renderChevron(expanded.improvements)}
+                </button>
+                {expanded.improvements && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/improvements/production-failures" className={getLinkClass("/project-docs/guide/improvements/production-failures")}>
+                        Production Failures
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/improvements/required-features" className={getLinkClass("/project-docs/guide/improvements/required-features")}>
+                        Required Features
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/improvements/proposed-fixes" className={getLinkClass("/project-docs/guide/improvements/proposed-fixes")}>
+                        Proposed Fixes
                       </Link>
                     </li>
                   </ul>
