@@ -89,3 +89,8 @@ export const RLRedisHaPage = lazy(() => import("@/pages/docs/guide/rate-limiter/
 export const RLRoutingPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLRoutingPage"));
 export const RLObservabilityPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLObservabilityPage"));
 export const RLBenchmarksPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLBenchmarksPage"));
+export const RLDesignDecisionsPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLDesignDecisionsPage"));
+export const RLSystemInvariantsPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLSystemInvariantsPage"));
+export const RLEngineeringTradeoffsPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLEngineeringTradeoffsPage"));
+export const RLOperationsRunbooksPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLOperationsRunbooksPage"));
+export const RLChaosTestingPage = lazy(() => import("@/pages/docs/guide/rate-limiter/RLChaosTestingPage"));

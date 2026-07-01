@@ -79,6 +79,11 @@ export default function AppRoutes() {
       <Route path="/project-docs/guide/rate-limiter/configuration" element={<Pages.RLConfigurationPage />} />
       <Route path="/project-docs/guide/rate-limiter/observability" element={<Pages.RLObservabilityPage />} />
       <Route path="/project-docs/guide/rate-limiter/benchmarks" element={<Pages.RLBenchmarksPage />} />
+      <Route path="/project-docs/guide/rate-limiter/design-decisions" element={<Pages.RLDesignDecisionsPage />} />
+      <Route path="/project-docs/guide/rate-limiter/system-invariants" element={<Pages.RLSystemInvariantsPage />} />
+      <Route path="/project-docs/guide/rate-limiter/engineering-tradeoffs" element={<Pages.RLEngineeringTradeoffsPage />} />
+      <Route path="/project-docs/guide/rate-limiter/runbooks" element={<Pages.RLOperationsRunbooksPage />} />
+      <Route path="/project-docs/guide/rate-limiter/chaos" element={<Pages.RLChaosTestingPage />} />
       <Route path="*" element={<Pages.NotFoundPage />} />
     </Routes>
   );

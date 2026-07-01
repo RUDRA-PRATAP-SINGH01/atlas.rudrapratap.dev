@@ -13,10 +13,10 @@ export default function DocsSidebar() {
   const [expanded, setExpanded] = useState({
     pebbleDb: !location.pathname.startsWith("/project-docs/guide/rate-limiter"),
     rateLimit: location.pathname.startsWith("/project-docs/guide/rate-limiter"),
-    rlArchitecture: location.pathname.startsWith("/project-docs/guide/rate-limiter/architecture") || location.pathname.startsWith("/project-docs/guide/rate-limiter/request-lifecycle"),
+    rlArchitecture: location.pathname.startsWith("/project-docs/guide/rate-limiter/architecture") || location.pathname.startsWith("/project-docs/guide/rate-limiter/request-lifecycle") || location.pathname.startsWith("/project-docs/guide/rate-limiter/design-decisions") || location.pathname.startsWith("/project-docs/guide/rate-limiter/system-invariants") || location.pathname.startsWith("/project-docs/guide/rate-limiter/engineering-tradeoffs"),
     rlCore: location.pathname.startsWith("/project-docs/guide/rate-limiter/lua-scripts") || location.pathname.startsWith("/project-docs/guide/rate-limiter/hierarchical") || location.pathname.startsWith("/project-docs/guide/rate-limiter/circuit-breaker") || location.pathname.startsWith("/project-docs/guide/rate-limiter/idempotency"),
     rlInfra: location.pathname.startsWith("/project-docs/guide/rate-limiter/redis-ha") || location.pathname.startsWith("/project-docs/guide/rate-limiter/routing"),
-    rlOps: location.pathname.startsWith("/project-docs/guide/rate-limiter/configuration") || location.pathname.startsWith("/project-docs/guide/rate-limiter/observability") || location.pathname.startsWith("/project-docs/guide/rate-limiter/benchmarks"),
+    rlOps: location.pathname.startsWith("/project-docs/guide/rate-limiter/configuration") || location.pathname.startsWith("/project-docs/guide/rate-limiter/observability") || location.pathname.startsWith("/project-docs/guide/rate-limiter/benchmarks") || location.pathname.startsWith("/project-docs/guide/rate-limiter/runbooks") || location.pathname.startsWith("/project-docs/guide/rate-limiter/chaos"),
     architecture: location.pathname.startsWith("/project-docs/guide/architecture"),
     coreComponents: location.pathname.startsWith("/project-docs/guide/core-components"),
     internals: location.pathname.startsWith("/project-docs/guide/internals"),
@@ -684,6 +684,21 @@ export default function DocsSidebar() {
                         Request Lifecycle
                       </Link>
                     </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/design-decisions" className={getLinkClass("/project-docs/guide/rate-limiter/design-decisions")}>
+                        Design Decisions
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/system-invariants" className={getLinkClass("/project-docs/guide/rate-limiter/system-invariants")}>
+                        System Invariants
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/engineering-tradeoffs" className={getLinkClass("/project-docs/guide/rate-limiter/engineering-tradeoffs")}>
+                        Engineering Trade-offs
+                      </Link>
+                    </li>
                   </ul>
                 )}
               </div>
@@ -775,6 +790,16 @@ export default function DocsSidebar() {
                     <li className="guide-sidebar-group-item">
                       <Link to="/project-docs/guide/rate-limiter/benchmarks" className={getLinkClass("/project-docs/guide/rate-limiter/benchmarks")}>
                         Benchmarks &amp; Performance
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/runbooks" className={getLinkClass("/project-docs/guide/rate-limiter/runbooks")}>
+                        Operations &amp; Runbooks
+                      </Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/project-docs/guide/rate-limiter/chaos" className={getLinkClass("/project-docs/guide/rate-limiter/chaos")}>
+                        Chaos Engineering &amp; Testing
                       </Link>
                     </li>
                   </ul>
