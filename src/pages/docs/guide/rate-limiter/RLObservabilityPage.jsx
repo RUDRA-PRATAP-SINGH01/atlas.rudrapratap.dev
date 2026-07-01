@@ -68,11 +68,11 @@ flowchart LR
     Admin -->|"HMGET event fields"| Events
 
     style HC fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style AB fill:#1e1e2e,stroke:#fb923c,color:#fff
-    style W1 fill:#18181b,stroke:#4ade80,color:#fff
-    style W2 fill:#18181b,stroke:#4ade80,color:#fff
-    style W3 fill:#18181b,stroke:#4ade80,color:#fff
-    style Admin fill:#1e1e2e,stroke:#38bdf8,color:#fff
+    style AB fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style W1 fill:#18181b,stroke:#c084fc,color:#fff
+    style W2 fill:#18181b,stroke:#c084fc,color:#fff
+    style W3 fill:#18181b,stroke:#c084fc,color:#fff
+    style Admin fill:#1e1e2e,stroke:#c084fc,color:#fff
 `;
 
 export default function RLObservabilityPage() {
@@ -100,8 +100,8 @@ export default function RLObservabilityPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 28 }}>
                 {[
                   { icon: "🔭", title: "Distributed Traces", subtitle: "(OpenTelemetry + Jaeger)", body: "Answers: What happened to this specific request? How long did each phase take? Which component is the bottleneck? Spans propagated via W3C traceparent headers across sidecar → limiter → Redis.", color: "#a78bfa" },
-                  { icon: "📈", title: "Metrics", subtitle: "(Prometheus + Grafana)", body: "Answers: What is the system doing right now in aggregate? How many requests per second? What fraction are being rate-limited? Counters and histograms scraped by Prometheus.", color: "#38bdf8" },
-                  { icon: "📋", title: "Audit Log", subtitle: "(Redis-backed + Admin API)", body: "Answers: What decisions were made for tenant X between time T₁ and T₂? Who was rate-limited and why? Append-only event log with queryable indexes for compliance and debugging.", color: "#4ade80" },
+                  { icon: "📈", title: "Metrics", subtitle: "(Prometheus + Grafana)", body: "Answers: What is the system doing right now in aggregate? How many requests per second? What fraction are being rate-limited? Counters and histograms scraped by Prometheus.", color: "#c084fc" },
+                  { icon: "📋", title: "Audit Log", subtitle: "(Redis-backed + Admin API)", body: "Answers: What decisions were made for tenant X between time T₁ and T₂? Who was rate-limited and why? Append-only event log with queryable indexes for compliance and debugging.", color: "#c084fc" },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ fontSize: 22, marginBottom: 6 }}>{item.icon}</div>
@@ -222,8 +222,8 @@ func InitTracer(serviceName string) (func(context.Context) error, error) {
                     ].map(([span, svc, attrs, purpose], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#a78bfa", fontFamily: "monospace", fontSize: 11 }}>{span}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontWeight: 600 }}>{svc}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 10 }}>{attrs}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontWeight: 600 }}>{svc}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 10 }}>{attrs}</td>
                         <td style={{ padding: "8px 12px", color: "#71717a" }}>{purpose}</td>
                       </tr>
                     ))}
@@ -262,8 +262,8 @@ func InitTracer(serviceName string) (func(context.Context) error, error) {
                       ["routing_requests_total", "Counter", "gateway_id, status={success,error,timeout}", "Requests forwarded per gateway and outcome."],
                     ].map(([name, type_, labels, desc], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 10 }}>{name}</td>
-                        <td style={{ padding: "8px 12px", color: "#4ade80", fontFamily: "monospace", fontSize: 11 }}>{type_}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 10 }}>{name}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{type_}</td>
                         <td style={{ padding: "8px 12px", color: "#a78bfa", fontFamily: "monospace", fontSize: 10 }}>{labels}</td>
                         <td style={{ padding: "8px 12px", color: "#71717a", lineHeight: 1.5 }}>{desc}</td>
                       </tr>
@@ -303,8 +303,8 @@ func InitTracer(serviceName string) (func(context.Context) error, error) {
                       ["override_applied", "bool", "Whether a runtime override config was active for this check."],
                     ].map(([field, type_, desc], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#4ade80", fontFamily: "monospace", fontWeight: 600 }}>{field}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontSize: 11 }}>{type_}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontWeight: 600 }}>{field}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontSize: 11 }}>{type_}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{desc}</td>
                       </tr>
                     ))}
@@ -398,7 +398,7 @@ limiter:
     SERVICE_VERSION: "1.0.0"`}</GoCodeBlock>
                 </div>
                 <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#38bdf8", marginBottom: 10 }}>Prometheus Scrape Config</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#c084fc", marginBottom: 10 }}>Prometheus Scrape Config</div>
                   <GoCodeBlock>{`# prometheus.yml
 scrape_configs:
   - job_name: rate-limiter
@@ -415,10 +415,10 @@ scrape_configs:
               </div>
 
               <div style={{
-                background: "rgba(56,189,248,0.05)", border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.05)", border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65
               }}>
-                <strong style={{ color: "#38bdf8" }}>Recommended Alerts:</strong> Configure Prometheus alerting rules for:
+                <strong style={{ color: "#c084fc" }}>Recommended Alerts:</strong> Configure Prometheus alerting rules for:
                 (1) <code>rate_limiter_circuit_breaker_state{"{state='open'}"} == 1</code> → circuit open, page immediately;
                 (2) <code>rate(rate_limiter_requests_total{"{decision='denied'}"}[5m]) / rate(rate_limiter_requests_total[5m]) &gt; 0.25</code> → &gt;25% denial rate;
                 (3) <code>histogram_quantile(0.99, rate_limiter_redis_duration_seconds) &gt; 0.05</code> → Redis p99 &gt; 50ms.

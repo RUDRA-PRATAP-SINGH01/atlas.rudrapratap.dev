@@ -60,7 +60,7 @@ export default function CompactionRaceDocsPage() {
               <p>
                 After introducing background compaction, the Go race detector flagged concurrent memory accesses:
               </p>
-              <pre className="guide-code-pre" style={{ background: "#18181b", padding: "12px", borderRadius: "6px", overflowX: "auto", margin: "16px 0", color: "#f87171", fontSize: "12px" }}>
+              <pre className="guide-code-pre" style={{ background: "#18181b", padding: "12px", borderRadius: "6px", overflowX: "auto", margin: "16px 0", color: "#f472b6", fontSize: "12px" }}>
                 <code>{CODE_RACE}</code>
               </pre>
               <ul className="guide-bullets-list">

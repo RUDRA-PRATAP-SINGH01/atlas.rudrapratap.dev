@@ -37,13 +37,13 @@ flowchart TD
     UserA1 --> EndpointLight
 
     style Global fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style TenantA fill:#1e1e2e,stroke:#38bdf8,color:#fff
-    style TenantB fill:#1e1e2e,stroke:#38bdf8,color:#fff
+    style TenantA fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style TenantB fill:#1e1e2e,stroke:#c084fc,color:#fff
     style UserA1 fill:#1e1e2e,stroke:#a78bfa,color:#fff
     style UserA2 fill:#18181b,stroke:#52525b,color:#71717a
     style UserB1 fill:#18181b,stroke:#52525b,color:#71717a
-    style EndpointHeavy fill:#1e1e2e,stroke:#f43f5e,color:#fff
-    style EndpointLight fill:#1e1e2e,stroke:#4ade80,color:#fff
+    style EndpointHeavy fill:#1e1e2e,stroke:#ec4899,color:#fff
+    style EndpointLight fill:#1e1e2e,stroke:#c084fc,color:#fff
 `;
 
 const twoPhaseFlowDiagram = `
@@ -74,10 +74,10 @@ flowchart TD
 
     style Start fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style F1 fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Allow fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Deny fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style Allow fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Deny fill:#1e1e2e,stroke:#ec4899,color:#fff
     style Phase1 fill:#0b0b0b,stroke:#27272a,color:#fff
-    style Phase2 fill:#0b0b0b,stroke:#4ade80,color:#fff
+    style Phase2 fill:#0b0b0b,stroke:#c084fc,color:#fff
 `;
 
 const singleflightDiagram = `
@@ -95,7 +95,7 @@ flowchart LR
     SF -->|"Shared result"| R3
 
     style SF fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Redis fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style Redis fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 
 export default function RLHierarchicalPage() {
@@ -173,8 +173,8 @@ export default function RLHierarchicalPage() {
                     ].map(([level, key, cap, protects], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#ffffff", fontWeight: 600 }}>{level}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11 }}>{key}</td>
-                        <td style={{ padding: "8px 12px", color: "#4ade80", fontFamily: "monospace" }}>{cap}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{key}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{cap}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{protects}</td>
                       </tr>
                     ))}
@@ -192,8 +192,8 @@ export default function RLHierarchicalPage() {
               <ul className="guide-bullets-list" style={{ marginTop: 10, marginBottom: 12 }}>
                 <li>Request passes Global check → 1 global token consumed</li>
                 <li>Request passes Tenant check → 1 tenant token consumed</li>
-                <li>Request <strong style={{ color: "#f87171" }}>fails</strong> User check → Request denied</li>
-                <li>But global and tenant tokens were <strong style={{ color: "#f87171" }}>already decremented</strong> → quota leak</li>
+                <li>Request <strong style={{ color: "#f472b6" }}>fails</strong> User check → Request denied</li>
+                <li>But global and tenant tokens were <strong style={{ color: "#f472b6" }}>already decremented</strong> → quota leak</li>
               </ul>
               <p>
                 At 10,000 RPS, a user near their user-level limit causes hundreds of orphaned decrements per second at the Global and Tenant levels — effectively making tenant-wide and global quotas lower than configured.
@@ -206,8 +206,8 @@ export default function RLHierarchicalPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 20, marginBottom: 28 }}>
                 {[
-                  { title: "Phase 1: Speculative Check", color: "#38bdf8", body: "Read all four buckets, lazily refill them based on elapsed time, and evaluate all four checks. Track the minimum remaining tokens across all levels. No tokens are consumed yet." },
-                  { title: "Phase 2: Conditional Commit", color: "#4ade80", body: "Only if Phase 1 concludes that ALL four levels have ≥ 1 token does the script decrement each bucket. If any level fails, the script skips Phase 2 entirely and returns denied." },
+                  { title: "Phase 1: Speculative Check", color: "#c084fc", body: "Read all four buckets, lazily refill them based on elapsed time, and evaluate all four checks. Track the minimum remaining tokens across all levels. No tokens are consumed yet." },
+                  { title: "Phase 2: Conditional Commit", color: "#c084fc", body: "Only if Phase 1 concludes that ALL four levels have ≥ 1 token does the script decrement each bucket. If any level fails, the script skips Phase 2 entirely and returns denied." },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#0f0f12", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: item.color, marginBottom: 8 }}>{item.title}</div>
@@ -420,9 +420,9 @@ curl -X DELETE http://localhost:8082/admin/limits/tenant/acme \\
                     ].map(([level, path, key, after], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#ffffff", fontWeight: 600 }}>{level}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11 }}>{path}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{path}</td>
                         <td style={{ padding: "8px 12px", color: "#a78bfa", fontFamily: "monospace", fontSize: 11 }}>{key}</td>
-                        <td style={{ padding: "8px 12px", color: "#4ade80" }}>{after}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc" }}>{after}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -441,14 +441,14 @@ curl -X DELETE http://localhost:8082/admin/limits/tenant/acme \\
               </p>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16, marginBottom: 24 }}>
-                <div style={{ background: "#111113", border: "1px solid #4ade8033", borderRadius: 8, padding: "16px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#4ade80", marginBottom: 8 }}>✅ Supported: Redis Sentinel HA</div>
+                <div style={{ background: "#111113", border: "1px solid #c084fc33", borderRadius: 8, padding: "16px 18px" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#c084fc", marginBottom: 8 }}>✅ Supported: Redis Sentinel HA</div>
                   <p style={{ fontSize: 12.5, color: "#a1a1aa", lineHeight: 1.6, margin: 0 }}>
                     A single Redis master (with replicas) processes all keys in a single process. Multi-key Lua scripts work with no restrictions. This is the recommended production configuration (<code>REDIS_MODE=sentinel</code>).
                   </p>
                 </div>
                 <div style={{ background: "#111113", border: "1px solid #f4405033", borderRadius: 8, padding: "16px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f43f5e", marginBottom: 8 }}>❌ Not Supported: Redis Cluster</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#ec4899", marginBottom: 8 }}>❌ Not Supported: Redis Cluster</div>
                   <p style={{ fontSize: 12.5, color: "#a1a1aa", lineHeight: 1.6, margin: 0 }}>
                     Redis Cluster mode will throw CROSSSLOT errors for the hierarchical Lua script. Workaround: use hash tags to pin all four keys to the same slot — e.g. <code>{"{rl:acme}"}:global</code>, <code>{"{rl:acme}"}:tenant</code>, etc. This requires key naming changes throughout.
                   </p>
@@ -481,8 +481,8 @@ curl -X DELETE http://localhost:8082/admin/limits/tenant/acme \\
                       ["X-RateLimit-Policy", "hierarchical; levels=4", "Signals to clients which policy was applied (hierarchical vs flat)."],
                     ].map(([header, val, desc], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11 }}>{header}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace" }}>{val}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{header}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{val}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{desc}</td>
                       </tr>
                     ))}
@@ -491,10 +491,10 @@ curl -X DELETE http://localhost:8082/admin/limits/tenant/acme \\
               </div>
 
               <div style={{
-                background: "rgba(56,189,248,0.05)", border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.05)", border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65
               }}>
-                <strong style={{ color: "#38bdf8" }}>Design Note — Minimum Remaining:</strong> The <code>X-RateLimit-Remaining</code> header reports the <em>minimum</em> across all 4 levels after decrement, not the user-level remaining. This is intentional — it correctly represents how many more requests will be allowed under the tightest current constraint, regardless of which level is the bottleneck.
+                <strong style={{ color: "#c084fc" }}>Design Note — Minimum Remaining:</strong> The <code>X-RateLimit-Remaining</code> header reports the <em>minimum</em> across all 4 levels after decrement, not the user-level remaining. This is intentional — it correctly represents how many more requests will be allowed under the tightest current constraint, regardless of which level is the bottleneck.
               </div>
 
             </div>

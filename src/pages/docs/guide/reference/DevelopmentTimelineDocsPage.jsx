@@ -25,7 +25,7 @@ function PhaseTimelineChart() {
     {
       title: "Phase 2: LSM Features",
       period: "Mid June 2026",
-      color: "#38bdf8",
+      color: "#c084fc",
       items: [
         "Background flusher goroutine",
         "Bloom filters per-SSTable",

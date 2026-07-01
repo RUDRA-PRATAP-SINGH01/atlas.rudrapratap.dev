@@ -37,13 +37,13 @@ flowchart TD
     GoClient -->|"2. writes → discovered master"| M
     GoClient -.->|"reads (optional, replica=true)"| R1
 
-    style M fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style M fill:#1e1e2e,stroke:#ec4899,color:#fff
     style GoClient fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style S1 fill:#18181b,stroke:#38bdf8,color:#fff
-    style S2 fill:#18181b,stroke:#38bdf8,color:#fff
-    style S3 fill:#18181b,stroke:#38bdf8,color:#fff
-    style R1 fill:#18181b,stroke:#4ade80,color:#fff
-    style R2 fill:#18181b,stroke:#4ade80,color:#fff
+    style S1 fill:#18181b,stroke:#c084fc,color:#fff
+    style S2 fill:#18181b,stroke:#c084fc,color:#fff
+    style S3 fill:#18181b,stroke:#c084fc,color:#fff
+    style R1 fill:#18181b,stroke:#c084fc,color:#fff
+    style R2 fill:#18181b,stroke:#c084fc,color:#fff
 `;
 
 const failoverDiagram = `
@@ -112,8 +112,8 @@ export default function RLRedisHaPage() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
-                  { icon: "🔓", title: "Quota State Lost", body: "Token bucket HASH keys are in-memory by default. A restart wipes all buckets — all users start with full quota simultaneously, creating an accidental request surge (thundering herd).", color: "#f43f5e" },
-                  { icon: "🔁", title: "Idempotency Keys Gone", body: "All PROCESSING records are lost. In-flight requests become orphans — the upstream may have already executed, but the sidecar can no longer detect it as a duplicate on retry.", color: "#fb923c" },
+                  { icon: "🔓", title: "Quota State Lost", body: "Token bucket HASH keys are in-memory by default. A restart wipes all buckets — all users start with full quota simultaneously, creating an accidental request surge (thundering herd).", color: "#ec4899" },
+                  { icon: "🔁", title: "Idempotency Keys Gone", body: "All PROCESSING records are lost. In-flight requests become orphans — the upstream may have already executed, but the sidecar can no longer detect it as a duplicate on retry.", color: "#c084fc" },
                   { icon: "📋", title: "Audit Trail Gap", body: "The async audit worker pool drains from Redis lists. Any buffered, unprocessed audit events not yet written to disk are permanently lost.", color: "#a78bfa" },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
@@ -154,9 +154,9 @@ export default function RLRedisHaPage() {
                       ["Failover Orchestrator", "When quorum is reached on ODOWN, one sentinel is elected leader (Raft-style) and coordinates the promotion of a replica to master.", "SLAVEOF NO ONE + REPLICAOF"],
                     ].map(([role, what, cmd], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontWeight: 600 }}>{role}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontWeight: 600 }}>{role}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{what}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace", fontSize: 11 }}>{cmd}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{cmd}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -174,10 +174,10 @@ export default function RLRedisHaPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 20, marginBottom: 28 }}>
                 {[
-                  { title: "SDOWN (Subjective Down)", color: "#fb923c", body: "A single Sentinel marks the master as subjectively down after down-after-milliseconds (default 30s) without a PONG response. This is a local judgment only." },
-                  { title: "ODOWN (Objective Down)", color: "#f43f5e", body: "When quorum (≥ 2) sentinels independently agree the master is SDOWN, the state is upgraded to ODOWN — objective, consensus-based failure detection." },
+                  { title: "SDOWN (Subjective Down)", color: "#c084fc", body: "A single Sentinel marks the master as subjectively down after down-after-milliseconds (default 30s) without a PONG response. This is a local judgment only." },
+                  { title: "ODOWN (Objective Down)", color: "#ec4899", body: "When quorum (≥ 2) sentinels independently agree the master is SDOWN, the state is upgraded to ODOWN — objective, consensus-based failure detection." },
                   { title: "Leader Election", color: "#a78bfa", body: "Sentinels elect a failover leader using a Raft-like protocol. The leader with the highest epoch wins the vote. Only the leader executes the promotion." },
-                  { title: "Replica Promotion", color: "#4ade80", body: "The elected leader sends SLAVEOF NO ONE to the best-ranked replica (lowest replication offset lag). The replica becomes the new master." },
+                  { title: "Replica Promotion", color: "#c084fc", body: "The elected leader sends SLAVEOF NO ONE to the best-ranked replica (lowest replication offset lag). The replica becomes the new master." },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "14px 16px" }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: item.color, marginBottom: 6 }}>{item.title}</div>
@@ -298,9 +298,9 @@ func getEnvOrDefault(key, defaultVal string) string {
                       ["MaxRetryBackoff", "512ms", "256ms", "Reduce max backoff to fail faster to the circuit breaker during a sustained Redis outage."],
                     ].map(([param, def, rec, rationale], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11 }}>{param}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{param}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa", fontFamily: "monospace" }}>{def}</td>
-                        <td style={{ padding: "8px 12px", color: "#4ade80", fontFamily: "monospace" }}>{rec}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{rec}</td>
                         <td style={{ padding: "8px 12px", color: "#71717a", lineHeight: 1.5 }}>{rationale}</td>
                       </tr>
                     ))}
@@ -316,10 +316,10 @@ func getEnvOrDefault(key, defaultVal string) string {
                 Redis replication is <strong>asynchronous</strong>. The master acknowledges a write before the replica applies it. This creates a short replication lag (typically &lt; 1ms on LAN, up to tens of ms on congested networks).
               </p>
               <div style={{
-                background: "rgba(244,63,94,0.06)", border: "1px solid rgba(244,63,94,0.2)",
+                background: "rgba(219, 39, 119,0.06)", border: "1px solid rgba(219, 39, 119,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 20, marginTop: 16
               }}>
-                <strong style={{ color: "#f43f5e" }}>⚠️ Critical Design Decision:</strong> All rate-limit quota checks (EVALSHA on token buckets and sliding windows) MUST go to the <em>master</em> node only. Reading from a replica risks returning a stale token count — a user who has consumed all their tokens might receive an "allowed" response from a lagging replica, resulting in over-limit requests being served.
+                <strong style={{ color: "#ec4899" }}>⚠️ Critical Design Decision:</strong> All rate-limit quota checks (EVALSHA on token buckets and sliding windows) MUST go to the <em>master</em> node only. Reading from a replica risks returning a stale token count — a user who has consumed all their tokens might receive an "allowed" response from a lagging replica, resulting in over-limit requests being served.
               </div>
               <p>
                 The <code>go-redis</code> FailoverClient routes all commands to the master by default. Reading from replicas is opt-in via <code>RouteRandomly: true</code> or <code>RouteByLatency: true</code>. This system does NOT enable replica reads for any rate-limiting data path.
@@ -406,10 +406,10 @@ docker-compose -f docker-compose.ha.yml stop sentinel-1 sentinel-2
               </div>
 
               <div style={{
-                background: "rgba(56,189,248,0.05)", border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.05)", border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65
               }}>
-                <strong style={{ color: "#38bdf8" }}>Production Recommendation:</strong> Enable both RDB (<code>--save 60 1</code>) and AOF (<code>--appendonly yes</code>) persistence on the master. RDB provides fast restart snapshots; AOF ensures at-most-1-second data loss. Without persistence, a master restart wipes all rate-limit state, causing a thundering herd on startup. Set <code>--appendfsync everysec</code> (not <code>always</code>) for a good durability/throughput trade-off.
+                <strong style={{ color: "#c084fc" }}>Production Recommendation:</strong> Enable both RDB (<code>--save 60 1</code>) and AOF (<code>--appendonly yes</code>) persistence on the master. RDB provides fast restart snapshots; AOF ensures at-most-1-second data loss. Without persistence, a master restart wipes all rate-limit state, causing a thundering herd on startup. Set <code>--appendfsync everysec</code> (not <code>always</code>) for a good durability/throughput trade-off.
               </div>
 
             </div>

@@ -83,9 +83,9 @@ export default function RLIdempotencyPage() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 14, marginBottom: 24 }}>
                 {[
-                  { title: "At-Most-Once", color: "#38bdf8", icon: "1️⃣", body: "Fire-and-forget. Never retried. Avoids duplicates but loses the request permanently on any transient failure. Acceptable for non-critical logging. Unacceptable for payments." },
-                  { title: "At-Least-Once", color: "#fb923c", icon: "🔁", body: "Retried until acknowledged. Prevents loss but creates duplicates on network errors. The default behavior of most HTTP clients and message queues. Dangerous for mutations." },
-                  { title: "Exactly-Once", color: "#4ade80", icon: "✅", body: "The goal. Achieved by combining client-generated Idempotency-Key with server-side deduplication. This is what the idempotency layer implements." },
+                  { title: "At-Most-Once", color: "#c084fc", icon: "1️⃣", body: "Fire-and-forget. Never retried. Avoids duplicates but loses the request permanently on any transient failure. Acceptable for non-critical logging. Unacceptable for payments." },
+                  { title: "At-Least-Once", color: "#c084fc", icon: "🔁", body: "Retried until acknowledged. Prevents loss but creates duplicates on network errors. The default behavior of most HTTP clients and message queues. Dangerous for mutations." },
+                  { title: "Exactly-Once", color: "#c084fc", icon: "✅", body: "The goal. Achieved by combining client-generated Idempotency-Key with server-side deduplication. This is what the idempotency layer implements." },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ fontSize: 20, marginBottom: 6 }}>{item.icon}</div>
@@ -112,11 +112,11 @@ export default function RLIdempotencyPage() {
 
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 20, fontFamily: "monospace", fontSize: 13 }}>
                 <div style={{ color: "#71717a", marginBottom: 8 }}># Internal Redis key format:</div>
-                <div style={{ color: "#38bdf8" }}>idem:{"{scope}"}:{"{client_key}"}</div>
+                <div style={{ color: "#c084fc" }}>idem:{"{scope}"}:{"{client_key}"}</div>
                 <div style={{ marginTop: 14, color: "#71717a" }}># Example (scope = "sidecar"):</div>
-                <div style={{ color: "#4ade80", marginTop: 4 }}>idem:sidecar:pay_xyz123_20240115</div>
+                <div style={{ color: "#c084fc", marginTop: 4 }}>idem:sidecar:pay_xyz123_20240115</div>
                 <div style={{ marginTop: 14, color: "#71717a" }}># Header the client sends:</div>
-                <div style={{ color: "#fb923c", marginTop: 4 }}>Idempotency-Key: pay_xyz123_20240115</div>
+                <div style={{ color: "#c084fc", marginTop: 4 }}>Idempotency-Key: pay_xyz123_20240115</div>
               </div>
 
               <div style={{ overflowX: "auto", marginBottom: 28 }}>
@@ -140,9 +140,9 @@ export default function RLIdempotencyPage() {
                       ["tenant_id", "HASH field", "tenant_id", "Scopes the record to the originating tenant."],
                     ].map(([field, type_, key, desc], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#4ade80", fontFamily: "monospace", fontWeight: 600 }}>{field}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontSize: 11 }}>{type_}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11 }}>{key}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontWeight: 600 }}>{field}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontSize: 11 }}>{type_}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{key}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{desc}</td>
                       </tr>
                     ))}
@@ -161,9 +161,9 @@ export default function RLIdempotencyPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 20, marginBottom: 28 }}>
                 {[
-                  { state: "NEW → PROCESSING", color: "#38bdf8", detail: "claim.lua is called with the client key and body fingerprint. If no prior record exists, a new HASH is created with status=PROCESSING and a fresh fence token (Redis INCR on a monotonic counter key). The caller receives the fence token." },
-                  { state: "PROCESSING → COMPLETED", color: "#4ade80", detail: "complete.lua is called by the upstream handler after a successful 2xx response. The fence token is verified before writing. If it matches, status is set to COMPLETED and the response body and headers are stored. TTL is set to IDEMPOTENCY_TTL_SECONDS (default: 86400)." },
-                  { state: "PROCESSING → FAILED", color: "#f43f5e", detail: "fail.lua is called on any 5xx response from upstream. The fence token is verified, status is set to FAILED, and the error response is stored. A failed key replays the same error on retry — preventing silent loss of failure information." },
+                  { state: "NEW → PROCESSING", color: "#c084fc", detail: "claim.lua is called with the client key and body fingerprint. If no prior record exists, a new HASH is created with status=PROCESSING and a fresh fence token (Redis INCR on a monotonic counter key). The caller receives the fence token." },
+                  { state: "PROCESSING → COMPLETED", color: "#c084fc", detail: "complete.lua is called by the upstream handler after a successful 2xx response. The fence token is verified before writing. If it matches, status is set to COMPLETED and the response body and headers are stored. TTL is set to IDEMPOTENCY_TTL_SECONDS (default: 86400)." },
+                  { state: "PROCESSING → FAILED", color: "#ec4899", detail: "fail.lua is called on any 5xx response from upstream. The fence token is verified, status is set to FAILED, and the error response is stored. A failed key replays the same error on retry — preventing silent loss of failure information." },
                   { state: "COMPLETED/FAILED → replay", color: "#a78bfa", detail: "Any subsequent claim.lua call for an already-completed key returns the stored status, http_status, and response body without reaching upstream. The sidecar sets X-Idempotency-Status: REPLAYED." },
                 ].map(item => (
                   <div key={item.state} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "14px 16px" }}>
@@ -256,7 +256,7 @@ return {'REPLAYED', fence, http_st, body}`}</GoCodeBlock>
 
               {/* complete.lua and fail.lua */}
               <h2 className="guide-sub-heading" id="complete-fail" style={{ fontSize: 22, color: "#ffffff", marginTop: 40, marginBottom: 12 }}>
-                <code style={{ color: "#4ade80", fontSize: 18 }}>complete.lua</code> &amp; <code style={{ color: "#f87171", fontSize: 18 }}>fail.lua</code>
+                <code style={{ color: "#c084fc", fontSize: 18 }}>complete.lua</code> &amp; <code style={{ color: "#f472b6", fontSize: 18 }}>fail.lua</code>
               </h2>
               <p>
                 After the upstream responds, the sidecar calls either <code>complete.lua</code> (on success) or <code>fail.lua</code> (on error). Both scripts verify the fence token before writing — preventing a stale, late-arriving request from overwriting a newer result:
@@ -392,10 +392,10 @@ func IsMutatingMethod(method string) bool {
                 <li>The in-flight result for fence=43 takes precedence.</li>
               </ol>
               <div style={{
-                background: "rgba(251,146,60,0.07)", border: "1px solid rgba(251,146,60,0.25)",
+                background: "rgba(244, 114, 182,0.07)", border: "1px solid rgba(244, 114, 182,0.25)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 28
               }}>
-                <strong style={{ color: "#fb923c" }}>⚠️ Fence Counter Persistence:</strong> The fence counter key (<code>idem:fence:{"{scope}"}</code>) uses <code>INCR</code> which is crash-safe as long as Redis persistence is enabled (AOF or RDB). Without persistence, a Redis restart resets counters to 0, and old fence comparisons become unreliable. In production, enable AOF with <code>appendonly yes</code>.
+                <strong style={{ color: "#c084fc" }}>⚠️ Fence Counter Persistence:</strong> The fence counter key (<code>idem:fence:{"{scope}"}</code>) uses <code>INCR</code> which is crash-safe as long as Redis persistence is enabled (AOF or RDB). Without persistence, a Redis restart resets counters to 0, and old fence comparisons become unreliable. In production, enable AOF with <code>appendonly yes</code>.
               </div>
 
               {/* Replay Detection */}
@@ -423,8 +423,8 @@ func IsMutatingMethod(method string) bool {
                       ["X-Fence-Token", "{integer}", "The fence token assigned to this execution. Useful for distributed tracing correlation."],
                     ].map(([header, val, meaning], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11 }}>{header}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace", fontWeight: 600 }}>{val}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{header}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontWeight: 600 }}>{val}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{meaning}</td>
                       </tr>
                     ))}
@@ -433,10 +433,10 @@ func IsMutatingMethod(method string) bool {
               </div>
 
               <div style={{
-                background: "rgba(56,189,248,0.05)", border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.05)", border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65
               }}>
-                <strong style={{ color: "#38bdf8" }}>Fail-Open vs Fail-Closed:</strong> If Redis is unavailable during the claim call, the sidecar's behavior is controlled by the <code>IDEMPOTENCY_FAIL_OPEN</code> env var. When <code>true</code> (default), the request proceeds as if no idempotency key was present — avoiding a hard outage. When <code>false</code>, the sidecar returns 503. Choose <code>false</code> for payment-critical services where duplicate execution is unacceptable.
+                <strong style={{ color: "#c084fc" }}>Fail-Open vs Fail-Closed:</strong> If Redis is unavailable during the claim call, the sidecar's behavior is controlled by the <code>IDEMPOTENCY_FAIL_OPEN</code> env var. When <code>true</code> (default), the request proceeds as if no idempotency key was present — avoiding a hard outage. When <code>false</code>, the sidecar returns 503. Choose <code>false</code> for payment-critical services where duplicate execution is unacceptable.
               </div>
 
             </div>

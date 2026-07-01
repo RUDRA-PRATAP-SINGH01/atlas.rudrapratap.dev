@@ -78,9 +78,9 @@ flowchart LR
     style SP fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style CK fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style CHK fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Admin fill:#1e1e2e,stroke:#fb923c,color:#fff
-    style TB fill:#18181b,stroke:#f43f5e,color:#fff
-    style SW fill:#18181b,stroke:#f43f5e,color:#fff
+    style Admin fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style TB fill:#18181b,stroke:#ec4899,color:#fff
+    style SW fill:#18181b,stroke:#ec4899,color:#fff
 `;
 
 const sentinelDiagram = `
@@ -101,11 +101,11 @@ flowchart TD
     GoClient -->|"writes → master"| Master
     GoClient -.->|"reads (optional)"| R1
 
-    style Master fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style Master fill:#1e1e2e,stroke:#ec4899,color:#fff
     style GoClient fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style S1 fill:#18181b,stroke:#38bdf8,color:#fff
-    style S2 fill:#18181b,stroke:#38bdf8,color:#fff
-    style S3 fill:#18181b,stroke:#38bdf8,color:#fff
+    style S1 fill:#18181b,stroke:#c084fc,color:#fff
+    style S2 fill:#18181b,stroke:#c084fc,color:#fff
+    style S3 fill:#18181b,stroke:#c084fc,color:#fff
 `;
 
 export default function RLArchitecturePage() {
@@ -161,7 +161,7 @@ export default function RLArchitecturePage() {
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#ffffff", fontWeight: 500 }}>{comp}</td>
                         <td style={{ padding: "8px 12px", color: "#ff5cad", fontFamily: "monospace", fontSize: 12 }}>{pkg}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 12 }}>{port}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 12 }}>{port}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa", lineHeight: 1.5 }}>{resp}</td>
                       </tr>
                     ))}
@@ -192,14 +192,14 @@ export default function RLArchitecturePage() {
               </ol>
 
               <div style={{
-                background: "rgba(244,63,94,0.06)",
-                border: "1px solid rgba(244,63,94,0.2)",
+                background: "rgba(219, 39, 119,0.06)",
+                border: "1px solid rgba(219, 39, 119,0.2)",
                 borderRadius: 8,
                 padding: "14px 18px",
                 fontSize: 13,
                 marginBottom: 24,
                 lineHeight: 1.6,
-                color: "#fca5a5"
+                color: "#fbcfe8"
               }}>
                 <strong>⚠️ Fail-Fast By Design:</strong> If Redis is unreachable at startup, the limiter calls <code>log.Fatalf</code> immediately. A limiter that starts without verified Redis connectivity would silently mis-report health and operate without state — both failure modes are worse than refusing to start.
               </div>
@@ -223,8 +223,8 @@ export default function RLArchitecturePage() {
                   }}>
                     <span style={{
                       fontSize: 11, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
-                      background: ep.method.includes("/") ? "rgba(251,146,60,0.15)" : ep.method === "GET" ? "rgba(56,189,248,0.15)" : ep.method === "POST" ? "rgba(74,222,128,0.15)" : "rgba(248,113,113,0.15)",
-                      color: ep.method.includes("/") ? "#fb923c" : ep.method === "GET" ? "#38bdf8" : ep.method === "POST" ? "#4ade80" : "#f87171",
+                      background: ep.method.includes("/") ? "rgba(244, 114, 182,0.15)" : ep.method === "GET" ? "rgba(192, 132, 252,0.15)" : ep.method === "POST" ? "rgba(167, 139, 250,0.15)" : "rgba(248,113,113,0.15)",
+                      color: ep.method.includes("/") ? "#c084fc" : ep.method === "GET" ? "#c084fc" : ep.method === "POST" ? "#c084fc" : "#f472b6",
                       minWidth: 60, textAlign: "center", fontFamily: "monospace"
                     }}>{ep.method}</span>
                     <div>
@@ -308,9 +308,9 @@ export default function RLArchitecturePage() {
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>{item.title}</span>
-                      <span style={{ fontSize: 10, padding: "2px 6px", background: "rgba(244,63,94,0.15)", color: "#f43f5e", borderRadius: 4, fontFamily: "monospace", fontWeight: 700 }}>{item.type}</span>
+                      <span style={{ fontSize: 10, padding: "2px 6px", background: "rgba(219, 39, 119,0.15)", color: "#ec4899", borderRadius: 4, fontFamily: "monospace", fontWeight: 700 }}>{item.type}</span>
                     </div>
-                    <code style={{ fontSize: 11, color: "#38bdf8", display: "block", marginBottom: 4 }}>{item.key}</code>
+                    <code style={{ fontSize: 11, color: "#c084fc", display: "block", marginBottom: 4 }}>{item.key}</code>
                     <div style={{ fontSize: 11, color: "#71717a", fontFamily: "monospace", marginBottom: 6 }}>{item.fields}</div>
                     <div style={{ fontSize: 12, color: "#a1a1aa", lineHeight: 1.5 }}>{item.detail}</div>
                   </div>
@@ -354,8 +354,8 @@ export default function RLArchitecturePage() {
                     ].map(([svc, port, proto, purpose], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#ffffff", fontWeight: 500 }}>{svc}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace" }}>{port}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace", fontSize: 11 }}>{proto}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{port}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{proto}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{purpose}</td>
                       </tr>
                     ))}

@@ -27,7 +27,7 @@ function TimelineSvg() {
         { x: 750, date: "June 25", phase: "P9: Shutdown" }
       ].map((pt, idx) => (
         <g key={pt.phase}>
-          <circle cx={pt.x} cy="120" r={idx % 2 === 0 ? "6" : "5"} fill={idx % 2 === 0 ? "#ff5cad" : "#38bdf8"} stroke="#0e0e11" strokeWidth="1.5" />
+          <circle cx={pt.x} cy="120" r={idx % 2 === 0 ? "6" : "5"} fill={idx % 2 === 0 ? "#ff5cad" : "#c084fc"} stroke="#0e0e11" strokeWidth="1.5" />
           
           {/* Alternating labels top/bottom to prevent overlap */}
           {idx % 2 === 0 ? (
@@ -40,7 +40,7 @@ function TimelineSvg() {
             <>
               <text x={pt.x} y="145" fill="#ffffff" fontSize="9" textAnchor="middle" fontWeight="bold">{pt.phase}</text>
               <text x={pt.x} y="160" fill="#a1a1aa" fontSize="8" textAnchor="middle">{pt.date}</text>
-              <line x1={pt.x} y1="126" x2={pt.x} y2="138" stroke="#38bdf8" strokeWidth="0.8" strokeDasharray="2,2" />
+              <line x1={pt.x} y1="126" x2={pt.x} y2="138" stroke="#c084fc" strokeWidth="0.8" strokeDasharray="2,2" />
             </>
           )}
         </g>

@@ -28,9 +28,9 @@ flowchart LR
     Check -->|"no"| Return0
 
     style Load fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Decrement fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Return1 fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Return0 fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style Decrement fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Return1 fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Return0 fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 
 const slidingWindowDiagram = `
@@ -48,9 +48,9 @@ flowchart LR
     Check -->|"yes"| Expire --> Return1
     Check -->|"no"| Return0
 
-    style Trim fill:#1e1e2e,stroke:#38bdf8,color:#fff
-    style Return1 fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Return0 fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style Trim fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Return1 fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Return0 fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 
 export default function RLLuaScriptsPage() {
@@ -145,9 +145,9 @@ return {1, math.floor(new_tokens)}   -- allowed, remaining`}</GoCodeBlock>
               {/* Properties of token bucket */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
                 {[
-                  { title: "Burst Handling", body: "If no requests arrive for 10 seconds and refill_rate=1, the bucket refills by 10 tokens (up to capacity). This allows short bursts after idle periods — good for API clients.", icon: "⚡", color: "#4ade80" },
-                  { title: "Smooth Steady-State", body: "At exactly refill_rate requests/second in steady state, the bucket stays near-full. Clients get predictable throughput without jitter.", icon: "📈", color: "#38bdf8" },
-                  { title: "Second-Resolution", body: "The current implementation uses time.Now().Unix() (whole seconds). This means intra-second refills are not visible. Sub-second precision requires switching to UnixMilli().", icon: "⚠️", color: "#fb923c" },
+                  { title: "Burst Handling", body: "If no requests arrive for 10 seconds and refill_rate=1, the bucket refills by 10 tokens (up to capacity). This allows short bursts after idle periods — good for API clients.", icon: "⚡", color: "#c084fc" },
+                  { title: "Smooth Steady-State", body: "At exactly refill_rate requests/second in steady state, the bucket stays near-full. Clients get predictable throughput without jitter.", icon: "📈", color: "#c084fc" },
+                  { title: "Second-Resolution", body: "The current implementation uses time.Now().Unix() (whole seconds). This means intra-second refills are not visible. Sub-second precision requires switching to UnixMilli().", icon: "⚠️", color: "#c084fc" },
                   { title: "Redis Storage", body: "Each bucket is a Redis HASH with 2 fields: 'tokens' and 'last_refill'. Storage is O(1) per user — no sorted sets, no list growth.", icon: "💾", color: "#a78bfa" },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#0f0f12", border: `1px solid ${item.color}22`, borderRadius: 8, padding: "14px 16px" }}>
@@ -231,19 +231,19 @@ return {1, limit - count}`}</GoCodeBlock>
                   }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#ff5cad", marginBottom: 6, textTransform: "uppercase" }}>Level {i+1}</div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#ffffff", marginBottom: 6 }}>{item.level}</div>
-                    <code style={{ fontSize: 10, color: "#38bdf8", display: "block", wordBreak: "break-all", marginBottom: 8 }}>{item.key}</code>
+                    <code style={{ fontSize: 10, color: "#c084fc", display: "block", wordBreak: "break-all", marginBottom: 8 }}>{item.key}</code>
                     <div style={{ fontSize: 11.5, color: "#71717a", lineHeight: 1.5 }}>{item.desc}</div>
                   </div>
                 ))}
               </div>
 
               <div style={{
-                background: "rgba(244,63,94,0.06)",
-                border: "1px solid rgba(244,63,94,0.2)",
+                background: "rgba(219, 39, 119,0.06)",
+                border: "1px solid rgba(219, 39, 119,0.2)",
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginBottom: 20
               }}>
-                <strong style={{ color: "#f87171" }}>⚠️ Redis Cluster Caveat:</strong> The hierarchical script uses 4 different KEYS (different key namespaces). In Redis Cluster mode, these keys may hash to different slots, causing a <code>CROSSSLOT Keys in request don't hash to the same slot</code> error. The system currently only supports standalone Redis or Redis Sentinel. To support cluster mode, all keys would need hash tags (e.g., <code>{"{rl}"}:global</code>, <code>{"{rl}"}:tenant:X</code>).
+                <strong style={{ color: "#f472b6" }}>⚠️ Redis Cluster Caveat:</strong> The hierarchical script uses 4 different KEYS (different key namespaces). In Redis Cluster mode, these keys may hash to different slots, causing a <code>CROSSSLOT Keys in request don't hash to the same slot</code> error. The system currently only supports standalone Redis or Redis Sentinel. To support cluster mode, all keys would need hash tags (e.g., <code>{"{rl}"}:global</code>, <code>{"{rl}"}:tenant:X</code>).
               </div>
 
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 24 }}>

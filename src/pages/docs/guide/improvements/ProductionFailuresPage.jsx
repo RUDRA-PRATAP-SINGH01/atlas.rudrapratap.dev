@@ -24,13 +24,13 @@ export default function ProductionFailuresPage() {
             </h1>
 
             <div className="warning-banner" style={{
-              background: "rgba(239, 68, 68, 0.08)",
-              border: "1px solid rgba(239, 68, 68, 0.25)",
+              background: "rgba(219, 39, 119, 0.08)",
+              border: "1px solid rgba(219, 39, 119, 0.25)",
               borderRadius: "8px",
               padding: "16px",
               marginTop: "20px",
               marginBottom: "24px",
-              color: "#fca5a5",
+              color: "#fbcfe8",
               fontSize: "14px",
               lineHeight: "1.6"
             }}>

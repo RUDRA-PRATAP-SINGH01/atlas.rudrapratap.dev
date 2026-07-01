@@ -29,7 +29,7 @@ const EVICTION_CODE = `func (c *BlockCache) add(key blockCacheKey, block []byte)
 function MemoryBudgetChartSvg() {
   const budget = [
     { label: "Active Memtable", val: 76, color: "#ff5cad" },
-    { label: "Pending Flush Queue", val: 10, color: "#38bdf8" },
+    { label: "Pending Flush Queue", val: 10, color: "#c084fc" },
     { label: "Block Cache", val: 10, color: "#a855f7" },
     { label: "Bloom Filters (all SSTs)", val: 3, color: "#eab308" },
     { label: "Index Blocks (all SSTs)", val: 1, color: "#10b981" },
@@ -265,8 +265,8 @@ export default function MemoryUsageDocsPage() {
                 </table>
               </div>
 
-              <div style={{ background: "rgba(56, 189, 248, 0.06)", border: "1px solid rgba(56, 189, 248, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#38bdf8", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 NOTE</p>
+              <div style={{ background: "rgba(192, 132, 252, 0.06)", border: "1px solid rgba(192, 132, 252, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
+                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 NOTE</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   Block cache dominates at small dataset sizes. Bloom filter memory dominates at larger dataset sizes. The memtable is constant because it flushes at the configured threshold.
                 </p>

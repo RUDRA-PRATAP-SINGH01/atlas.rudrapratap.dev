@@ -28,7 +28,7 @@ function ConfigTable({ rows }) {
           {rows.map(([envVar, def, type, desc], i) => (
             <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
               <td style={{ padding: "7px 10px", color: "#ff5cad", fontFamily: "monospace", fontSize: 12 }}>{envVar}</td>
-              <td style={{ padding: "7px 10px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11.5, whiteSpace: "nowrap" }}>{def}</td>
+              <td style={{ padding: "7px 10px", color: "#c084fc", fontFamily: "monospace", fontSize: 11.5, whiteSpace: "nowrap" }}>{def}</td>
               <td style={{ padding: "7px 10px", color: "#a78bfa", fontFamily: "monospace", fontSize: 11 }}>{type}</td>
               <td style={{ padding: "7px 10px", color: "#a1a1aa", lineHeight: 1.5 }}>{desc}</td>
             </tr>
@@ -63,7 +63,7 @@ export default function RLConfigurationPage() {
                 borderRadius: 8, padding: "12px 16px",
                 fontSize: 13, marginBottom: 28
               }}>
-                <strong style={{ color: "#ff5cad" }}>Note:</strong> Variables marked with a <code style={{ color: "#fb923c" }}>★</code> are security-sensitive. Never use their default values in production.
+                <strong style={{ color: "#ff5cad" }}>Note:</strong> Variables marked with a <code style={{ color: "#c084fc" }}>★</code> are security-sensitive. Never use their default values in production.
               </div>
 
               {/* Central Limiter */}
@@ -277,12 +277,12 @@ export default function RLConfigurationPage() {
       condition: service_healthy`}</GoCodeBlock>
 
               <div style={{
-                background: "rgba(244,63,94,0.06)",
-                border: "1px solid rgba(244,63,94,0.2)",
+                background: "rgba(219, 39, 119,0.06)",
+                border: "1px solid rgba(219, 39, 119,0.2)",
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginTop: 4
               }}>
-                <strong style={{ color: "#f87171" }}>⚠️ Production Security Checklist:</strong>
+                <strong style={{ color: "#f472b6" }}>⚠️ Production Security Checklist:</strong>
                 <ul style={{ paddingLeft: 16, marginTop: 8, lineHeight: 1.9 }}>
                   <li>Replace <code>REDIS_PASSWORD</code>, <code>ADMIN_API_KEY</code>, and <code>INTERNAL_API_KEY</code> with randomly generated secrets (e.g., <code>openssl rand -hex 32</code>)</li>
                   <li>Never expose <code>ADMIN_PORT</code> to public networks — restrict to internal VPC or Kubernetes ClusterIP service</li>

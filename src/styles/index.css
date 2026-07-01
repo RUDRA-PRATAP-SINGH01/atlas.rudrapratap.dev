@@ -1714,19 +1714,19 @@
   }
 
   .code-keyword {
-    color: #f43f5e;
+    color: #ff5cad;
   }
 
   .code-string {
-    color: #fdba74;
+    color: #f472b6;
   }
 
   .code-decorator {
-    color: #fbbf24;
+    color: #e2d5f8;
   }
 
   .code-function {
-    color: #60a5fa;
+    color: #a78bfa;
   }
 
   .code-integer {

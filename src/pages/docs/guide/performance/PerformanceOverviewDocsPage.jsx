@@ -31,7 +31,7 @@ const ARCH_CHART = `flowchart TD
 function MemoryBudgetChartSvg() {
   const budget = [
     { label: "Active Memtable", val: 76, color: "#ff5cad" },
-    { label: "Pending Flush Queue", val: 10, color: "#38bdf8" },
+    { label: "Pending Flush Queue", val: 10, color: "#c084fc" },
     { label: "Block Cache", val: 10, color: "#a855f7" },
     { label: "Bloom Filters (all SSTs)", val: 3, color: "#eab308" },
     { label: "Index Blocks (all SSTs)", val: 1, color: "#10b981" },

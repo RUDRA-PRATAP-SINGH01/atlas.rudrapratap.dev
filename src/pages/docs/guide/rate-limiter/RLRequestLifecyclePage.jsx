@@ -118,9 +118,9 @@ flowchart TD
 
     style Start fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style AllAllowed fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Decrement fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style ReturnAllow fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style ReturnDeny fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style Decrement fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style ReturnAllow fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style ReturnDeny fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 
 export default function RLRequestLifecyclePage() {
@@ -156,10 +156,10 @@ export default function RLRequestLifecyclePage() {
                     All client-facing traffic goes through the sidecar on port <code style={{ color: "#ff5cad" }}>:9090</code>. The sidecar intercepts, checks quota, and either forwards or rejects. This is the standard production flow.
                   </p>
                 </div>
-                <div style={{ background: "#0f0f12", border: "1px solid rgba(56,189,248,0.2)", borderRadius: 8, padding: "16px 20px" }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#38bdf8", marginBottom: 8 }}>Direct to Central Limiter</div>
+                <div style={{ background: "#0f0f12", border: "1px solid rgba(192, 132, 252,0.2)", borderRadius: 8, padding: "16px 20px" }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#c084fc", marginBottom: 8 }}>Direct to Central Limiter</div>
                   <p style={{ fontSize: 13, color: "#a1a1aa", lineHeight: 1.6, margin: 0 }}>
-                    Internal services (like other microservices) can call the limiter directly on port <code style={{ color: "#38bdf8" }}>:8080</code>. They must present the <code style={{ color: "#38bdf8" }}>X-Internal-API-Key</code> header.
+                    Internal services (like other microservices) can call the limiter directly on port <code style={{ color: "#c084fc" }}>:8080</code>. They must present the <code style={{ color: "#c084fc" }}>X-Internal-API-Key</code> header.
                   </p>
                 </div>
               </div>
@@ -245,12 +245,12 @@ if !entry.Allowed {
               <DocsMermaid chart={idemFlowDiagram} />
 
               <div style={{
-                background: "rgba(56,189,248,0.06)",
-                border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.06)",
+                border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginBottom: 24
               }}>
-                <strong style={{ color: "#38bdf8" }}>Fence Tokens:</strong> The <code style={{ color: "#38bdf8" }}>claim.lua</code> script generates a UUID fence token and stores it alongside the idempotency record. The <code style={{ color: "#38bdf8" }}>complete.lua</code> and <code style={{ color: "#38bdf8" }}>fail.lua</code> scripts check the fence token before writing. This prevents a stale sidecar instance (e.g., mid-crash) from overwriting the result written by a different instance that won the claim race.
+                <strong style={{ color: "#c084fc" }}>Fence Tokens:</strong> The <code style={{ color: "#c084fc" }}>claim.lua</code> script generates a UUID fence token and stores it alongside the idempotency record. The <code style={{ color: "#c084fc" }}>complete.lua</code> and <code style={{ color: "#c084fc" }}>fail.lua</code> scripts check the fence token before writing. This prevents a stale sidecar instance (e.g., mid-crash) from overwriting the result written by a different instance that won the claim race.
               </div>
 
               {/* Hierarchical check */}
@@ -312,7 +312,7 @@ return {allowed, remaining}`}</GoCodeBlock>
                     ].map(([header, val, desc], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#ff5cad", fontFamily: "monospace", fontSize: 12 }}>{header}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace" }}>{val}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{val}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{desc}</td>
                       </tr>
                     ))}
@@ -355,15 +355,15 @@ return {allowed, remaining}`}</GoCodeBlock>
                     <div style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", marginBottom: 8 }}>{fm.scenario}</div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: "#4ade80", marginBottom: 3 }}>FAIL OPEN</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: "#c084fc", marginBottom: 3 }}>FAIL OPEN</div>
                         <div style={{ fontSize: 12.5, color: "#a1a1aa" }}>{fm.failOpen}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: "#f87171", marginBottom: 3 }}>FAIL CLOSED</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: "#f472b6", marginBottom: 3 }}>FAIL CLOSED</div>
                         <div style={{ fontSize: 12.5, color: "#a1a1aa" }}>{fm.failClosed}</div>
                       </div>
                     </div>
-                    <div style={{ fontSize: 12, color: "#fb923c", borderTop: "1px solid #18181b", paddingTop: 8 }}>
+                    <div style={{ fontSize: 12, color: "#c084fc", borderTop: "1px solid #18181b", paddingTop: 8 }}>
                       💡 {fm.recommendation}
                     </div>
                   </div>

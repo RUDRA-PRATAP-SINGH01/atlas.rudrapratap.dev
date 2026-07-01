@@ -172,8 +172,8 @@ export default function RecoveryPipelineDocsPage() {
               </p>
               <GoCodeBlock>{REPLAY_WITH_RECOVERY_CODE}</GoCodeBlock>
 
-              <div style={{ background: "rgba(56, 189, 248, 0.06)", border: "1px solid rgba(56, 189, 248, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#38bdf8", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>ℹ NOTE</p>
+              <div style={{ background: "rgba(192, 132, 252, 0.06)", border: "1px solid rgba(192, 132, 252, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
+                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>ℹ NOTE</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   The replayed mutations are applied to the database's active memtable using standard Put and Delete calls.
                 </p>

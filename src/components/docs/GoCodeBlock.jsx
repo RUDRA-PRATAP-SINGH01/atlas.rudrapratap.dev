@@ -15,7 +15,7 @@ function highlightGo(code) {
   // 1. Strings: dual-quoted or backticks
   html = html.replace(/("(?:\\.|[^"\\])*")|(`(?:[^`])*`)/g, (match) => {
     const id = `___STR_PLACEHOLDER_${placeholders.length}___`;
-    placeholders.push({ id, content: `<span style="color: #c084fc;">${match}</span>` });
+    placeholders.push({ id, content: `<span style="color: #f472b6;">${match}</span>` });
     return id;
   });
 
@@ -38,18 +38,18 @@ function highlightGo(code) {
   // 4. Built-in functions
   const builtins = ["append", "make", "new", "len", "cap", "panic", "recover", "close", "delete"];
   const builtinRegex = new RegExp(`\\b(${builtins.join("|")})\\b`, "g");
-  html = html.replace(builtinRegex, `<span style="color: #f43f5e;">$1</span>`);
+  html = html.replace(builtinRegex, `<span style="color: #c084fc;">$1</span>`);
 
   // 5. Types
   const types = ["string", "int", "int64", "uint64", "uint32", "byte", "error", "bool", "float64", "uintptr", "int32"];
   const typesRegex = new RegExp(`\\b(${types.join("|")})\\b`, "g");
-  html = html.replace(typesRegex, `<span style="color: #38bdf8;">$1</span>`);
+  html = html.replace(typesRegex, `<span style="color: #e2d5f8;">$1</span>`);
 
   // 6. Function calls (e.g. OpenReader() or acquireDirLock())
-  html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\()/g, `<span style="color: #60a5fa;">$1</span>`);
+  html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\()/g, `<span style="color: #a78bfa;">$1</span>`);
 
   // 7. Numbers (integers, floats, hex)
-  html = html.replace(/\b(0x[0-9a-fA-F]+|\\d+(?:\\.\\d+)?)\\b/g, `<span style="color: #fb923c;">$1</span>`);
+  html = html.replace(/\b(0x[0-9a-fA-F]+|\d+(?:\.\d+)?)\b/g, `<span style="color: #c084fc;">$1</span>`);
 
   // Restore comments and strings
   for (let i = placeholders.length - 1; i >= 0; i--) {

@@ -58,11 +58,11 @@ flowchart TD
     HOCheck -->|"yes"| HOIncrement
     HOCheck -->|"no"| HOFull
 
-    style ClosedPath fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style TransitionHO fill:#1e1e2e,stroke:#38bdf8,color:#fff
-    style HOIncrement fill:#1e1e2e,stroke:#38bdf8,color:#fff
-    style OpenReject fill:#1e1e2e,stroke:#f43f5e,color:#fff
-    style HOFull fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style ClosedPath fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style TransitionHO fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style HOIncrement fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style OpenReject fill:#1e1e2e,stroke:#ec4899,color:#fff
+    style HOFull fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 
 const recordLuaDiagram = `
@@ -100,9 +100,9 @@ flowchart TD
     EnoughSuccess -->|"yes"| CloseBreakerHO
     EnoughSuccess -->|"no"| TripOpen
 
-    style TripOpen fill:#1e1e2e,stroke:#f43f5e,color:#fff
-    style TripOpenHO fill:#1e1e2e,stroke:#f43f5e,color:#fff
-    style CloseBreakerHO fill:#1e1e2e,stroke:#4ade80,color:#fff
+    style TripOpen fill:#1e1e2e,stroke:#ec4899,color:#fff
+    style TripOpenHO fill:#1e1e2e,stroke:#ec4899,color:#fff
+    style CloseBreakerHO fill:#1e1e2e,stroke:#c084fc,color:#fff
     style ClosedEval fill:#1e1e2e,stroke:#ff5cad,color:#fff
 `;
 
@@ -155,19 +155,19 @@ export default function RLCircuitBreakerPage() {
                 {[
                   {
                     state: "CLOSED",
-                    color: "#4ade80",
+                    color: "#c084fc",
                     desc: "Normal operation. All requests pass through. Failure counters accumulate. Trips to Open when thresholds are crossed.",
                     icon: "🟢"
                   },
                   {
                     state: "OPEN",
-                    color: "#f87171",
+                    color: "#f472b6",
                     desc: "All requests are fast-rejected without calling the dependency. Waits for cooldown_ms to elapse before attempting recovery.",
                     icon: "🔴"
                   },
                   {
                     state: "HALF-OPEN",
-                    color: "#38bdf8",
+                    color: "#c084fc",
                     desc: "Limited probe requests are allowed through. If enough succeed, transitions back to Closed. Any failure re-opens the circuit.",
                     icon: "🔵"
                   },
@@ -220,7 +220,7 @@ export default function RLCircuitBreakerPage() {
                         ["probe_success", "int64", "Half-open: number of probe successes"],
                       ].map(([field, type, desc], i) => (
                         <tr key={i} style={{ borderBottom: "1px solid #18181b" }}>
-                          <td style={{ padding: "6px 10px", color: "#38bdf8" }}>{field}</td>
+                          <td style={{ padding: "6px 10px", color: "#c084fc" }}>{field}</td>
                           <td style={{ padding: "6px 10px", color: "#a78bfa" }}>{type}</td>
                           <td style={{ padding: "6px 10px", color: "#71717a" }}>{desc}</td>
                         </tr>
@@ -290,12 +290,12 @@ return {0, 'half_open', probe_count, tonumber(fields[4]) or 0}  -- probes full`}
               <DocsMermaid chart={recordLuaDiagram} />
 
               <div style={{
-                background: "rgba(244,63,94,0.06)",
-                border: "1px solid rgba(244,63,94,0.2)",
+                background: "rgba(219, 39, 119,0.06)",
+                border: "1px solid rgba(219, 39, 119,0.2)",
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginBottom: 20
               }}>
-                <strong style={{ color: "#f87171" }}>⚠️ Counter Halving Bug:</strong> The current implementation halves all counters when <code>total_count &gt; 1000</code>. However, this halving runs on <em>every</em> request above 1000, not just once per threshold crossing. After a few hundred more requests, all counters approach zero, which causes the circuit to remain closed even during sustained failure. This is a correctness bug that needs a <code>halved_at</code> guard timestamp.
+                <strong style={{ color: "#f472b6" }}>⚠️ Counter Halving Bug:</strong> The current implementation halves all counters when <code>total_count &gt; 1000</code>. However, this halving runs on <em>every</em> request above 1000, not just once per threshold crossing. After a few hundred more requests, all counters approach zero, which causes the circuit to remain closed even during sustained failure. This is a correctness bug that needs a <code>halved_at</code> guard timestamp.
               </div>
 
               {/* Metrics */}
@@ -318,7 +318,7 @@ return {0, 'half_open', probe_count, tonumber(fields[4]) or 0}  -- probes full`}
                     <div style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", marginBottom: 4 }}>{item.metric}</div>
                     <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
                       <code style={{ fontSize: 11, color: "#ff5cad" }}>{item.env}</code>
-                      <span style={{ fontSize: 11, color: "#4ade80" }}>default: {item.default}</span>
+                      <span style={{ fontSize: 11, color: "#c084fc" }}>default: {item.default}</span>
                     </div>
                     <div style={{ fontSize: 12.5, color: "#71717a", lineHeight: 1.55 }}>{item.desc}</div>
                   </div>

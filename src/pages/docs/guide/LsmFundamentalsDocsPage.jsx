@@ -2,13 +2,13 @@ import DocsNavbar from "@/components/docs/DocsNavbar";
 import DocsSidebar from "@/components/docs/DocsSidebar";
 
 const pageTopics = [
-  { label: "Why B-Trees Become Expensive for Writes", href: "#why-btrees-expensive" },
-  { label: "Sequential vs. Random Disk I/O", href: "#sequential-vs-random-io" },
-  { label: "Write Amplification", href: "#write-amplification" },
-  { label: "Read Amplification", href: "#read-amplification" },
-  { label: "The LSM Tree Philosophy: Out-of-Place Updates", href: "#lsm-tree-philosophy" },
-  { label: "Immutable Files (SSTables)", href: "#immutable-sstables" },
-  { label: "Compaction", href: "#compaction" },
+  { label: "B-Tree In-Place Mutations & Random I/O Overhead", href: "#why-btrees-expensive" },
+  { label: "Mechanical Media Constraints: Sequential vs. Random I/O", href: "#sequential-vs-random-io" },
+  { label: "Write Amplification Factor (WAF) Dynamics", href: "#write-amplification" },
+  { label: "Read Amplification Factor (RAF) Overhead", href: "#read-amplification" },
+  { label: "LSM Architecture Paradigms: Out-of-Place Appends", href: "#lsm-tree-philosophy" },
+  { label: "Immutable Sorted String Tables (SSTables)", href: "#immutable-sstables" },
+  { label: "Data Lifecycle & Compaction Heuristics", href: "#compaction" },
 ];
 
 function WritePathDiagram() {
@@ -67,7 +67,7 @@ export default function LsmFundamentalsDocsPage() {
                 Before diving into how databases like PebbleDB are implemented, it is essential to understand the core database theory that inspired them. This guide explains the fundamental engineering challenges of database storage engines and why the Log-Structured Merge-Tree (LSM Tree) was invented.
               </p>
 
-              <h2 className="guide-sub-heading" id="why-btrees-expensive" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>1. Why B-Trees Become Expensive for Writes</h2>
+              <h2 className="guide-sub-heading" id="why-btrees-expensive" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>1. B-Tree In-Place Mutations & Random I/O Overhead</h2>
               <p>
                 Traditional databases (like PostgreSQL, MySQL, and SQLite) use B-Trees or B+Trees as their underlying storage structure.
               </p>
@@ -106,7 +106,7 @@ export default function LsmFundamentalsDocsPage() {
                 As the database grows larger than the available RAM, page eviction starts. Updating keys turns into a bottleneck of constantly reading pages from disk, modifying them, and flushing them back to random positions. This is highly inefficient.
               </p>
 
-              <h2 className="guide-sub-heading" id="sequential-vs-random-io" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>2. Sequential vs. Random Disk I/O</h2>
+              <h2 className="guide-sub-heading" id="sequential-vs-random-io" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>2. Mechanical Media Constraints: Sequential vs. Random I/O</h2>
               <p>
                 The performance gap between B-Trees and LSM Trees is rooted in physical hardware design: sequential disk access is orders of magnitude faster than random disk access.
               </p>
@@ -133,7 +133,7 @@ export default function LsmFundamentalsDocsPage() {
                 LSM Trees exploit this by converting all random user writes into <span className="highlight-text">sequential disk appends</span>.
               </p>
 
-              <h2 className="guide-sub-heading" id="write-amplification" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>3. Write Amplification</h2>
+              <h2 className="guide-sub-heading" id="write-amplification" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>3. Write Amplification Factor (WAF) Dynamics</h2>
               <p>
                 Write Amplification (WA) is a metric defined as:
               </p>
@@ -153,7 +153,7 @@ export default function LsmFundamentalsDocsPage() {
                 LSM Trees group multiple updates in memory and write them sequentially, yielding a low write amplification for writes. However, LSM Trees perform background operations (compaction) to clean up and sort data, which writes data back to disk again. Even with compaction, LSM Trees maintain lower write amplification for highly write-intensive workloads compared to B-Trees.
               </p>
 
-              <h2 className="guide-sub-heading" id="read-amplification" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>4. Read Amplification</h2>
+              <h2 className="guide-sub-heading" id="read-amplification" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>4. Read Amplification Factor (RAF) Overhead</h2>
               <p>
                 Read Amplification (RA) is defined as:
               </p>
@@ -187,7 +187,7 @@ export default function LsmFundamentalsDocsPage() {
                 <span className="highlight-text">Block Indexes</span>: Caching indexes in memory to pinpoint exactly which page within a file holds the key.
               </p>
 
-              <h2 className="guide-sub-heading" id="lsm-tree-philosophy" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>5. The LSM Tree Philosophy: Out-of-Place Updates</h2>
+              <h2 className="guide-sub-heading" id="lsm-tree-philosophy" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>5. LSM Architecture Paradigms: Out-of-Place Appends</h2>
               <p>
                 The core philosophy of the LSM Tree is out-of-place updates:
               </p>
@@ -216,7 +216,7 @@ export default function LsmFundamentalsDocsPage() {
 
               <WritePathDiagram />
 
-              <h2 className="guide-sub-heading" id="immutable-sstables" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>6. Immutable Files (SSTables)</h2>
+              <h2 className="guide-sub-heading" id="immutable-sstables" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>6. Immutable Sorted String Tables (SSTables)</h2>
               <p>
                 Once a memtable is written to disk, it becomes an SSTable (Sorted String Table).
               </p>
@@ -232,7 +232,7 @@ export default function LsmFundamentalsDocsPage() {
                 Immutability simplifies concurrency: readers (clients running Get or Scan) can access SSTables without acquiring locks, as the files will never change under them.
               </p>
 
-              <h2 className="guide-sub-heading" id="compaction" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>7. Compaction</h2>
+              <h2 className="guide-sub-heading" id="compaction" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>7. Data Lifecycle & Compaction Heuristics</h2>
               <p>
                 Because SSTables are immutable, outdated values and delete tombstones accumulate over time. If a user updates key x ten times, there will be ten different versions of x scattered across different SSTables.
               </p>

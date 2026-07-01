@@ -46,7 +46,7 @@ function DocLinks({ docs }) {
         <Link
           key={doc.path}
           to={doc.path}
-          style={{ color: "#38bdf8", textDecoration: "none", fontSize: 12 }}
+          style={{ color: "#c084fc", textDecoration: "none", fontSize: 12 }}
         >
           {doc.label} →
         </Link>

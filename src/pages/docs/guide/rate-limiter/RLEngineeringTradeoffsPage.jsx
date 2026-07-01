@@ -51,10 +51,10 @@ export default function RLEngineeringTradeoffsPage() {
                     ].map((row, i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#ffffff", fontWeight: 600 }}>{row[0]}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace" }}>{row[1]}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace" }}>{row[2]}</td>
-                        <td style={{ padding: "8px 12px", color: "#4ade80" }}>{row[3]}</td>
-                        <td style={{ padding: "8px 12px", color: "#f87171" }}>{row[4]}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{row[1]}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{row[2]}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc" }}>{row[3]}</td>
+                        <td style={{ padding: "8px 12px", color: "#f472b6" }}>{row[4]}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -69,15 +69,15 @@ export default function RLEngineeringTradeoffsPage() {
                 How we scale the Redis state engine impacts our capability to run transactions.
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, margin: "16px 0" }}>
-                <div style={{ background: "#111113", border: "1px solid #4ade8033", borderRadius: 8, padding: 18 }}>
-                  <h4 style={{ color: "#4ade80", margin: "0 0 10px 0" }}>Redis Sentinel (Master-Replica)</h4>
+                <div style={{ background: "#111113", border: "1px solid #c084fc33", borderRadius: 8, padding: 18 }}>
+                  <h4 style={{ color: "#c084fc", margin: "0 0 10px 0" }}>Redis Sentinel (Master-Replica)</h4>
                   <p style={{ fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
                     <strong>Trade-off:</strong> High Transaction Integrity / Limited Sharded Scale.<br />
                     Since all data is on one primary Master node, we can run multi-key atomic transactions (essential for Hierarchical Quotas) without partition mapping errors. However, all writes are bound to a single thread's performance.
                   </p>
                 </div>
-                <div style={{ background: "#111113", border: "1px solid #f43f5e33", borderRadius: 8, padding: 18 }}>
-                  <h4 style={{ color: "#f43f5e", margin: "0 0 10px 0" }}>Redis Cluster (Sharded)</h4>
+                <div style={{ background: "#111113", border: "1px solid #ec489933", borderRadius: 8, padding: 18 }}>
+                  <h4 style={{ color: "#ec4899", margin: "0 0 10px 0" }}>Redis Cluster (Sharded)</h4>
                   <p style={{ fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
                     <strong>Trade-off:</strong> Infinite Horizontal Scale / Restricted Transaction Scope.<br />
                     Sharding keys across masters enables millions of ops/sec. However, multi-key operations (like hierarchical checking) throw <code>CROSSSLOT</code> errors unless developers force placement using hash tags (e.g. <code>{"{tenant:acme}"}</code>), complicating key distribution design.

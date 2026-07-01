@@ -22,10 +22,10 @@ flowchart LR
     Load --> Inject --> Observe --> Recover --> Verify
 
     style Load fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Inject fill:#f43f5e,stroke:#fff,color:#fff
-    style Observe fill:#1e1e2e,stroke:#fb923c,color:#fff
-    style Recover fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Verify fill:#1e1e2e,stroke:#4ade80,color:#fff
+    style Inject fill:#ec4899,stroke:#fff,color:#fff
+    style Observe fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Recover fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Verify fill:#1e1e2e,stroke:#c084fc,color:#fff
 `;
 
 export default function RLChaosTestingPage() {

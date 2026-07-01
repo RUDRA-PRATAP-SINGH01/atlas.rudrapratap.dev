@@ -3,11 +3,11 @@ import DocsSidebar from "@/components/docs/DocsSidebar";
 import DocsMermaid from "@/components/docs/DocsMermaid";
 
 const pageTopics = [
-  { label: "What Is This Project?", href: "#what-is-this" },
-  { label: "Why Rate Limiting Is Hard", href: "#why-hard" },
-  { label: "High-Level Architecture", href: "#architecture" },
-  { label: "Key Features", href: "#features" },
-  { label: "Technology Stack", href: "#tech-stack" },
+  { label: "Architectural Scope & Objectives", href: "#what-is-this" },
+  { label: "Distributed Coordination Challenges & Race Conditions", href: "#why-hard" },
+  { label: "Distributed Request Lifecycle & Topology", href: "#architecture" },
+  { label: "Engine Invariants & Resilience Guarantees", href: "#features" },
+  { label: "System Infrastructure Stack", href: "#tech-stack" },
   { label: "Design Philosophy", href: "#design-philosophy" },
   { label: "Repository Layout", href: "#repo-layout" },
 ];
@@ -41,10 +41,10 @@ flowchart TD
     style Client fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style Sidecar fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style CentralLimiter fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Redis fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style Redis fill:#1e1e2e,stroke:#ec4899,color:#fff
     style Upstream fill:#18181b,stroke:#52525b,color:#a1a1aa
-    style AdminAPI fill:#18181b,stroke:#fb923c,color:#fff
-    style Jaeger fill:#18181b,stroke:#38bdf8,color:#fff
+    style AdminAPI fill:#18181b,stroke:#c084fc,color:#fff
+    style Jaeger fill:#18181b,stroke:#c084fc,color:#fff
     style Prometheus fill:#18181b,stroke:#a78bfa,color:#fff
 `;
 
@@ -65,7 +65,7 @@ export default function RLIntroductionPage() {
 
               {/* Hero banner */}
               <div style={{
-                background: "linear-gradient(135deg, rgba(255,92,173,0.08) 0%, rgba(244,63,94,0.04) 100%)",
+                background: "linear-gradient(135deg, rgba(255,92,173,0.08) 0%, rgba(219, 39, 119,0.04) 100%)",
                 border: "1px solid rgba(255,92,173,0.25)",
                 borderRadius: 10,
                 padding: "24px 28px",
@@ -78,7 +78,7 @@ export default function RLIntroductionPage() {
 
               {/* What is this project */}
               <h2 className="guide-sub-heading" id="what-is-this" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>
-                What Is This Project?
+                Architectural Scope &amp; Objectives
               </h2>
               <p>
                 The Distributed Rate Limiter is a multi-component Go platform designed to answer one question at high throughput: <em style={{ color: "#ff5cad" }}>should this request be allowed right now?</em>
@@ -96,7 +96,7 @@ export default function RLIntroductionPage() {
 
               {/* Why hard */}
               <h2 className="guide-sub-heading" id="why-hard" style={{ fontSize: 22, color: "#ffffff", marginTop: 40, marginBottom: 12 }}>
-                Why Distributed Rate Limiting Is Hard
+                Distributed Coordination Challenges &amp; Race Conditions
               </h2>
               <p>
                 In a single-process system, a rate limiter is trivial: a mutex-protected counter. At scale, everything becomes harder:
@@ -126,7 +126,7 @@ export default function RLIntroductionPage() {
 
               {/* High-level architecture */}
               <h2 className="guide-sub-heading" id="architecture" style={{ fontSize: 22, color: "#ffffff", marginTop: 40, marginBottom: 12 }}>
-                High-Level Architecture
+                Distributed Request Lifecycle &amp; Topology
               </h2>
               <p>
                 Every production request flows through this pipeline. The sidecar is the entry point; the central limiter is the brain; Redis is the atomic state store.
@@ -140,7 +140,7 @@ export default function RLIntroductionPage() {
 
               {/* Key Features */}
               <h2 className="guide-sub-heading" id="features" style={{ fontSize: 22, color: "#ffffff", marginTop: 40, marginBottom: 16 }}>
-                Key Features
+                Engine Invariants &amp; Resilience Guarantees
               </h2>
 
               {[
@@ -187,9 +187,9 @@ export default function RLIntroductionPage() {
               ].map((feature, i) => {
                 const badgeColors = {
                   core: "#ff5cad",
-                  reliability: "#f43f5e",
-                  routing: "#fb923c",
-                  ha: "#38bdf8",
+                  reliability: "#ec4899",
+                  routing: "#f472b6",
+                  ha: "#c084fc",
                   observability: "#a78bfa",
                 };
                 return (
@@ -226,7 +226,7 @@ export default function RLIntroductionPage() {
 
               {/* Tech Stack */}
               <h2 className="guide-sub-heading" id="tech-stack" style={{ fontSize: 22, color: "#ffffff", marginTop: 40, marginBottom: 16 }}>
-                Technology Stack
+                System Infrastructure Stack
               </h2>
 
               <div style={{ overflowX: "auto", marginBottom: 24 }}>

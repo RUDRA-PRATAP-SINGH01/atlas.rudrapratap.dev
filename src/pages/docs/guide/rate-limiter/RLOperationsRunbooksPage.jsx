@@ -22,11 +22,11 @@ flowchart TD
 
     Outage --> Action1 --> Action2 --> Action3 --> Action4 --> Action5 --> Verify
 
-    style Outage fill:#f43f5e,stroke:#fff,color:#fff
+    style Outage fill:#ec4899,stroke:#fff,color:#fff
     style Action1 fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style Action2 fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Action5 fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Verify fill:#1e1e2e,stroke:#4ade80,color:#fff
+    style Action5 fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Verify fill:#1e1e2e,stroke:#c084fc,color:#fff
 `;
 
 export default function RLOperationsRunbooksPage() {
@@ -70,8 +70,8 @@ export default function RLOperationsRunbooksPage() {
                       ["IDEMPOTENCY_FAIL_OPEN", "true", "If true, requests proceed to upstream if Redis is down during idempotency checks."],
                     ].map((row, i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 12 }}>{row[0]}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace" }}>{row[1]}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 12 }}>{row[0]}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{row[1]}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{row[2]}</td>
                       </tr>
                     ))}

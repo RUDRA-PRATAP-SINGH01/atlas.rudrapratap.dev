@@ -38,11 +38,11 @@ flowchart TD
     Phase1 -->|"Any Fail"| Reject
 
     style Req fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style IdemCheck fill:#1e1e2e,stroke:#38bdf8,color:#fff
-    style Phase1 fill:#1e1e2e,stroke:#38bdf8,color:#fff
-    style Decrement fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Upstream fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Reject fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style IdemCheck fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Phase1 fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Decrement fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Upstream fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Reject fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 
 export default function RLSystemInvariantsPage() {
@@ -76,10 +76,10 @@ export default function RLSystemInvariantsPage() {
                 1. Atomic Refill &amp; Capacity Invariant
               </h2>
               <div style={{
-                background: "rgba(56,189,248,0.05)", border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.05)", border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 16
               }}>
-                <strong style={{ color: "#38bdf8" }}>Invariant Statement:</strong> For any rate-limit bucket B with capacity C, current tokens T, and refill rate R (tokens/sec), the level of tokens after any refill operation must always satisfy:
+                <strong style={{ color: "#c084fc" }}>Invariant Statement:</strong> For any rate-limit bucket B with capacity C, current tokens T, and refill rate R (tokens/sec), the level of tokens after any refill operation must always satisfy:
                 <div style={{ fontFamily: "monospace", margin: "8px 0", fontSize: 14, color: "#ffffff" }}>
                   T_refilled = min(C, T_previous + (now - last_refill) * R)
                 </div>
@@ -96,10 +96,10 @@ export default function RLSystemInvariantsPage() {
                 2. Deduplication Fencing Invariant
               </h2>
               <div style={{
-                background: "rgba(251,146,60,0.05)", border: "1px solid rgba(251,146,60,0.2)",
+                background: "rgba(244, 114, 182,0.05)", border: "1px solid rgba(244, 114, 182,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 16
               }}>
-                <strong style={{ color: "#fb923c" }}>Invariant Statement:</strong> An idempotency response write for key K with fence token F_req will be committed if and only if F_req matches the currently stored fence token F_stored in Redis.
+                <strong style={{ color: "#c084fc" }}>Invariant Statement:</strong> An idempotency response write for key K with fence token F_req will be committed if and only if F_req matches the currently stored fence token F_stored in Redis.
                 <div style={{ fontFamily: "monospace", margin: "8px 0", fontSize: 14, color: "#ffffff" }}>
                   CommitStatus = (F_req == F_stored) ? SUCCESS : REJECTED
                 </div>
@@ -116,10 +116,10 @@ export default function RLSystemInvariantsPage() {
                 3. Speculative All-or-Nothing Quota Invariant
               </h2>
               <div style={{
-                background: "rgba(74,222,128,0.05)", border: "1px solid rgba(74,222,128,0.2)",
+                background: "rgba(167, 139, 250,0.05)", border: "1px solid rgba(167, 139, 250,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 16
               }}>
-                <strong style={{ color: "#4ade80" }}>Invariant Statement:</strong> In hierarchical limiting mode, tokens are consumed from all levels (Global, Tenant, User, Endpoint) if and only if ALL levels have sufficient tokens available.
+                <strong style={{ color: "#c084fc" }}>Invariant Statement:</strong> In hierarchical limiting mode, tokens are consumed from all levels (Global, Tenant, User, Endpoint) if and only if ALL levels have sufficient tokens available.
                 <div style={{ fontFamily: "monospace", margin: "8px 0", fontSize: 14, color: "#ffffff" }}>
                   {"DecrementCommit = (Global >= 1 && Tenant >= 1 && User >= 1 && Endpoint >= 1)"}
                 </div>
@@ -136,10 +136,10 @@ export default function RLSystemInvariantsPage() {
                 4. Fail-Soft Circuit Breaker Invariant
               </h2>
               <div style={{
-                background: "rgba(244,63,94,0.05)", border: "1px solid rgba(244,63,94,0.2)",
+                background: "rgba(219, 39, 119,0.05)", border: "1px solid rgba(219, 39, 119,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 16
               }}>
-                <strong style={{ color: "#f43f5e" }}>Invariant Statement:</strong> During a total Central Limiter or Redis outage, the Sidecar proxy must enforce safety boundaries based on environment rules, defaulting to fail-open (releasing traffic) or fail-closed.
+                <strong style={{ color: "#ec4899" }}>Invariant Statement:</strong> During a total Central Limiter or Redis outage, the Sidecar proxy must enforce safety boundaries based on environment rules, defaulting to fail-open (releasing traffic) or fail-closed.
               </div>
               <p>
                 The system must never hang indefinitely or block upstream operations during rate-limiting infrastructure failures. If the circuit breaker enters the <code>OPEN</code> state, it must reject or bypass based on the configuration configuration.

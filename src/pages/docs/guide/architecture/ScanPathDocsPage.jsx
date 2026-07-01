@@ -110,25 +110,25 @@ export default function ScanPathDocsPage() {
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>1,000,001</td>
                       <td style={{ padding: "10px 16px" }}>pendingBatch (Newest data)</td>
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>"apple"</td>
-                      <td style={{ padding: "10px 16px", color: "#22c55e" }}>Active</td>
+                      <td style={{ padding: "10px 16px", color: "#ff5cad" }}>Active</td>
                     </tr>
                     <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>1,000,000</td>
                       <td style={{ padding: "10px 16px" }}>active memtable</td>
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>"banana"</td>
-                      <td style={{ padding: "10px 16px", color: "#22c55e" }}>Active</td>
+                      <td style={{ padding: "10px 16px", color: "#ff5cad" }}>Active</td>
                     </tr>
                     <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)", background: "rgba(255, 255, 255, 0.02)" }}>
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>999,999</td>
                       <td style={{ padding: "10px 16px" }}>pendingFlush memtables</td>
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>"cherry"</td>
-                      <td style={{ padding: "10px 16px", color: "#22c55e" }}>Active</td>
+                      <td style={{ padding: "10px 16px", color: "#ff5cad" }}>Active</td>
                     </tr>
                     <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>0</td>
                       <td style={{ padding: "10px 16px" }}>sst_0001.sst (Oldest run)</td>
                       <td style={{ padding: "10px 16px", fontFamily: "monospace" }}>"banana"</td>
-                      <td style={{ padding: "10px 16px", color: "#22c55e" }}>Active</td>
+                      <td style={{ padding: "10px 16px", color: "#ff5cad" }}>Active</td>
                     </tr>
                   </tbody>
                 </table>

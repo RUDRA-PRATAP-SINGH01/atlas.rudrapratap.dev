@@ -576,8 +576,8 @@ export default function MergeIteratorDocsPage() {
               </div>
 
               {/* Tip callout */}
-              <div style={{ background: "rgba(56, 189, 248, 0.06)", border: "1px solid rgba(56, 189, 248, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#38bdf8", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 TIP</p>
+              <div style={{ background: "rgba(192, 132, 252, 0.06)", border: "1px solid rgba(192, 132, 252, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
+                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 TIP</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   For large k (many SSTables), a min-heap would reduce per-step cost from O(k) to O(log k). PebbleDB uses the linear scan approach because compaction bounds k to a small number of overlapping files.
                 </p>

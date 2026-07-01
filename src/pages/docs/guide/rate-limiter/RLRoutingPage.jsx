@@ -42,10 +42,10 @@ flowchart TD
     FallbackProxy --> RecordFallback
 
     style Request fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Proxy fill:#1e1e2e,stroke:#38bdf8,color:#fff
-    style FallbackProxy fill:#1e1e2e,stroke:#4ade80,color:#fff
+    style Proxy fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style FallbackProxy fill:#1e1e2e,stroke:#c084fc,color:#fff
     style Pick fill:#1e1e2e,stroke:#a78bfa,color:#fff
-    style RecordErr fill:#1e1e2e,stroke:#f43f5e,color:#fff
+    style RecordErr fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 
 const failoverSequenceDiagram = `
@@ -107,8 +107,8 @@ export default function RLRoutingPage() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
-                  { icon: "📊", title: "Score-Based Selection", body: "Each gateway has a health score (0.0–1.0) computed from its recent latency EMA, error rate, and timeout rate. The highest-scoring gateway is selected as primary.", color: "#38bdf8" },
-                  { icon: "🔄", title: "Automatic Failover", body: "If the primary gateway returns a 5xx or times out, the router immediately retries with the next-best gateway — the user sees no failure if the fallback succeeds.", color: "#4ade80" },
+                  { icon: "📊", title: "Score-Based Selection", body: "Each gateway has a health score (0.0–1.0) computed from its recent latency EMA, error rate, and timeout rate. The highest-scoring gateway is selected as primary.", color: "#c084fc" },
+                  { icon: "🔄", title: "Automatic Failover", body: "If the primary gateway returns a 5xx or times out, the router immediately retries with the next-best gateway — the user sees no failure if the fallback succeeds.", color: "#c084fc" },
                   { icon: "📉", title: "Continuous Adaptation", body: "Scores are updated after every request using EMA (exponential moving average). A recovering gateway sees its score gradually improve and earns traffic back organically.", color: "#a78bfa" },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
@@ -137,17 +137,17 @@ export default function RLRoutingPage() {
                 <div style={{ fontSize: 15, color: "#ffffff", marginBottom: 8 }}>
                   <span style={{ color: "#ff5cad" }}>score</span>
                   {" = "}
-                  <span style={{ color: "#38bdf8" }}>W₁</span>
+                  <span style={{ color: "#c084fc" }}>W₁</span>
                   {" × "}
-                  <span style={{ color: "#4ade80" }}>success_rate</span>
+                  <span style={{ color: "#c084fc" }}>success_rate</span>
                   {" + "}
-                  <span style={{ color: "#38bdf8" }}>W₂</span>
+                  <span style={{ color: "#c084fc" }}>W₂</span>
                   {" × "}
                   <span style={{ color: "#a78bfa" }}>latency_score</span>
                   {" + "}
-                  <span style={{ color: "#38bdf8" }}>W₃</span>
+                  <span style={{ color: "#c084fc" }}>W₃</span>
                   {" × "}
-                  <span style={{ color: "#fb923c" }}>timeout_score</span>
+                  <span style={{ color: "#c084fc" }}>timeout_score</span>
                 </div>
                 <div style={{ fontSize: 12, color: "#71717a", marginTop: 12 }}>
                   {"where: latency_score = max(0, 1 − ema_ms / baseline_ms)"}<br />
@@ -172,9 +172,9 @@ export default function RLRoutingPage() {
                       ["Timeout Score", "ROUTING_WEIGHT_TIMEOUT=0.2", "0.0 – 1.0", "1 − timeout_rate. Timeouts are worse than errors because they consume a connection for the full timeout duration.", "5% timeouts → 0.95"],
                     ].map(([comp, env, range_, meaning, ex], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
-                        <td style={{ padding: "8px 12px", color: "#4ade80", fontWeight: 600 }}>{comp}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace", fontSize: 11 }}>{env}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace" }}>{range_}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontWeight: 600 }}>{comp}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace", fontSize: 11 }}>{env}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{range_}</td>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa", lineHeight: 1.5 }}>{meaning}</td>
                         <td style={{ padding: "8px 12px", color: "#71717a", fontFamily: "monospace", fontSize: 11 }}>{ex}</td>
                       </tr>
@@ -206,8 +206,8 @@ export default function RLRoutingPage() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
                 {[
-                  { label: "α = 0.1 (default, smooth)", desc: "Stable under random latency spikes. Takes ~20–30 requests before a genuinely degraded gateway has its score visibly penalized. Good for stable traffic.", color: "#4ade80" },
-                  { label: "α = 0.5 (responsive, noisy)", desc: "Reacts aggressively to every individual request. A single slow response causes a large score drop. Good for low-volume traffic where quick reaction matters more than stability.", color: "#fb923c" },
+                  { label: "α = 0.1 (default, smooth)", desc: "Stable under random latency spikes. Takes ~20–30 requests before a genuinely degraded gateway has its score visibly penalized. Good for stable traffic.", color: "#c084fc" },
+                  { label: "α = 0.5 (responsive, noisy)", desc: "Reacts aggressively to every individual request. A single slow response causes a large score drop. Good for low-volume traffic where quick reaction matters more than stability.", color: "#c084fc" },
                 ].map(item => (
                   <div key={item.label} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "14px 16px" }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: item.color, marginBottom: 6 }}>{item.label}</div>
@@ -403,11 +403,11 @@ sidecar:
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 40 }}>
                       <div style={{
                         width: 28, height: 28, borderRadius: "50%",
-                        background: item.step.includes("b") ? "rgba(244,63,94,0.15)" : "rgba(255,92,173,0.15)",
-                        border: item.step.includes("b") ? "1px solid rgba(244,63,94,0.4)" : "1px solid rgba(255,92,173,0.4)",
+                        background: item.step.includes("b") ? "rgba(219, 39, 119,0.15)" : "rgba(255,92,173,0.15)",
+                        border: item.step.includes("b") ? "1px solid rgba(219, 39, 119,0.4)" : "1px solid rgba(255,92,173,0.4)",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontSize: 10, fontWeight: 700,
-                        color: item.step.includes("b") ? "#f43f5e" : "#ff5cad",
+                        color: item.step.includes("b") ? "#ec4899" : "#ff5cad",
                         flexShrink: 0, zIndex: 1
                       }}>{item.step}</div>
                       {i < 5 && <div style={{ width: 1, flex: 1, background: "rgba(255,92,173,0.15)", margin: "0 auto" }} />}
@@ -430,10 +430,10 @@ sidecar:
               <DocsMermaid chart={failoverSequenceDiagram} />
 
               <div style={{
-                background: "rgba(56,189,248,0.05)", border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.05)", border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginTop: 20
               }}>
-                <strong style={{ color: "#38bdf8" }}>Gateway Recovery:</strong> As Alpha recovers (errors stop, latency drops), its EMA improves with each successful request. The EMA decays toward the true latency at rate <code>α</code>. At default <code>α=0.1</code>, a gateway that had EMA=3000ms (timeout) needs roughly 45–50 successful fast requests before its score climbs back above 0.85. This prevents premature traffic restoration to a flapping gateway.
+                <strong style={{ color: "#c084fc" }}>Gateway Recovery:</strong> As Alpha recovers (errors stop, latency drops), its EMA improves with each successful request. The EMA decays toward the true latency at rate <code>α</code>. At default <code>α=0.1</code>, a gateway that had EMA=3000ms (timeout) needs roughly 45–50 successful fast requests before its score climbs back above 0.85. This prevents premature traffic restoration to a flapping gateway.
               </div>
 
             </div>

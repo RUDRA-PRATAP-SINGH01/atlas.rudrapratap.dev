@@ -52,9 +52,9 @@ function ArchitectureDiagram() {
       <rect x="410" y="160" width="370" height="240" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="1" />
       <text x="425" y="182" fill="#a1a1aa" fontSize="11" fontWeight="bold">On-Disk Storage (Durable)</text>
       <rect x="430" y="198" width="155" height="28" rx="4" fill="#27272a" stroke="#52525b" strokeWidth="1" />
-      <text x="507" y="215" fill="#fca5a5" fontSize="10" textAnchor="middle">LOCK (Exclusive OS lock)</text>
+      <text x="507" y="215" fill="#fbcfe8" fontSize="10" textAnchor="middle">LOCK (Exclusive OS lock)</text>
       <rect x="600" y="198" width="160" height="28" rx="4" fill="#27272a" stroke="#52525b" strokeWidth="1" />
-      <text x="680" y="215" fill="#fdba74" fontSize="10" textAnchor="middle">wal.log (Append WAL)</text>
+      <text x="680" y="215" fill="#fbcfe8" fontSize="10" textAnchor="middle">wal.log (Append WAL)</text>
       <rect x="430" y="234" width="155" height="28" rx="4" fill="#27272a" stroke="#52525b" strokeWidth="1" />
       <text x="507" y="251" fill="#ffffff" fontSize="10" textAnchor="middle">wal.flush (Checkpoint)</text>
       <rect x="600" y="234" width="160" height="28" rx="4" fill="#27272a" stroke="#52525b" strokeWidth="1" />
@@ -89,17 +89,17 @@ export default function GuideDocsPage() {
             <h1 className="guide-main-title" id="introduction">Introduction</h1>
             
             <div className="warning-banner" style={{
-              background: "rgba(239, 68, 68, 0.08)",
-              border: "1px solid rgba(239, 68, 68, 0.25)",
+              background: "rgba(219, 39, 119, 0.08)",
+              border: "1px solid rgba(219, 39, 119, 0.25)",
               borderRadius: "8px",
               padding: "16px",
               marginTop: "20px",
               marginBottom: "24px",
-              color: "#fca5a5",
+              color: "#fbcfe8",
               fontSize: "14px",
               lineHeight: "1.6"
             }}>
-              <strong style={{ color: "#ef4444", display: "block", fontSize: "15px", marginBottom: "6px" }}>⚠️ Not Production Ready</strong>
+              <strong style={{ color: "#ec4899", display: "block", fontSize: "15px", marginBottom: "6px" }}>⚠️ Not Production Ready</strong>
               PebbleDB is an educational, first-principles implementation of an LSM-tree storage engine. While executed cleanly according to correct design patterns, it is a learning project containing critical limitations that make it unsuitable for production environments or handling valuable data.
             </div>
 

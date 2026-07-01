@@ -54,9 +54,9 @@ flowchart LR
     R1A & R2A & R3A --> Redis1
     R1B & R2B & R3B --> Redis2 --> Shared
 
-    style Redis1 fill:#1e1e2e,stroke:#f43f5e,color:#fff
-    style Redis2 fill:#1e1e2e,stroke:#4ade80,color:#fff
-    style Shared fill:#1e1e2e,stroke:#4ade80,color:#fff
+    style Redis1 fill:#1e1e2e,stroke:#ec4899,color:#fff
+    style Redis2 fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style Shared fill:#1e1e2e,stroke:#c084fc,color:#fff
 `;
 
 export default function RLBenchmarksPage() {
@@ -83,7 +83,7 @@ export default function RLBenchmarksPage() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
-                  { title: "Hot Path — Sidecar Layer", color: "#38bdf8", items: ["Denial cache hit: ~1µs (sync.Map in-process)", "singleflight dedup: eliminates 80–95% of Redis calls under burst", "Limiter HTTP call (cache miss): 3–25ms depending on Redis latency", "Bottleneck: Redis single-threaded throughput ceiling (~100K ops/sec on commodity hardware)"] },
+                  { title: "Hot Path — Sidecar Layer", color: "#c084fc", items: ["Denial cache hit: ~1µs (sync.Map in-process)", "singleflight dedup: eliminates 80–95% of Redis calls under burst", "Limiter HTTP call (cache miss): 3–25ms depending on Redis latency", "Bottleneck: Redis single-threaded throughput ceiling (~100K ops/sec on commodity hardware)"] },
                   { title: "Warm Path — Central Limiter", color: "#a78bfa", items: ["Token bucket Lua: ~0.3–0.8ms at Redis (per-key, no contention)", "Hierarchical Lua: ~0.5–1.2ms (4 keys, one Lua script)", "Override cache: ~50µs on hit, ~2–5ms on miss (Redis HGET)", "Bottleneck: Redis round-trip latency (typically 0.2–2ms on LAN)"] },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
@@ -265,12 +265,12 @@ export default function () {
                     ].map((row, i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 10px", color: "#ffffff", fontSize: 11 }}>{row[0]}</td>
-                        <td style={{ padding: "8px 10px", color: "#38bdf8", fontFamily: "monospace" }}>{row[1]}</td>
-                        <td style={{ padding: "8px 10px", color: "#4ade80", fontFamily: "monospace" }}>{row[2]}</td>
-                        <td style={{ padding: "8px 10px", color: "#fb923c", fontFamily: "monospace" }}>{row[3]}</td>
-                        <td style={{ padding: "8px 10px", color: "#fb923c", fontFamily: "monospace" }}>{row[4]}</td>
-                        <td style={{ padding: "8px 10px", color: "#f87171", fontFamily: "monospace" }}>{row[5]}</td>
-                        <td style={{ padding: "8px 10px", color: "#4ade80", fontFamily: "monospace" }}>{row[6]}</td>
+                        <td style={{ padding: "8px 10px", color: "#c084fc", fontFamily: "monospace" }}>{row[1]}</td>
+                        <td style={{ padding: "8px 10px", color: "#c084fc", fontFamily: "monospace" }}>{row[2]}</td>
+                        <td style={{ padding: "8px 10px", color: "#c084fc", fontFamily: "monospace" }}>{row[3]}</td>
+                        <td style={{ padding: "8px 10px", color: "#c084fc", fontFamily: "monospace" }}>{row[4]}</td>
+                        <td style={{ padding: "8px 10px", color: "#f472b6", fontFamily: "monospace" }}>{row[5]}</td>
+                        <td style={{ padding: "8px 10px", color: "#c084fc", fontFamily: "monospace" }}>{row[6]}</td>
                         <td style={{ padding: "8px 10px", color: "#71717a", fontSize: 11 }}>{row[7]}</td>
                       </tr>
                     ))}
@@ -405,14 +405,14 @@ func (dc *DenialCache) CleanupLoop(ctx context.Context, interval time.Duration) 
 
               {/* EVALSHA vs EVAL */}
               <h2 className="guide-sub-heading" id="evalsha" style={{ fontSize: 22, color: "#ffffff", marginTop: 40, marginBottom: 12 }}>
-                <code style={{ color: "#ff5cad", fontSize: 18 }}>EVALSHA</code> vs <code style={{ color: "#38bdf8", fontSize: 18 }}>EVAL</code> — Script Caching Protocol
+                <code style={{ color: "#ff5cad", fontSize: 18 }}>EVALSHA</code> vs <code style={{ color: "#c084fc", fontSize: 18 }}>EVAL</code> — Script Caching Protocol
               </h2>
               <p>
                 On startup, all Lua scripts are preloaded into Redis using <code>SCRIPT LOAD</code>, which returns a 40-char SHA1 digest. Subsequent calls use <code>EVALSHA &lt;sha&gt;</code> instead of <code>EVAL &lt;script_text&gt;</code> — eliminating the overhead of transmitting and compiling the script on every call:
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
                 <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#fb923c", marginBottom: 10 }}>EVAL (naive)</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#c084fc", marginBottom: 10 }}>EVAL (naive)</div>
                   <GoCodeBlock>{`// Every call transmits the full script text
 // ~500 bytes for hierarchical.lua
 // Redis compiles it on every single call
@@ -420,7 +420,7 @@ redis.EVAL(scriptText, keys, args...)
 // → slow: script transmitted + compiled each time`}</GoCodeBlock>
                 </div>
                 <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#4ade80", marginBottom: 10 }}>EVALSHA (optimized)</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#c084fc", marginBottom: 10 }}>EVALSHA (optimized)</div>
                   <GoCodeBlock>{`// Load script once at startup
 sha, _ := client.ScriptLoad(ctx, scriptText).Result()
 // → sha = "3b9d..."
@@ -431,10 +431,10 @@ client.EvalSha(ctx, sha, keys, args...)
                 </div>
               </div>
               <div style={{
-                background: "rgba(251,146,60,0.07)", border: "1px solid rgba(251,146,60,0.25)",
+                background: "rgba(244, 114, 182,0.07)", border: "1px solid rgba(244, 114, 182,0.25)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 28
               }}>
-                <strong style={{ color: "#fb923c" }}>NOSCRIPT Fallback:</strong> Redis clears the script cache on restart or <code>SCRIPT FLUSH</code>. The go-redis <code>Script.Run()</code> method handles this transparently: if <code>EVALSHA</code> returns <code>NOSCRIPT</code>, it automatically falls back to <code>EVAL</code> and re-loads the script. This is the correct production pattern and is what the codebase uses.
+                <strong style={{ color: "#c084fc" }}>NOSCRIPT Fallback:</strong> Redis clears the script cache on restart or <code>SCRIPT FLUSH</code>. The go-redis <code>Script.Run()</code> method handles this transparently: if <code>EVALSHA</code> returns <code>NOSCRIPT</code>, it automatically falls back to <code>EVAL</code> and re-loads the script. This is the correct production pattern and is what the codebase uses.
               </div>
 
               {/* Bottlenecks */}
@@ -443,10 +443,10 @@ client.EvalSha(ctx, sha, keys, args...)
               </h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
                 {[
-                  { title: "Redis Single-Thread Ceiling", icon: "⚠️", color: "#f43f5e", body: "Redis executes all commands in a single thread. At ~100K ops/sec, CPU becomes the bottleneck. With 20 Lua calls per request on the cold path, the theoretical maximum is ~5,000 RPS before Redis saturates. singleflight and denial caching are essential to stay under this ceiling at high concurrency." },
-                  { title: "Network Round-Trip Budget", icon: "🌐", color: "#fb923c", body: "On a real network (1ms RTT), each Redis round-trip costs 1ms baseline. Cold path (full Lua check): 1 round-trip = ~1ms. Hierarchical: 1 round-trip = ~1–2ms (single Lua). p99 spikes are almost always network jitter, not Lua computation time." },
+                  { title: "Redis Single-Thread Ceiling", icon: "⚠️", color: "#ec4899", body: "Redis executes all commands in a single thread. At ~100K ops/sec, CPU becomes the bottleneck. With 20 Lua calls per request on the cold path, the theoretical maximum is ~5,000 RPS before Redis saturates. singleflight and denial caching are essential to stay under this ceiling at high concurrency." },
+                  { title: "Network Round-Trip Budget", icon: "🌐", color: "#c084fc", body: "On a real network (1ms RTT), each Redis round-trip costs 1ms baseline. Cold path (full Lua check): 1 round-trip = ~1ms. Hierarchical: 1 round-trip = ~1–2ms (single Lua). p99 spikes are almost always network jitter, not Lua computation time." },
                   { title: "singleflight vs Fairness", icon: "⚖️", color: "#a78bfa", body: "singleflight is a blunt instrument: the deduplicated result is applied to all waiters. If the in-flight call returns 'allowed', all 99 waiters also see 'allowed' without consuming additional tokens. This is acceptable for burst smoothing but means the effective per-user quota under extreme concurrency is slightly higher than configured." },
-                  { title: "Sliding Window Memory Cost", icon: "💾", color: "#38bdf8", body: "Sliding windows store one ZSET member per request per user per window duration. At 1000 req/min per user and a 1-minute window, that's 1000 ZSET members = ~50KB Redis memory per user. At 10,000 active users, that's 500MB. Consider token bucket for memory-constrained deployments." },
+                  { title: "Sliding Window Memory Cost", icon: "💾", color: "#c084fc", body: "Sliding windows store one ZSET member per request per user per window duration. At 1000 req/min per user and a 1-minute window, that's 1000 ZSET members = ~50KB Redis memory per user. At 10,000 active users, that's 500MB. Consider token bucket for memory-constrained deployments." },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
@@ -475,9 +475,9 @@ client.EvalSha(ctx, sha, keys, args...)
                     ].map(([alg, p50, p95, mem, best], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#ffffff", fontWeight: 600 }}>{alg}</td>
-                        <td style={{ padding: "8px 12px", color: "#4ade80", fontFamily: "monospace" }}>{p50}</td>
-                        <td style={{ padding: "8px 12px", color: "#fb923c", fontFamily: "monospace" }}>{p95}</td>
-                        <td style={{ padding: "8px 12px", color: "#38bdf8", fontFamily: "monospace" }}>{mem}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{p50}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{p95}</td>
+                        <td style={{ padding: "8px 12px", color: "#c084fc", fontFamily: "monospace" }}>{mem}</td>
                         <td style={{ padding: "8px 12px", color: "#71717a" }}>{best}</td>
                       </tr>
                     ))}
@@ -486,10 +486,10 @@ client.EvalSha(ctx, sha, keys, args...)
               </div>
 
               <div style={{
-                background: "rgba(56,189,248,0.05)", border: "1px solid rgba(56,189,248,0.2)",
+                background: "rgba(192, 132, 252,0.05)", border: "1px solid rgba(192, 132, 252,0.2)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65
               }}>
-                <strong style={{ color: "#38bdf8" }}>Scaling Recommendation:</strong> For &gt;10,000 RPS, deploy multiple Limiter instances behind a load balancer. Since all state is in Redis, horizontal scaling is transparent. Each additional Limiter instance adds linear request-handling capacity while sharing the same Redis state. The hard ceiling remains Redis throughput — at &gt;50K RPS, consider Redis Cluster with hash-tag key grouping (see Hierarchical Quotas — CROSSSLOT section for constraints).
+                <strong style={{ color: "#c084fc" }}>Scaling Recommendation:</strong> For &gt;10,000 RPS, deploy multiple Limiter instances behind a load balancer. Since all state is in Redis, horizontal scaling is transparent. Each additional Limiter instance adds linear request-handling capacity while sharing the same Redis state. The hard ceiling remains Redis throughput — at &gt;50K RPS, consider Redis Cluster with hash-tag key grouping (see Hierarchical Quotas — CROSSSLOT section for constraints).
               </div>
 
             </div>

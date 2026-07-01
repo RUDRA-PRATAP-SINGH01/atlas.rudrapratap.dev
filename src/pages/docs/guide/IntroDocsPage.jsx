@@ -18,12 +18,12 @@ export default function IntroDocsPage() {
         <main className="guide-main-content">
           <div className="guide-main-container">
             <h1 className="guide-main-title" id="overview">
-              Welcome to Atlas Technical Documentation
+              Welcome to the Atlas Systems Engineering Knowledge Base
             </h1>
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <p>
-                This documentation platform hosts the architectural specifications, system designs, and postmortems for two primary open-source projects. You can navigate through the detailed guides for both of them using the left sidebar.
+                This platform houses the formal architectural specifications, core invariants, write/read path analyses, and failure postmortems for our storage engine (PebbleDB) and distributed coordination systems (Distributed Rate Limiter). Navigate using the sidebar categories.
               </p>
 
               {/* Project 1: PebbleDB */}
@@ -43,17 +43,17 @@ export default function IntroDocsPage() {
                   An embedded, single-process, Log-Structured Merge (LSM) key-value engine written in Go. PebbleDB implements concurrent write pipelines, group-commits, background compaction threads, binary WAL replay checkpoints, and space-efficient Bloom filters.
                 </p>
                 <div style={{
-                  background: "rgba(239, 68, 68, 0.06)",
-                  border: "1px solid rgba(239, 68, 68, 0.2)",
+                  background: "rgba(219, 39, 119, 0.06)",
+                  border: "1px solid rgba(219, 39, 119, 0.2)",
                   borderRadius: "6px",
                   padding: "10px 14px",
                   fontSize: "12.5px",
                   lineHeight: "1.5",
-                  color: "#fca5a5",
+                  color: "#fbcfe8",
                   marginTop: "12px",
                   marginBottom: "12px"
                 }}>
-                  <strong>⚠️ Educational Learning Project:</strong> PebbleDB is not production-ready. It is a first-principles educational implementation built to explore storage engine components and layout trade-offs.
+                  <strong>⚠️ Architectural Boundary Notice:</strong> PebbleDB is engineered primarily as an architectural study. It represents a first-principles implementation of storage engine internals designed to evaluate compaction heuristics, write amplification, and recovery path trade-offs. It is not designated for high-durability production workloads.
                 </div>
                 <div style={{ display: "flex", gap: "16px", marginTop: "16px", flexWrap: "wrap" }}>
                   <a 
@@ -69,7 +69,7 @@ export default function IntroDocsPage() {
                     href="https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB/tree/main/docs" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    style={{ fontSize: 13, textDecoration: "none", color: "#38bdf8", fontWeight: "bold" }}
+                    style={{ fontSize: 13, textDecoration: "none", color: "#c084fc", fontWeight: "bold" }}
                   >
                     On-Disk Docs Folder →
                   </a>
@@ -79,8 +79,8 @@ export default function IntroDocsPage() {
               {/* Project 2: Distributed Rate Limiter */}
               <div 
                 style={{ 
-                  background: "rgba(56, 189, 248, 0.03)", 
-                  border: "1px solid rgba(56, 189, 248, 0.15)", 
+                  background: "rgba(192, 132, 252, 0.03)", 
+                  border: "1px solid rgba(192, 132, 252, 0.15)", 
                   borderRadius: "8px", 
                   padding: "24px", 
                   marginTop: "20px" 
@@ -90,7 +90,7 @@ export default function IntroDocsPage() {
                   2. Distributed Rate Limiter
                 </h2>
                 <p style={{ fontSize: 14, lineHeight: 1.6, color: "#a1a1aa" }}>
-                  A high-throughput, horizontally scalable rate limiting service designed for microservice environments. Features consistent hashing ring topologies, localized sliding-window counter evaluation, asynchronous replication, and consensus-backed quota allocations.
+                  A high-throughput, horizontally scalable rate limiting platform designed for microservice environments. Features consistent hashing ring topologies, localized sliding-window counter evaluation executing atomically inside Redis via Lua scripts, backing Sentinel high-availability clusters, sidecar proxies, and non-blocking circuit breakers.
                 </p>
                 <div style={{ display: "flex", gap: "16px", marginTop: "16px", flexWrap: "wrap" }}>
                   <a 
@@ -105,7 +105,7 @@ export default function IntroDocsPage() {
                     href="https://github.com/RUDRA-PRATAP-SINGH01/Distributed-rate-limiter/tree/main/docs" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    style={{ fontSize: 13, textDecoration: "none", color: "#38bdf8", fontWeight: "bold" }}
+                    style={{ fontSize: 13, textDecoration: "none", color: "#c084fc", fontWeight: "bold" }}
                   >
                     On-Disk Docs Folder →
                   </a>
