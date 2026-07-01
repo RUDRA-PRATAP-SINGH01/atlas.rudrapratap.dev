@@ -145,10 +145,10 @@ return {1, math.floor(new_tokens)}   -- allowed, remaining`}</GoCodeBlock>
               {/* Properties of token bucket */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
                 {[
-                  { title: "Burst Handling", body: "If no requests arrive for 10 seconds and refill_rate=1, the bucket refills by 10 tokens (up to capacity). This allows short bursts after idle periods — good for API clients.", icon: "⚡", color: "#c084fc" },
-                  { title: "Smooth Steady-State", body: "At exactly refill_rate requests/second in steady state, the bucket stays near-full. Clients get predictable throughput without jitter.", icon: "📈", color: "#c084fc" },
-                  { title: "Second-Resolution", body: "The current implementation uses time.Now().Unix() (whole seconds). This means intra-second refills are not visible. Sub-second precision requires switching to UnixMilli().", icon: "⚠️", color: "#c084fc" },
-                  { title: "Redis Storage", body: "Each bucket is a Redis HASH with 2 fields: 'tokens' and 'last_refill'. Storage is O(1) per user — no sorted sets, no list growth.", icon: "💾", color: "#a78bfa" },
+                  { title: "Burst Handling", body: "If no requests arrive for 10 seconds and refill_rate=1, the bucket refills by 10 tokens (up to capacity). This allows short bursts after idle periods — good for API clients.", icon: "", color: "#c084fc" },
+                  { title: "Smooth Steady-State", body: "At exactly refill_rate requests/second in steady state, the bucket stays near-full. Clients get predictable throughput without jitter.", icon: "", color: "#c084fc" },
+                  { title: "Second-Resolution", body: "The current implementation uses time.Now().Unix() (whole seconds). This means intra-second refills are not visible. Sub-second precision requires switching to UnixMilli().", icon: "Warning:", color: "#c084fc" },
+                  { title: "Redis Storage", body: "Each bucket is a Redis HASH with 2 fields: 'tokens' and 'last_refill'. Storage is O(1) per user — no sorted sets, no list growth.", icon: "", color: "#a78bfa" },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#0f0f12", border: `1px solid ${item.color}22`, borderRadius: 8, padding: "14px 16px" }}>
                     <div style={{ fontSize: 20, marginBottom: 6 }}>{item.icon}</div>
@@ -243,7 +243,7 @@ return {1, limit - count}`}</GoCodeBlock>
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginBottom: 20
               }}>
-                <strong style={{ color: "#f472b6" }}>⚠️ Redis Cluster Caveat:</strong> The hierarchical script uses 4 different KEYS (different key namespaces). In Redis Cluster mode, these keys may hash to different slots, causing a <code>CROSSSLOT Keys in request don't hash to the same slot</code> error. The system currently only supports standalone Redis or Redis Sentinel. To support cluster mode, all keys would need hash tags (e.g., <code>{"{rl}"}:global</code>, <code>{"{rl}"}:tenant:X</code>).
+                <strong style={{ color: "#f472b6" }}>Warning: Redis Cluster Caveat:</strong> The hierarchical script uses 4 different KEYS (different key namespaces). In Redis Cluster mode, these keys may hash to different slots, causing a <code>CROSSSLOT Keys in request don't hash to the same slot</code> error. The system currently only supports standalone Redis or Redis Sentinel. To support cluster mode, all keys would need hash tags (e.g., <code>{"{rl}"}:global</code>, <code>{"{rl}"}:tenant:X</code>).
               </div>
 
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 24 }}>
@@ -349,14 +349,14 @@ func (b *RedisTokenBucket) Allow(ctx context.Context, key string) (Result, error
                   </thead>
                   <tbody>
                     {[
-                      ["Burst Allowance", "✅ Yes — accumulates tokens during idle", "❌ No — strict count in any window"],
+                      ["Burst Allowance", "[OK] Yes — accumulates tokens during idle", "[Error] No — strict count in any window"],
                       ["Redis Data Structure", "HASH (2 fields per user)", "ZSET (1 member per request in window)"],
                       ["Storage Growth", "O(1) fixed — always 2 fields", "O(N) — grows with requests in window"],
                       ["Time Precision", "1-second granularity (fixable to ms)", "Nanosecond (UUID deduplication)"],
                       ["Best For", "APIs with legitimate burst patterns (e.g., mobile sync)", "Strict SLA enforcement (e.g., /login, /payments)"],
-                      ["Cluster Safe", "⚠️ Only with hash tags on keys", "⚠️ Only with hash tags on keys"],
+                      ["Cluster Safe", "Warning: Only with hash tags on keys", "Warning: Only with hash tags on keys"],
                       ["Config (env)", "ALGORITHM=token_bucket (default)", "ALGORITHM=sliding"],
-                      ["Hierarchical Support", "✅ hierarchical.lua uses token bucket logic", "❌ Hierarchical uses token bucket only"],
+                      ["Hierarchical Support", "[OK] hierarchical.lua uses token bucket logic", "[Error] Hierarchical uses token bucket only"],
                     ].map(([prop, tb, sw], i) => (
                       <tr key={i} style={{ borderBottom: "1px solid #18181b", background: i % 2 === 0 ? "#0b0b0b" : "#0f0f12" }}>
                         <td style={{ padding: "8px 12px", color: "#a1a1aa" }}>{prop}</td>

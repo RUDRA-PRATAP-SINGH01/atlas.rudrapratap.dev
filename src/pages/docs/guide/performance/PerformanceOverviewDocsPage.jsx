@@ -148,7 +148,7 @@ export default function PerformanceOverviewDocsPage() {
               </div>
 
               <div style={{ background: "rgba(255, 92, 173, 0.06)", border: "1px solid rgba(255, 92, 173, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>⚠ IMPORTANT</p>
+                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Warning: IMPORTANT</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   These numbers measure hot paths (memtable-resident data). Full LSM depth with cold SSTable reads would show lower throughput for reads.
                 </p>

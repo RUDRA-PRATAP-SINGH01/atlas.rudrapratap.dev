@@ -53,7 +53,7 @@ export default function IntroDocsPage() {
                   marginTop: "12px",
                   marginBottom: "12px"
                 }}>
-                  <strong>⚠️ Architectural Boundary Notice:</strong> PebbleDB is engineered primarily as an architectural study. It represents a first-principles implementation of storage engine internals designed to evaluate compaction heuristics, write amplification, and recovery path trade-offs. It is not designated for high-durability production workloads.
+                  <strong>Warning: Architectural Boundary Notice:</strong> PebbleDB is engineered primarily as an architectural study. It represents a first-principles implementation of storage engine internals designed to evaluate compaction heuristics, write amplification, and recovery path trade-offs. It is not designated for high-durability production workloads.
                 </div>
                 <div style={{ display: "flex", gap: "16px", marginTop: "16px", flexWrap: "wrap" }}>
                   <a 

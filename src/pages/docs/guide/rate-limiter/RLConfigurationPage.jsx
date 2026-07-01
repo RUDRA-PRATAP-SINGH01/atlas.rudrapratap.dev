@@ -63,7 +63,7 @@ export default function RLConfigurationPage() {
                 borderRadius: 8, padding: "12px 16px",
                 fontSize: 13, marginBottom: 28
               }}>
-                <strong style={{ color: "#ff5cad" }}>Note:</strong> Variables marked with a <code style={{ color: "#c084fc" }}>★</code> are security-sensitive. Never use their default values in production.
+                <strong style={{ color: "#ff5cad" }}>Note:</strong> Variables marked with a <code style={{ color: "#c084fc" }}>*</code> are security-sensitive. Never use their default values in production.
               </div>
 
               {/* Central Limiter */}
@@ -76,8 +76,8 @@ export default function RLConfigurationPage() {
                 ["PORT", "8080", "int", "HTTP port for the rate check hot path (/check, /check_hierarchical, /health, /metrics)."],
                 ["ENABLE_ADMIN_API", "false", "bool", "Whether to start the admin API server on ADMIN_PORT."],
                 ["ADMIN_PORT", "8082", "int", "Port for the admin API (override CRUD, circuit management, audit search)."],
-                ["ADMIN_API_KEY ★", "\"\"", "string", "Required when ENABLE_ADMIN_API=true. All admin requests must include X-API-Key: {value}."],
-                ["INTERNAL_API_KEY ★", "\"\"", "string", "API key for internal sidecar→limiter calls. Checked on /check and /check_hierarchical."],
+                ["ADMIN_API_KEY *", "\"\"", "string", "Required when ENABLE_ADMIN_API=true. All admin requests must include X-API-Key: {value}."],
+                ["INTERNAL_API_KEY *", "\"\"", "string", "API key for internal sidecar→limiter calls. Checked on /check and /check_hierarchical."],
                 ["METRICS_REQUIRE_AUTH", "false", "bool", "If true, /metrics requires the INTERNAL_API_KEY header."],
                 ["ALLOW_QUERY_USER_ID", "false", "bool", "If true, user ID can be passed as a query param (?user_id=X) in addition to the header."],
               ]} />
@@ -125,8 +125,8 @@ export default function RLConfigurationPage() {
                 ["RATE_LIMITER_URL", "\"\"", "string", "Base URL of the central limiter service (e.g., http://limiter:8080)."],
                 ["RATE_LIMIT", "10", "int", "Per-user limit to pass to /check. Also used as the X-RateLimit-Limit header value."],
                 ["USE_HIERARCHICAL", "false", "bool", "If true, calls /check_hierarchical instead of /check."],
-                ["FAIL_OPEN", "false", "bool", "★ If true, allows requests when the limiter is unreachable. NEVER use in production."],
-                ["INTERNAL_API_KEY ★", "\"\"", "string", "Key sent on sidecar→limiter calls. Must match the limiter's INTERNAL_API_KEY."],
+                ["FAIL_OPEN", "false", "bool", "*If true, allows requests when the limiter is unreachable. NEVER use in production."],
+                ["INTERNAL_API_KEY *", "\"\"", "string", "Key sent on sidecar→limiter calls. Must match the limiter's INTERNAL_API_KEY."],
                 ["ALLOW_QUERY_USER_ID", "false", "bool", "Allow user ID via query param in addition to header."],
                 ["ALLOWED_PATHS", "\"\"", "string", "Comma-separated list of allowed URL paths. Empty = allow all."],
                 ["DEBUG", "false", "bool", "Enable verbose request-level debug logging."],
@@ -143,14 +143,14 @@ export default function RLConfigurationPage() {
 
               <ConfigTable rows={[
                 ["REDIS_ADDR", "localhost:6379", "string", "Redis address (host:port). For sentinel mode, this should be one sentinel address."],
-                ["REDIS_PASSWORD ★", "\"\"", "string", "Redis AUTH password. Set this! Docker defaults use 'dev-redis-password' which must be changed."],
+                ["REDIS_PASSWORD *", "\"\"", "string", "Redis AUTH password. Set this! Docker defaults use 'dev-redis-password' which must be changed."],
                 ["REDIS_DB", "0", "int", "Redis database index (0-15). Use 0 unless multiple apps share a Redis instance."],
                 ["REDIS_POOL_SIZE", "100", "int", "Max connections in the go-redis connection pool."],
                 ["REDIS_MIN_IDLE_CONNS", "10", "int", "Minimum idle connections to keep warm."],
                 ["REDIS_MODE", "standalone", "string", "'standalone' or 'sentinel'. Selects client type."],
                 ["REDIS_SENTINEL_ADDRS", "\"\"", "string", "Comma-separated sentinel addresses (e.g., sentinel1:26379,sentinel2:26380). Required when REDIS_MODE=sentinel."],
                 ["REDIS_SENTINEL_MASTER", "mymaster", "string", "Sentinel master name to monitor."],
-                ["REDIS_SENTINEL_PASSWORD ★", "\"\"", "string", "Sentinel AUTH password (if sentinels are password-protected)."],
+                ["REDIS_SENTINEL_PASSWORD *", "\"\"", "string", "Sentinel AUTH password (if sentinels are password-protected)."],
               ]} />
 
               {/* Circuit Breaker */}
@@ -168,7 +168,7 @@ export default function RLConfigurationPage() {
                 ["CB_HALF_OPEN_MAX_PROBES", "3", "int64", "Max probe requests allowed in Half-Open state."],
                 ["CB_HALF_OPEN_SUCCESS_REQUIRED", "2", "int64", "Successes required in Half-Open to close the circuit."],
                 ["CB_EMA_ALPHA", "0.2", "float64", "EMA smoothing factor for latency. Higher = more weight on recent requests. Range: 0.0–1.0."],
-                ["CIRCUIT_FAIL_OPEN", "false", "bool", "★ If true, Redis errors in the CB allow traffic. Dangerous."],
+                ["CIRCUIT_FAIL_OPEN", "false", "bool", "*If true, Redis errors in the CB allow traffic. Dangerous."],
               ]} />
 
               {/* Idempotency */}
@@ -180,7 +180,7 @@ export default function RLConfigurationPage() {
                 ["ENABLE_IDEMPOTENCY", "false", "bool", "Enable the Stripe-style idempotency layer on the sidecar."],
                 ["IDEMPOTENCY_LOCK_TTL_MS", "60000", "int", "How long a 'processing' lock is held (ms). Retries during this period get 409 Conflict."],
                 ["IDEMPOTENCY_COMPLETED_TTL_MS", "86400000", "int", "How long a completed/failed idempotency record is retained (ms). Default: 24 hours."],
-                ["IDEMPOTENCY_FAIL_OPEN", "false", "bool", "★ If true, idempotency check failures fall through to the normal request path."],
+                ["IDEMPOTENCY_FAIL_OPEN", "false", "bool", "*If true, idempotency check failures fall through to the normal request path."],
                 ["IDEMPOTENCY_MAX_BODY_BYTES", "1048576", "int", "Max request body size for idempotency fingerprinting (default: 1 MiB)."],
                 ["IDEMPOTENCY_LARGE_BODY_THRESHOLD", "65536", "int", "Bodies larger than this are stored in a separate Redis STRING key; smaller ones inline in the HASH."],
               ]} />
@@ -282,7 +282,7 @@ export default function RLConfigurationPage() {
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginTop: 4
               }}>
-                <strong style={{ color: "#f472b6" }}>⚠️ Production Security Checklist:</strong>
+                <strong style={{ color: "#f472b6" }}>Warning: Production Security Checklist:</strong>
                 <ul style={{ paddingLeft: 16, marginTop: 8, lineHeight: 1.9 }}>
                   <li>Replace <code>REDIS_PASSWORD</code>, <code>ADMIN_API_KEY</code>, and <code>INTERNAL_API_KEY</code> with randomly generated secrets (e.g., <code>openssl rand -hex 32</code>)</li>
                   <li>Never expose <code>ADMIN_PORT</code> to public networks — restrict to internal VPC or Kubernetes ClusterIP service</li>

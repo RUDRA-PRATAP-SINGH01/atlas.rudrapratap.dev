@@ -157,19 +157,19 @@ export default function RLCircuitBreakerPage() {
                     state: "CLOSED",
                     color: "#c084fc",
                     desc: "Normal operation. All requests pass through. Failure counters accumulate. Trips to Open when thresholds are crossed.",
-                    icon: "🟢"
+                    icon: ""
                   },
                   {
                     state: "OPEN",
                     color: "#f472b6",
                     desc: "All requests are fast-rejected without calling the dependency. Waits for cooldown_ms to elapse before attempting recovery.",
-                    icon: "🔴"
+                    icon: ""
                   },
                   {
                     state: "HALF-OPEN",
                     color: "#c084fc",
                     desc: "Limited probe requests are allowed through. If enough succeed, transitions back to Closed. Any failure re-opens the circuit.",
-                    icon: "🔵"
+                    icon: ""
                   },
                 ].map(item => (
                   <div key={item.state} style={{
@@ -198,7 +198,7 @@ export default function RLCircuitBreakerPage() {
                   Redis Key: <code style={{ color: "#ff5cad" }}>cb:{"{target}"}</code> (HASH)
                 </div>
                 <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: "monospace" }}>
+                  <table style={{ width: "100%", minWidth: "600px", borderCollapse: "collapse", fontSize: 12, fontFamily: "monospace" }}>
                     <thead>
                       <tr style={{ borderBottom: "1px solid #27272a" }}>
                         <th style={{ padding: "6px 10px", textAlign: "left", color: "#ff5cad", fontWeight: 600 }}>Field</th>
@@ -295,7 +295,7 @@ return {0, 'half_open', probe_count, tonumber(fields[4]) or 0}  -- probes full`}
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginBottom: 20
               }}>
-                <strong style={{ color: "#f472b6" }}>⚠️ Counter Halving Bug:</strong> The current implementation halves all counters when <code>total_count &gt; 1000</code>. However, this halving runs on <em>every</em> request above 1000, not just once per threshold crossing. After a few hundred more requests, all counters approach zero, which causes the circuit to remain closed even during sustained failure. This is a correctness bug that needs a <code>halved_at</code> guard timestamp.
+                <strong style={{ color: "#f472b6" }}>Warning: Counter Halving Bug:</strong> The current implementation halves all counters when <code>total_count &gt; 1000</code>. However, this halving runs on <em>every</em> request above 1000, not just once per threshold crossing. After a few hundred more requests, all counters approach zero, which causes the circuit to remain closed even during sustained failure. This is a correctness bug that needs a <code>halved_at</code> guard timestamp.
               </div>
 
               {/* Metrics */}

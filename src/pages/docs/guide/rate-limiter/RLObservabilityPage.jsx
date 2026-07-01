@@ -99,9 +99,9 @@ export default function RLObservabilityPage() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 28 }}>
                 {[
-                  { icon: "🔭", title: "Distributed Traces", subtitle: "(OpenTelemetry + Jaeger)", body: "Answers: What happened to this specific request? How long did each phase take? Which component is the bottleneck? Spans propagated via W3C traceparent headers across sidecar → limiter → Redis.", color: "#a78bfa" },
-                  { icon: "📈", title: "Metrics", subtitle: "(Prometheus + Grafana)", body: "Answers: What is the system doing right now in aggregate? How many requests per second? What fraction are being rate-limited? Counters and histograms scraped by Prometheus.", color: "#c084fc" },
-                  { icon: "📋", title: "Audit Log", subtitle: "(Redis-backed + Admin API)", body: "Answers: What decisions were made for tenant X between time T₁ and T₂? Who was rate-limited and why? Append-only event log with queryable indexes for compliance and debugging.", color: "#c084fc" },
+                  { icon: "", title: "Distributed Traces", subtitle: "(OpenTelemetry + Jaeger)", body: "Answers: What happened to this specific request? How long did each phase take? Which component is the bottleneck? Spans propagated via W3C traceparent headers across sidecar → limiter → Redis.", color: "#a78bfa" },
+                  { icon: "", title: "Metrics", subtitle: "(Prometheus + Grafana)", body: "Answers: What is the system doing right now in aggregate? How many requests per second? What fraction are being rate-limited? Counters and histograms scraped by Prometheus.", color: "#c084fc" },
+                  { icon: "", title: "Audit Log", subtitle: "(Redis-backed + Admin API)", body: "Answers: What decisions were made for tenant X between time T₁ and T₂? Who was rate-limited and why? Append-only event log with queryable indexes for compliance and debugging.", color: "#c084fc" },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ fontSize: 22, marginBottom: 6 }}>{item.icon}</div>

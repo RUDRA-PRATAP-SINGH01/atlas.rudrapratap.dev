@@ -162,7 +162,7 @@ export default function FlushPipelineDocsPage() {
               <GoCodeBlock>{RETRY_CODE}</GoCodeBlock>
 
               <div style={{ background: "rgba(255, 92, 173, 0.06)", border: "1px solid rgba(255, 92, 173, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 WRITE BLOCK STRATEGY</p>
+                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Note: WRITE BLOCK STRATEGY</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   If <code className="inline-code">BlockWritesOnFlushError</code> is enabled (default true), writes block when a background flush error is active. This prevents memory exhaustion from incoming writes while the database is unable to write to disk. Point lookups and range scans continue to function normally.
                 </p>

@@ -84,8 +84,8 @@ export default function RLIdempotencyPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 14, marginBottom: 24 }}>
                 {[
                   { title: "At-Most-Once", color: "#c084fc", icon: "1️⃣", body: "Fire-and-forget. Never retried. Avoids duplicates but loses the request permanently on any transient failure. Acceptable for non-critical logging. Unacceptable for payments." },
-                  { title: "At-Least-Once", color: "#c084fc", icon: "🔁", body: "Retried until acknowledged. Prevents loss but creates duplicates on network errors. The default behavior of most HTTP clients and message queues. Dangerous for mutations." },
-                  { title: "Exactly-Once", color: "#c084fc", icon: "✅", body: "The goal. Achieved by combining client-generated Idempotency-Key with server-side deduplication. This is what the idempotency layer implements." },
+                  { title: "At-Least-Once", color: "#c084fc", icon: "", body: "Retried until acknowledged. Prevents loss but creates duplicates on network errors. The default behavior of most HTTP clients and message queues. Dangerous for mutations." },
+                  { title: "Exactly-Once", color: "#c084fc", icon: "[OK]", body: "The goal. Achieved by combining client-generated Idempotency-Key with server-side deduplication. This is what the idempotency layer implements." },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ fontSize: 20, marginBottom: 6 }}>{item.icon}</div>
@@ -395,7 +395,7 @@ func IsMutatingMethod(method string) bool {
                 background: "rgba(244, 114, 182,0.07)", border: "1px solid rgba(244, 114, 182,0.25)",
                 borderRadius: 8, padding: "14px 18px", fontSize: 13, lineHeight: 1.65, marginBottom: 28
               }}>
-                <strong style={{ color: "#c084fc" }}>⚠️ Fence Counter Persistence:</strong> The fence counter key (<code>idem:fence:{"{scope}"}</code>) uses <code>INCR</code> which is crash-safe as long as Redis persistence is enabled (AOF or RDB). Without persistence, a Redis restart resets counters to 0, and old fence comparisons become unreliable. In production, enable AOF with <code>appendonly yes</code>.
+                <strong style={{ color: "#c084fc" }}>Warning: Fence Counter Persistence:</strong> The fence counter key (<code>idem:fence:{"{scope}"}</code>) uses <code>INCR</code> which is crash-safe as long as Redis persistence is enabled (AOF or RDB). Without persistence, a Redis restart resets counters to 0, and old fence comparisons become unreliable. In production, enable AOF with <code>appendonly yes</code>.
               </div>
 
               {/* Replay Detection */}

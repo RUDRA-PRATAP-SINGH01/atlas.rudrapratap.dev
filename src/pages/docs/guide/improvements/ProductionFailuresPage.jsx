@@ -34,7 +34,7 @@ export default function ProductionFailuresPage() {
               fontSize: "14px",
               lineHeight: "1.6"
             }}>
-              <strong>⚠️ Production Audit Warning:</strong> Under sustained load, stress testing, or environment constraints, this educational engine will fail due to memory leaks, read inconsistencies, or lack of proper file checksum verification.
+              <strong>Warning: Production Audit Warning:</strong> Under sustained load, stress testing, or environment constraints, this educational engine will fail due to memory leaks, read inconsistencies, or lack of proper file checksum verification.
             </div>
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>

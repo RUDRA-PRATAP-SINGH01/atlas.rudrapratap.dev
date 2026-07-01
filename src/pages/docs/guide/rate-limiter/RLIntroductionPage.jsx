@@ -14,14 +14,14 @@ const pageTopics = [
 
 const architectureDiagram = `
 flowchart TD
-    Client(["👤 Client"])
-    Sidecar["🔀 Sidecar Proxy\\n(cmd/sidecar)"]
-    CentralLimiter["🧠 Central Limiter\\n(cmd/limiter)"]
-    Redis[("🔴 Redis\\n(Token Buckets / CB State)")]
-    Upstream["📦 Upstream Backend"]
-    AdminAPI["🛠 Admin API\\n(:8082)"]
-    Jaeger["🔭 Jaeger\\n(OTel Traces)"]
-    Prometheus["📊 Prometheus\\n(/metrics)"]
+    Client(["Client"])
+    Sidecar["Sidecar Proxy\\n(cmd/sidecar)"]
+    CentralLimiter["Central Limiter\\n(cmd/limiter)"]
+    Redis[("Redis\\n(Token Buckets / CB State)")]
+    Upstream["Upstream Backend"]
+    AdminAPI["Admin API\\n(:8082)"]
+    Jaeger["Jaeger\\n(OTel Traces)"]
+    Prometheus["Prometheus\\n(/metrics)"]
 
     Client -->|"HTTP Request"| Sidecar
     Sidecar -->|"GET /check_hierarchical"| CentralLimiter
@@ -104,12 +104,12 @@ export default function RLIntroductionPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16, marginBottom: 24 }}>
                 {[
-                  { title: "Race Conditions", body: "Two concurrent requests must not both be granted the last token. Without true atomicity, you over-issue quota.", icon: "⚡" },
-                  { title: "Network Partitions", body: "If the central limiter is unreachable, do you fail open (allow everything) or fail closed (block everything)?", icon: "🌩" },
-                  { title: "Clock Skew", body: "Token bucket refill rates use timestamps. If multiple nodes have different clocks, quota calculations diverge.", icon: "🕐" },
-                  { title: "Hot Keys", body: "A single global bucket key accessed by 10K RPS creates a Redis hotspot. The system must collapse those reads.", icon: "🔥" },
-                  { title: "Hierarchy", body: "Global → Tenant → User → Endpoint buckets must ALL pass atomically. A partial check is a security hole.", icon: "🏗" },
-                  { title: "Idempotency", body: "A client retrying a failed POST must not double-charge or double-execute the upstream action.", icon: "🔁" },
+                  { title: "Race Conditions", body: "Two concurrent requests must not both be granted the last token. Without true atomicity, you over-issue quota.", icon: "" },
+                  { title: "Network Partitions", body: "If the central limiter is unreachable, do you fail open (allow everything) or fail closed (block everything)?", icon: "" },
+                  { title: "Clock Skew", body: "Token bucket refill rates use timestamps. If multiple nodes have different clocks, quota calculations diverge.", icon: "" },
+                  { title: "Hot Keys", body: "A single global bucket key accessed by 10K RPS creates a Redis hotspot. The system must collapse those reads.", icon: "" },
+                  { title: "Hierarchy", body: "Global → Tenant → User → Endpoint buckets must ALL pass atomically. A partial check is a security hole.", icon: "" },
+                  { title: "Idempotency", body: "A client retrying a failed POST must not double-charge or double-execute the upstream action.", icon: "" },
                 ].map(card => (
                   <div key={card.title} style={{
                     background: "#111113",

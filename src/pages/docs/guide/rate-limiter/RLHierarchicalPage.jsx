@@ -16,17 +16,17 @@ const pageTopics = [
 
 const quotaTreeDiagram = `
 flowchart TD
-    Global["🌐 Global Bucket\\nrate:global:default\\ncap=10000/min\\nProtects: Redis + all upstream infra"]
+    Global[" Global Bucket\\nrate:global:default\\ncap=10000/min\\nProtects: Redis + all upstream infra"]
     
-    TenantA["🏢 Tenant A\\nrate:tenant:acme\\ncap=2000/min\\n(Enterprise tier)"]
-    TenantB["🏢 Tenant B\\nrate:tenant:startup\\ncap=200/min\\n(Free tier)"]
+    TenantA[" Tenant A\\nrate:tenant:acme\\ncap=2000/min\\n(Enterprise tier)"]
+    TenantB[" Tenant B\\nrate:tenant:startup\\ncap=200/min\\n(Free tier)"]
 
-    UserA1["👤 user-alice\\nrate:user:alice\\ncap=500/min"]
-    UserA2["👤 user-bob\\nrate:user:bob\\ncap=500/min"]
-    UserB1["👤 user-carlos\\nrate:user:carlos\\ncap=50/min"]
+    UserA1[" user-alice\\nrate:user:alice\\ncap=500/min"]
+    UserA2[" user-bob\\nrate:user:bob\\ncap=500/min"]
+    UserB1[" user-carlos\\nrate:user:carlos\\ncap=50/min"]
     
-    EndpointHeavy["📍 /api/reports/export\\nrate:ep:acme:/api/reports\\ncap=10/min (expensive)"]
-    EndpointLight["📍 /api/heartbeat\\nrate:ep:acme:/api/heartbeat\\ncap=1000/min (cheap)"]
+    EndpointHeavy[" /api/reports/export\\nrate:ep:acme:/api/reports\\ncap=10/min (expensive)"]
+    EndpointLight[" /api/heartbeat\\nrate:ep:acme:/api/heartbeat\\ncap=1000/min (cheap)"]
 
     Global --> TenantA
     Global --> TenantB
@@ -125,10 +125,10 @@ export default function RLHierarchicalPage() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
-                  { icon: "🔥", title: "Noisy Neighbor", body: "One high-volume tenant consumes so much Redis CPU that key lookups for other tenants begin to queue. They suffer elevated latency without exceeding their own limits." },
-                  { icon: "🌩", title: "Runaway Script", body: "A single user inside a tenant runs a batch job that hammers the API. Per-user limits help, but without a tenant cap, the tenant as a whole can still saturate upstream." },
-                  { icon: "📦", title: "Endpoint Abuse", body: "A cheap endpoint like /heartbeat and an expensive endpoint like /reports/export share the same bucket. A user blasting /reports causes 10× the upstream DB load of a user blasting /heartbeat." },
-                  { icon: "🛡", title: "Contract Enforcement", body: "SaaS tiers (Free, Starter, Enterprise) need hard throughput guarantees. A Free-tier user must never consume Enterprise-tier quota — even if they find a way to forge request headers." },
+                  { icon: "", title: "Noisy Neighbor", body: "One high-volume tenant consumes so much Redis CPU that key lookups for other tenants begin to queue. They suffer elevated latency without exceeding their own limits." },
+                  { icon: "", title: "Runaway Script", body: "A single user inside a tenant runs a batch job that hammers the API. Per-user limits help, but without a tenant cap, the tenant as a whole can still saturate upstream." },
+                  { icon: "", title: "Endpoint Abuse", body: "A cheap endpoint like /heartbeat and an expensive endpoint like /reports/export share the same bucket. A user blasting /reports causes 10× the upstream DB load of a user blasting /heartbeat." },
+                  { icon: "", title: "Contract Enforcement", body: "SaaS tiers (Free, Starter, Enterprise) need hard throughput guarantees. A Free-tier user must never consume Enterprise-tier quota — even if they find a way to forge request headers." },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ fontSize: 22, marginBottom: 8 }}>{item.icon}</div>
@@ -442,13 +442,13 @@ curl -X DELETE http://localhost:8082/admin/limits/tenant/acme \\
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16, marginBottom: 24 }}>
                 <div style={{ background: "#111113", border: "1px solid #c084fc33", borderRadius: 8, padding: "16px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#c084fc", marginBottom: 8 }}>✅ Supported: Redis Sentinel HA</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#c084fc", marginBottom: 8 }}>[OK] Supported: Redis Sentinel HA</div>
                   <p style={{ fontSize: 12.5, color: "#a1a1aa", lineHeight: 1.6, margin: 0 }}>
                     A single Redis master (with replicas) processes all keys in a single process. Multi-key Lua scripts work with no restrictions. This is the recommended production configuration (<code>REDIS_MODE=sentinel</code>).
                   </p>
                 </div>
                 <div style={{ background: "#111113", border: "1px solid #f4405033", borderRadius: 8, padding: "16px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#ec4899", marginBottom: 8 }}>❌ Not Supported: Redis Cluster</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#ec4899", marginBottom: 8 }}>[Error] Not Supported: Redis Cluster</div>
                   <p style={{ fontSize: 12.5, color: "#a1a1aa", lineHeight: 1.6, margin: 0 }}>
                     Redis Cluster mode will throw CROSSSLOT errors for the hierarchical Lua script. Workaround: use hash tags to pin all four keys to the same slot — e.g. <code>{"{rl:acme}"}:global</code>, <code>{"{rl:acme}"}:tenant</code>, etc. This requires key naming changes throughout.
                   </p>

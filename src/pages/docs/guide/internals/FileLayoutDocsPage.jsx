@@ -269,11 +269,11 @@ export default function FileLayoutDocsPage() {
                   </thead>
                   <tbody>
                     {[
-                      ["✓", "✓", "✓", "✗", "✗", "Normal open: replay manifest, replay WAL from 0"],
-                      ["✓", "✓", "✓", "✓", "✗", "Interrupted flush: compute walReplayStartOffset(), replay WAL from offset"],
-                      ["✓", "✓", "✗", "✗", "✗", "WAL was fully flushed: open with empty memtable"],
-                      ["✓", "✓", "✓", "✗", "✓", "Orphan tmp: delete .sst.tmp files, normal open"],
-                      ["✗", "✗", "✗", "✗", "✗", "Fresh database: create CURRENT + MANIFEST-000001"],
+                      ["[OK]", "[OK]", "[OK]", "[Error]", "[Error]", "Normal open: replay manifest, replay WAL from 0"],
+                      ["[OK]", "[OK]", "[OK]", "[OK]", "[Error]", "Interrupted flush: compute walReplayStartOffset(), replay WAL from offset"],
+                      ["[OK]", "[OK]", "[Error]", "[Error]", "[Error]", "WAL was fully flushed: open with empty memtable"],
+                      ["[OK]", "[OK]", "[OK]", "[Error]", "[OK]", "Orphan tmp: delete .sst.tmp files, normal open"],
+                      ["[Error]", "[Error]", "[Error]", "[Error]", "[Error]", "Fresh database: create CURRENT + MANIFEST-000001"],
                     ].map((row, i) => (
                       <tr key={i} style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)", background: i % 2 === 0 ? "rgba(255, 255, 255, 0.02)" : "transparent" }}>
                         {row.map((cell, j) => (

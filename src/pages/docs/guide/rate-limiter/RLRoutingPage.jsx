@@ -16,7 +16,7 @@ const pageTopics = [
 
 const routingFlowDiagram = `
 flowchart TD
-    Request["Incoming Request\\n(rate limit passed ✓)"]
+    Request["Incoming Request\\n(rate limit passed [OK])"]
     
     subgraph GWSelection["Gateway Selection (per request)"]
         GetGWs["SMEMBERS route:index\\n→ [gw-alpha, gw-beta, gw-gamma]"]
@@ -107,9 +107,9 @@ export default function RLRoutingPage() {
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
-                  { icon: "📊", title: "Score-Based Selection", body: "Each gateway has a health score (0.0–1.0) computed from its recent latency EMA, error rate, and timeout rate. The highest-scoring gateway is selected as primary.", color: "#c084fc" },
-                  { icon: "🔄", title: "Automatic Failover", body: "If the primary gateway returns a 5xx or times out, the router immediately retries with the next-best gateway — the user sees no failure if the fallback succeeds.", color: "#c084fc" },
-                  { icon: "📉", title: "Continuous Adaptation", body: "Scores are updated after every request using EMA (exponential moving average). A recovering gateway sees its score gradually improve and earns traffic back organically.", color: "#a78bfa" },
+                  { icon: "", title: "Score-Based Selection", body: "Each gateway has a health score (0.0–1.0) computed from its recent latency EMA, error rate, and timeout rate. The highest-scoring gateway is selected as primary.", color: "#c084fc" },
+                  { icon: "", title: "Automatic Failover", body: "If the primary gateway returns a 5xx or times out, the router immediately retries with the next-best gateway — the user sees no failure if the fallback succeeds.", color: "#c084fc" },
+                  { icon: "", title: "Continuous Adaptation", body: "Scores are updated after every request using EMA (exponential moving average). A recovering gateway sees its score gradually improve and earns traffic back organically.", color: "#a78bfa" },
                 ].map(item => (
                   <div key={item.title} style={{ background: "#111113", border: `1px solid ${item.color}33`, borderRadius: 8, padding: "16px 18px" }}>
                     <div style={{ fontSize: 22, marginBottom: 6 }}>{item.icon}</div>

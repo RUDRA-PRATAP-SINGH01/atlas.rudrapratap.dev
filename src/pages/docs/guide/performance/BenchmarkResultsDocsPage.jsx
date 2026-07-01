@@ -179,7 +179,7 @@ export default function BenchmarkResultsDocsPage() {
                 </table>
               </div>
               <div style={{ background: "rgba(192, 132, 252, 0.06)", border: "1px solid rgba(192, 132, 252, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 TIP</p>
+                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Note: TIP</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   The 20× gap is entirely due to fsync latency. Each sync write waits for the NVMe controller to acknowledge the write, while group commit batches multiple records per fsync.
                 </p>
@@ -253,7 +253,7 @@ export default function BenchmarkResultsDocsPage() {
               </div>
 
               <div style={{ background: "rgba(255, 92, 173, 0.06)", border: "1px solid rgba(255, 92, 173, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>⚠ IMPORTANT</p>
+                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Warning: IMPORTANT</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   This benchmark measures hot memtable reads only. Data is never flushed to SSTables. Full LSM depth with cold block reads would show 10–100× higher latency per read.
                 </p>

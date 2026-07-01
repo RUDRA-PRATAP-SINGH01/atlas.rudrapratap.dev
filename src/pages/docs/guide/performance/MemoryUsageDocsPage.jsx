@@ -206,7 +206,7 @@ export default function MemoryUsageDocsPage() {
               </p>
 
               <div style={{ background: "rgba(255, 92, 173, 0.06)", border: "1px solid rgba(255, 92, 173, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>⚠ WARNING</p>
+                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Warning: WARNING</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   Large memtables (e.g., 128 MiB for benchmarks) create proportionally large scan snapshots. In production, this is the primary memory-spike source.
                 </p>
@@ -266,7 +266,7 @@ export default function MemoryUsageDocsPage() {
               </div>
 
               <div style={{ background: "rgba(192, 132, 252, 0.06)", border: "1px solid rgba(192, 132, 252, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 NOTE</p>
+                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Note: NOTE</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   Block cache dominates at small dataset sizes. Bloom filter memory dominates at larger dataset sizes. The memtable is constant because it flushes at the configured threshold.
                 </p>

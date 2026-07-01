@@ -202,7 +202,7 @@ go test -bench=BenchmarkScanThroughput -benchmem -count=1 ./internal/db`}</code>
               </pre>
 
               <div style={{ background: "rgba(255, 92, 173, 0.06)", border: "1px solid rgba(255, 92, 173, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>⚠ WARNING & CAUTION</p>
+                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Warning: WARNING & CAUTION</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   <code className="inline-code">-count=1</code> is critical to prevent cached results.
                   <br />

@@ -49,7 +49,7 @@ sequenceDiagram
     participant UP as Upstream
 
     C->>SC: POST /payments (Idempotency-Key: pay-xyz-001)
-    SC->>SC: ValidateKey("pay-xyz-001") ✓
+    SC->>SC: ValidateKey("pay-xyz-001") [OK]
     SC->>SC: ReadBody(r, maxBytes) → body bytes
     SC->>SC: BuildScope(tenantID, userID) → SHA256 prefix
     SC->>SC: Fingerprint(method, path, query, body) → SHA256
@@ -62,7 +62,7 @@ sequenceDiagram
         SC->>UP: POST /payments (proxied)
         UP-->>SC: 201 Created {id: "pay-001"}
         SC->>R: EVALSHA complete.lua<br/>ARGV[201, headers, body, ttl, now, threshold, fence_token]
-        R-->>SC: {1} ✓ stored
+        R-->>SC: {1} [OK] stored
         SC-->>C: 201 Created {id: "pay-001"}
     
     else Retry — already completed
@@ -364,7 +364,7 @@ return {allowed, remaining}`}</GoCodeBlock>
                       </div>
                     </div>
                     <div style={{ fontSize: 12, color: "#c084fc", borderTop: "1px solid #18181b", paddingTop: 8 }}>
-                      💡 {fm.recommendation}
+                      Note: {fm.recommendation}
                     </div>
                   </div>
                 ))}

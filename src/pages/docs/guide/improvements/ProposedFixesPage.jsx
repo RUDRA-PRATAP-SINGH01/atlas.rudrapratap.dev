@@ -106,7 +106,7 @@ export default function ProposedFixesPage() {
               fontSize: "14px",
               lineHeight: "1.6"
             }}>
-              <strong>✔️ Implementation Roadmap:</strong> Below are specific code recommendations to resolve the most critical issues identified during the database engine audit.
+              <strong>[OK] Implementation Roadmap:</strong> Below are specific code recommendations to resolve the most critical issues identified during the database engine audit.
             </div>
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>

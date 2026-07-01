@@ -34,7 +34,7 @@ export default function RequiredFeaturesPage() {
               fontSize: "14px",
               lineHeight: "1.6"
             }}>
-              <strong>🔧 Structural Enhancements:</strong> Transitioning from an educational project to a durable database requires adding a leveled hierarchy, storage block checksums, direct parent directory syncs, and logarithmic lookups.
+              <strong> Structural Enhancements:</strong> Transitioning from an educational project to a durable database requires adding a leveled hierarchy, storage block checksums, direct parent directory syncs, and logarithmic lookups.
             </div>
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>

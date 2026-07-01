@@ -99,7 +99,7 @@ export default function GuideDocsPage() {
               fontSize: "14px",
               lineHeight: "1.6"
             }}>
-              <strong style={{ color: "#ec4899", display: "block", fontSize: "15px", marginBottom: "6px" }}>⚠️ Not Production Ready</strong>
+              <strong style={{ color: "#ec4899", display: "block", fontSize: "15px", marginBottom: "6px" }}>Warning: Not Production Ready</strong>
               PebbleDB is an educational, first-principles implementation of an LSM-tree storage engine. While executed cleanly according to correct design patterns, it is a learning project containing critical limitations that make it unsuitable for production environments or handling valuable data.
             </div>
 

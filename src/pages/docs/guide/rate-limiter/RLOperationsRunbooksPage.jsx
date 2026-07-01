@@ -12,13 +12,13 @@ const pageTopics = [
 
 const outageRecoveryWorkflow = `
 flowchart TD
-    Outage["🚨 Redis / Limiter Outage Detected\\n(Sidecar logs circuit breaker OPEN or Timeout)"]
+    Outage["ALERT: Redis / Limiter Outage Detected\\n(Sidecar logs circuit breaker OPEN or Timeout)"]
     Action1["1. Sidecar switches to fail-safe mode\\n(Default: ALLOW requests, increment metrics)"]
     Action2["2. Bring up fresh Redis Sentinel cluster\\n(Ensure AOF/RDB persistence config is active)"]
     Action3["3. Re-bootstrap override keys from backup config\\n(curl script to Admin API :8082)"]
     Action4["4. Reset sidecar denial cache to force refresh\\n(Restart sidecar pods or wait TTL)"]
     Action5["5. Reset circuit breakers manually\\n(POST /admin/circuit/limiter/reset)"]
-    Verify["✓ System Operational (Healthy)"]
+    Verify["[OK] System Operational (Healthy)"]
 
     Outage --> Action1 --> Action2 --> Action3 --> Action4 --> Action5 --> Verify
 

@@ -201,7 +201,7 @@ export default function RLArchitecturePage() {
                 lineHeight: 1.6,
                 color: "#fbcfe8"
               }}>
-                <strong>⚠️ Fail-Fast By Design:</strong> If Redis is unreachable at startup, the limiter calls <code>log.Fatalf</code> immediately. A limiter that starts without verified Redis connectivity would silently mis-report health and operate without state — both failure modes are worse than refusing to start.
+                <strong>Warning: Fail-Fast By Design:</strong> If Redis is unreachable at startup, the limiter calls <code>log.Fatalf</code> immediately. A limiter that starts without verified Redis connectivity would silently mis-report health and operate without state — both failure modes are worse than refusing to start.
               </div>
 
               {/* Key endpoints */}

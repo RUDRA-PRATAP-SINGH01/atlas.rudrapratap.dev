@@ -427,7 +427,7 @@ export default function MergeIteratorDocsPage() {
 
               {/* Important callout */}
               <div style={{ background: "rgba(255, 92, 173, 0.06)", border: "1px solid rgba(255, 92, 173, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>⚠ IMPORTANT</p>
+                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Warning: IMPORTANT</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   At step 3, key "c" exists in two sources as a tombstone. The highest-priority source (Memtable) wins. Because <span className="highlight-text">omitTombstones = true</span> (scan mode), the tombstone is consumed but never returned to the caller. Both sources are still advanced past "c".
                 </p>
@@ -577,7 +577,7 @@ export default function MergeIteratorDocsPage() {
 
               {/* Tip callout */}
               <div style={{ background: "rgba(192, 132, 252, 0.06)", border: "1px solid rgba(192, 132, 252, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>💡 TIP</p>
+                <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Note: TIP</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   For large k (many SSTables), a min-heap would reduce per-step cost from O(k) to O(log k). PebbleDB uses the linear scan approach because compaction bounds k to a small number of overlapping files.
                 </p>

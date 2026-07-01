@@ -324,7 +324,7 @@ export default function SstableLayoutDocsPage() {
               </div>
 
               <div style={{ background: "rgba(255, 92, 173, 0.06)", border: "1px solid rgba(255, 92, 173, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
-                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>⚠ IMPORTANT</p>
+                <p style={{ color: "#ff5cad", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Warning: IMPORTANT</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
                   The SSTable file is not visible to the database until the manifest records it via <span className="highlight-text">AppendNewFile</span>. A crash between rename and manifest commit leaves an orphan .sst file that is quarantined during recovery.
                 </p>
