@@ -124,7 +124,7 @@ export default function RLSystemInvariantsPage() {
                 A system invariant is a predicate that must hold true across every observable state transition — under normal operation, partial failure, container restart, Redis failover, split-brain network partition, and concurrent Lua re-entry. Unlike runtime assertions, which detect violations after they occur, invariants are <strong style={{ color: "#ff5cad" }}>enforced by construction</strong>: the architecture, data model, and Lua scripts are designed such that violating them is structurally impossible, not just unlikely.
               </p>
               <p style={{ marginTop: 14 }}>
-                This page documents the seven formal invariants of the Distributed Rate Limiter. For each invariant, we state the formal guarantee, describe the mechanism that enforces it, enumerate the failure modes that could theoretically violate it, and document the mitigations in place.
+                on this page, I document the seven formal invariants of the Distributed Rate Limiter. For each invariant, I state the formal guarantee, describe the mechanism that enforces it, enumerate the failure modes that could theoretically violate it, and document the mitigations in place.
               </p>
 
               <div style={{
@@ -299,9 +299,9 @@ return 'OK'`}</GoCodeBlock>
                 <strong style={{ color: "#ec4899" }}>Formal Statement:</strong> During a total Redis outage, every in-flight request MUST receive a definitive response (allow or deny) within <code>max(circuit_breaker_timeout)</code> milliseconds. The sidecar MUST NOT block indefinitely, queue unboundedly, or propagate the Redis failure as a hung connection to the upstream service.
               </div>
               <p>
-                When Redis becomes unavailable (connection refused, read timeout, dial timeout), the circuit breaker state machine in the Central Limiter transitions from <code>CLOSED</code> → <code>OPEN</code> after the configured failure threshold is exceeded. In the <code>OPEN</code> state, the sidecar bypasses the Redis check entirely and applies the configured fail-mode policy:
+                When Redis becomes unavailable (connection refused, read timeout, dial timeout), my circuit breaker state machine in the Central Limiter transitions from <code>CLOSED</code> → <code>OPEN</code> after the configured failure threshold is exceeded. In the <code>OPEN</code> state, the sidecar bypasses the Redis check entirely and applies the configured fail-mode policy:
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, margin: "16px 0 24px 0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, margin: "16px 0 24px 0" }}>
                 {[
                   { mode: "FAIL_OPEN", color: "#c084fc", description: "All requests are passed through to the upstream without quota enforcement. Used for non-critical paths where availability outweighs strictness. Risk: brief over-quota traffic during outage window." },
                   { mode: "FAIL_CLOSED", color: "#ec4899", description: "All requests are rejected with HTTP 503. Used for payment APIs, financial transactions, or any path where over-quota risk is unacceptable. Risk: temporary service unavailability." },

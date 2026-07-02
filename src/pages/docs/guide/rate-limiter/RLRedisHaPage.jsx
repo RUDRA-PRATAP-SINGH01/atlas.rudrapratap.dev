@@ -107,7 +107,7 @@ export default function RLRedisHaPage() {
               <p>
                 The rate limiter's correctness depends entirely on Redis. Every quota check, idempotency claim, circuit breaker state transition, and audit log entry is a Redis operation. A Redis restart or crash has immediate, visible consequences:
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
                   { icon: "", title: "Quota State Lost", body: "Token bucket HASH keys are in-memory by default. A restart wipes all buckets — all users start with full quota simultaneously, creating an accidental request surge (thundering herd).", color: "#ec4899" },
                   { icon: "", title: "Idempotency Keys Gone", body: "All PROCESSING records are lost. In-flight requests become orphans — the upstream may have already executed, but the sidecar can no longer detect it as a duplicate on retry.", color: "#c084fc" },
@@ -169,7 +169,7 @@ export default function RLRedisHaPage() {
               </p>
               <DocsMermaid chart={failoverDiagram} />
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 20, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginTop: 20, marginBottom: 28 }}>
                 {[
                   { title: "SDOWN (Subjective Down)", color: "#c084fc", body: "A single Sentinel marks the master as subjectively down after down-after-milliseconds (default 30s) without a PONG response. This is a local judgment only." },
                   { title: "ODOWN (Objective Down)", color: "#ec4899", body: "When quorum (≥ 2) sentinels independently agree the master is SDOWN, the state is upgraded to ODOWN — objective, consensus-based failure detection." },

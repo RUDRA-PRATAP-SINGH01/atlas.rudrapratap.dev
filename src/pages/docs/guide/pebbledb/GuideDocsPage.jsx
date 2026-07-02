@@ -100,13 +100,13 @@ export default function GuideDocsPage() {
               lineHeight: "1.6"
             }}>
               <strong style={{ color: "#ec4899", display: "block", fontSize: "15px", marginBottom: "6px" }}>Warning: Not Production Ready</strong>
-              PebbleDB is an educational, first-principles implementation of an LSM-tree storage engine. While executed cleanly according to correct design patterns, it is a learning project containing critical limitations that make it unsuitable for production environments or handling valuable data.
+              PebbleDB is my educational, first-principles implementation of an LSM-tree storage engine. While executed cleanly according to correct design patterns, it is a learning project containing critical limitations that make it unsuitable for production environments or handling valuable data.
             </div>
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <h2 className="guide-sub-heading" id="what-is-pebbledb" style={{ fontSize: 22, color: "#ffffff", marginTop: 28, marginBottom: 12 }}>What is PebbleDB?</h2>
               <p>
-                In simple terms, PebbleDB is a lightweight, embedded key-value database built completely from scratch in Go.
+                In simple terms, PebbleDB is my lightweight, embedded key-value database built completely from scratch in Go.
               </p>
               <p>
                 To understand what it is, here is the breakdown:
@@ -170,7 +170,7 @@ export default function GuideDocsPage() {
 
               <h2 className="guide-sub-heading" id="where-pebbledb-fits" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>Where PebbleDB Fits</h2>
               <p>
-                PebbleDB is an embedded, single-node LSM key-value store written in Go.
+                PebbleDB is my embedded, single-node LSM key-value store written in Go.
               </p>
               <p>
                 Embedded: It runs inside the caller's application process (similar to SQLite, LevelDB, or RocksDB). There is no network server, network socket latency, or client-server protocol.
@@ -184,7 +184,7 @@ export default function GuideDocsPage() {
 
               <h2 className="guide-sub-heading" id="features-supported" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>What Features the PebbleDB Implementation Supports</h2>
               <p>
-                PebbleDB implements all essential subsystems of a production LSM database:
+                I implemented in PebbleDB all essential subsystems of a production LSM database:
               </p>
               <ul className="guide-bullets-list">
                 <li>

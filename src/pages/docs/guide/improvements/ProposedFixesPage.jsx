@@ -131,11 +131,11 @@ export default function ProposedFixesPage() {
                 2. Preventing Lock Leak on Close Timeout
               </h2>
               <p>
-                The LOCK file must not be unlocked while flusher/compaction goroutines are running. We use a sync WaitGroup inside the close sequence:
+                The LOCK file must not be unlocked while flusher/compaction goroutines are running. I use a sync WaitGroup inside the close sequence:
               </p>
               <GoCodeBlock>{LOCK_RELEASE_CODE}</GoCodeBlock>
               <p>
-                By replacing a simple timeout sleep with <code className="inline-code">sync.WaitGroup.Wait()</code>, we guarantee background worker cleanup completes before releasing the DB lock.
+                By replacing a simple timeout sleep with <code className="inline-code">sync.WaitGroup.Wait()</code>, I guarantee background worker cleanup completes before releasing the DB lock.
               </p>
 
               {/* ── 3. Write Visibility Fix ── */}

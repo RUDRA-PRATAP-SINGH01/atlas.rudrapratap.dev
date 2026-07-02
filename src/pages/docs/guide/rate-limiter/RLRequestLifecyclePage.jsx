@@ -149,7 +149,7 @@ export default function RLRequestLifecyclePage() {
 
               <p>Requests enter the system at one of two entry points:</p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 14, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 14, marginBottom: 28 }}>
                 <div style={{ background: "#0f0f12", border: "1px solid rgba(255,92,173,0.25)", borderRadius: 8, padding: "16px 20px" }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#ff5cad", marginBottom: 8 }}>Via Sidecar Proxy</div>
                   <p style={{ fontSize: 13, color: "#a1a1aa", lineHeight: 1.6, margin: 0 }}>
@@ -353,7 +353,7 @@ return {allowed, remaining}`}</GoCodeBlock>
                 ].map((fm, i) => (
                   <div key={i} style={{ background: "#0f0f12", border: "1px solid #1e1e24", borderRadius: 8, padding: "14px 18px" }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", marginBottom: 8 }}>{fm.scenario}</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 8 }}>
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 600, color: "#c084fc", marginBottom: 3 }}>FAIL OPEN</div>
                         <div style={{ fontSize: 12.5, color: "#a1a1aa" }}>{fm.failOpen}</div>

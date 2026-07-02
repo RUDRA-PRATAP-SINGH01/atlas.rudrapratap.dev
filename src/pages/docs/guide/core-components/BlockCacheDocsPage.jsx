@@ -29,7 +29,7 @@ export default function BlockCacheDocsPage() {
                 1. Overview
               </h2>
               <p>
-                PebbleDB uses a byte‑bounded LRU (Least Recently Used) cache. Each cached block is keyed
+                I designed PebbleDB to use a byte‑bounded LRU (Least Recently Used) cache. Each cached block is keyed
                 by a compound identifier (file number + offset) and the cache tracks total byte usage.
                 When the configured limit is reached, the least‑recently accessed blocks are evicted.
               </p>

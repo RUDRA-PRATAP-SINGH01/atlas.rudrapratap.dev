@@ -296,7 +296,7 @@ export default function FileLayoutDocsPage() {
                 6. Atomic Write Protocols Summary
               </h2>
               <p>
-                Every durable state change in PebbleDB uses one of these crash-safe patterns:
+                Every durable state change in I designed PebbleDB to use one of these crash-safe patterns:
               </p>
 
               <div style={{ overflowX: "auto", marginTop: 16, marginBottom: 20 }}>

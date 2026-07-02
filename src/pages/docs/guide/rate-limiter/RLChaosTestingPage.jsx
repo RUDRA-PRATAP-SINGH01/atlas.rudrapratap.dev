@@ -43,7 +43,7 @@ export default function RLChaosTestingPage() {
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <p>
-                To guarantee high availability and fail-soft behavior, our automated testing suite goes beyond basic unit tests to simulate networking partitions, high-latency storage links, database crashes, and transaction replays.
+                To guarantee high availability and fail-soft behavior, my automated testing suite goes beyond basic unit tests to simulate networking partitions, high-latency storage links, database crashes, and transaction replays.
               </p>
 
               <h2 className="guide-sub-heading" id="cycle" style={{ fontSize: 20, color: "#ffffff", marginTop: 28, marginBottom: 12 }}>
@@ -59,7 +59,7 @@ export default function RLChaosTestingPage() {
                 1. Lua Unit Testing (Mock Engine)
               </h2>
               <p>
-                Because rate limit decisions reside inside Lua scripts, we test the script logic in isolation using mock Redis databases. This lets us verify boundary refill math and speculative locks without spinning up full containers:
+                Because rate limit decisions reside inside Lua scripts, I test the script logic in isolation using mock Redis databases. This lets us verify boundary refill math and speculative locks without spinning up full containers:
               </p>
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 20 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#71717a", marginBottom: 10, textTransform: "uppercase" }}>
@@ -110,7 +110,7 @@ func TestHierarchicalLuaScript_SpeculativeRead(t *testing.T) {
                 2. Toxiproxy Jitter &amp; Latency Injection
               </h2>
               <p>
-                We inject latency and TCP packet loss between the Central Limiter and Redis using Shopify's <strong>Toxiproxy</strong>. This ensures that the limiter's internal circuit breaker triggers when communication degrades:
+                I inject latency and TCP packet loss between the Central Limiter and Redis using Shopify's <strong>Toxiproxy</strong>. This ensures that the limiter's internal circuit breaker triggers when communication degrades:
               </p>
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 20 }}>
                 <GoCodeBlock>{`# Add a toxic latency of 250ms with 5% jitter to the Redis socket connection
@@ -132,7 +132,7 @@ curl -X POST http://toxiproxy:8474/proxies/redis/toxics \\
                 3. Redis Master-Replica Partition
               </h2>
               <p>
-                During Sentinel failovers, we verify that the client handles master switchovers. The chaos suite tests this by blocking communication between the master node and sentinels:
+                During Sentinel failovers, I verify that the client handles master switchovers. The chaos suite tests this by blocking communication between the master node and sentinels:
               </p>
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 20 }}>
                 <GoCodeBlock>{`# Simulate network partition using iptables on the redis-master container
@@ -147,7 +147,7 @@ docker-compose -f docker-compose.ha.yml logs sentinel-1`}</GoCodeBlock>
                 4. k6 Resilience Assertions
               </h2>
               <p>
-                Our k6 scripts include failure threshold assertions. During network partitions, if <code>IDEMPOTENCY_FAIL_OPEN=true</code> is set, k6 verifies that requests still return 200 OK (bypass) rather than failing:
+                My k6 scripts include failure threshold assertions. During network partitions, if <code>IDEMPOTENCY_FAIL_OPEN=true</code> is set, k6 verifies that requests still return 200 OK (bypass) rather than failing:
               </p>
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 20 }}>
                 <GoCodeBlock>{`export const options = {

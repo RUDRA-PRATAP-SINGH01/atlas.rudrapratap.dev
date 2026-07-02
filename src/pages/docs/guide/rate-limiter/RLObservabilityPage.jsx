@@ -97,7 +97,7 @@ export default function RLObservabilityPage() {
               <p>
                 The distributed rate limiter is fully instrumented across three observability dimensions. Each addresses a different question during incident response:
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginTop: 16, marginBottom: 28 }}>
                 {[
                   { icon: "", title: "Distributed Traces", subtitle: "(OpenTelemetry + Jaeger)", body: "Answers: What happened to this specific request? How long did each phase take? Which component is the bottleneck? Spans propagated via W3C traceparent headers across sidecar → limiter → Redis.", color: "#a78bfa" },
                   { icon: "", title: "Metrics", subtitle: "(Prometheus + Grafana)", body: "Answers: What is the system doing right now in aggregate? How many requests per second? What fraction are being rate-limited? Counters and histograms scraped by Prometheus.", color: "#c084fc" },
@@ -379,7 +379,7 @@ return {1, total}`}</GoCodeBlock>
               <h2 className="guide-sub-heading" id="jaeger" style={{ fontSize: 22, color: "#ffffff", marginTop: 40, marginBottom: 12 }}>
                 Jaeger Integration &amp; Prometheus Scraping
               </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 20 }}>
                 <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 18px" }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#a78bfa", marginBottom: 10 }}>Jaeger via Docker Compose</div>
                   <GoCodeBlock>{`# docker-compose.yml

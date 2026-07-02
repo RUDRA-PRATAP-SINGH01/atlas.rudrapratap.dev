@@ -76,7 +76,7 @@ export default function SystemOverviewDocsPage() {
             
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <p>
-                PebbleDB is an embedded, single-process, Log-Structured Merge (LSM) key-value engine written in Go. This document provides a comprehensive structural specification of the storage engine, defining the state layouts, structural components, and Go interfaces.
+                PebbleDB is my embedded, single-process, Log-Structured Merge (LSM) key-value engine written in Go. This document provides a comprehensive structural specification of the storage engine, defining the state layouts, structural components, and Go interfaces.
               </p>
 
               <h2 className="guide-sub-heading" id="subsystem-architecture" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>1. Subsystem Architecture</h2>
@@ -88,7 +88,7 @@ export default function SystemOverviewDocsPage() {
 
               <h3 id="state-mapping" style={{ fontSize: 18, color: "#ffffff", marginTop: 24, marginBottom: 12 }}>1.1 State Mapping: Volatile (RAM) vs. Durable (Disk)</h3>
               <p>
-                The system enforces strict write-ahead boundaries where volatile changes only happen after confirming durable checkpoints on disk.
+                I enforce strict write-ahead boundaries where volatile changes only happen after confirming durable checkpoints on disk.
               </p>
 
               <h4 style={{ fontSize: 15, color: "#ff5cad", marginTop: 16, marginBottom: 8 }}>1.1.1 Volatile Memory Components (Lossy)</h4>

@@ -81,7 +81,7 @@ export default function RLIdempotencyPage() {
               <p style={{ marginTop: 12 }}>
                 The <strong>at-most-once vs exactly-once</strong> tradeoff is fundamental to distributed systems:
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 14, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginTop: 14, marginBottom: 24 }}>
                 {[
                   { title: "At-Most-Once", color: "#c084fc", icon: "1️⃣", body: "Fire-and-forget. Never retried. Avoids duplicates but loses the request permanently on any transient failure. Acceptable for non-critical logging. Unacceptable for payments." },
                   { title: "At-Least-Once", color: "#c084fc", icon: "", body: "Retried until acknowledged. Prevents loss but creates duplicates on network errors. The default behavior of most HTTP clients and message queues. Dangerous for mutations." },
@@ -159,7 +159,7 @@ export default function RLIdempotencyPage() {
               </p>
               <DocsMermaid chart={stateMachineDiagram} />
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 20, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginTop: 20, marginBottom: 28 }}>
                 {[
                   { state: "NEW → PROCESSING", color: "#c084fc", detail: "claim.lua is called with the client key and body fingerprint. If no prior record exists, a new HASH is created with status=PROCESSING and a fresh fence token (Redis INCR on a monotonic counter key). The caller receives the fence token." },
                   { state: "PROCESSING → COMPLETED", color: "#c084fc", detail: "complete.lua is called by the upstream handler after a successful 2xx response. The fence token is verified before writing. If it matches, status is set to COMPLETED and the response body and headers are stored. TTL is set to IDEMPOTENCY_TTL_SECONDS (default: 86400)." },
@@ -330,7 +330,7 @@ return {1, 'OK'}`}</GoCodeBlock>
                 Request Body Fingerprinting
               </h2>
               <p>
-                RFC 8835 recommends that servers reject idempotency key reuse with a different request body. The system enforces this by computing a SHA-256 of the request body before calling <code>claim.lua</code>, then comparing it to the stored fingerprint:
+                RFC 8835 recommends that servers reject idempotency key reuse with a different request body. I enforce this by computing a SHA-256 of the request body before calling <code>claim.lua</code>, then comparing it to the stored fingerprint:
               </p>
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 20 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#71717a", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>

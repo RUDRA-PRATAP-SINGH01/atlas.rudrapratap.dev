@@ -292,7 +292,7 @@ export default function MergeIteratorDocsPage() {
               {/* ── 4. Core Merge Algorithm ── */}
               <h2 className="guide-sub-heading" id="merge-algorithm" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>4. The Core Merge Algorithm (mergeStep)</h2>
               <p>
-                The heart of the system is the <span className="highlight-text">mergeStep</span> function. It finds the lexicographically smallest key across all sources, resolves conflicts using priority, and advances all tied sources past that key.
+                The heart of my system is the <span className="highlight-text">mergeStep</span> function. It finds the lexicographically smallest key across all sources, resolves conflicts using priority, and advances all tied sources past that key.
               </p>
 
               <MergeStepFlowSvg />
@@ -579,7 +579,7 @@ export default function MergeIteratorDocsPage() {
               <div style={{ background: "rgba(192, 132, 252, 0.06)", border: "1px solid rgba(192, 132, 252, 0.25)", borderRadius: 8, padding: "16px 20px", marginTop: 16, marginBottom: 20 }}>
                 <p style={{ color: "#c084fc", fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Note: TIP</p>
                 <p style={{ fontSize: 13, lineHeight: 1.7 }}>
-                  For large k (many SSTables), a min-heap would reduce per-step cost from O(k) to O(log k). PebbleDB uses the linear scan approach because compaction bounds k to a small number of overlapping files.
+                  For large k (many SSTables), a min-heap would reduce per-step cost from O(k) to O(log k). I designed PebbleDB to use the linear scan approach because compaction bounds k to a small number of overlapping files.
                 </p>
               </div>
 

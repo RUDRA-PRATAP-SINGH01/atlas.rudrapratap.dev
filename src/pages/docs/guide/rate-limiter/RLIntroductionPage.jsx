@@ -102,7 +102,7 @@ export default function RLIntroductionPage() {
                 In a single-process system, a rate limiter is trivial: a mutex-protected counter. At scale, everything becomes harder:
               </p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 16, marginBottom: 24 }}>
                 {[
                   { title: "Race Conditions", body: "Two concurrent requests must not both be granted the last token. Without true atomicity, you over-issue quota.", icon: "" },
                   { title: "Network Partitions", body: "If the central limiter is unreachable, do you fail open (allow everything) or fail closed (block everything)?", icon: "" },

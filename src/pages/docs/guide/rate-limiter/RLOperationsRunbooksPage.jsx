@@ -120,7 +120,7 @@ curl -X DELETE http://localhost:8082/admin/limits/tenant/acme-corp \\
                 To bypass the wait and force all circuits to close immediately:
               </p>
               <div style={{ background: "#0f0f12", border: "1px solid #27272a", borderRadius: 8, padding: "16px 20px", marginBottom: 20 }}>
-                <GoCodeBlock>{`# Reset the circuit breaker state in Redis
+                <GoCodeBlock>{`# Reset my circuit breaker state in Redis
 curl -X POST http://localhost:8082/admin/circuit/limiter/reset \\
   -H "X-API-Key: $ADMIN_API_KEY"
 

@@ -86,7 +86,7 @@ export default function RLEngineeringTradeoffsPage() {
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <p>
-                Every architectural decision is a trade-off. There is no global optimum — only locally optimal choices given a specific constraint surface (latency budget, operational complexity, correctness requirements, and memory cost). This page documents the eight major trade-off decisions made during the design of the Distributed Rate Limiter, the alternatives seriously considered, and the reasoning that drove each final choice.
+                Every architectural decision is a trade-off. There is no global optimum — only locally optimal choices given a specific constraint surface (latency budget, operational complexity, correctness requirements, and memory cost). on this page, I document the eight major trade-off decisions made during the design of the Distributed Rate Limiter, the alternatives seriously considered, and the reasoning that drove each final choice.
               </p>
               <p style={{ marginTop: 14 }}>
                 Reading these trade-offs in context is important: this system is designed for payment-grade APIs where correctness (no over-quota approvals, no duplicate charges) is weighted more heavily than raw throughput. A system for a non-financial API with different correctness requirements might make different choices at decision points 1, 5, and 6.
@@ -169,7 +169,7 @@ return {1, 0}  -- allowed`}</GoCodeBlock>
               <p>
                 How the Redis state engine is deployed determines the maximum throughput ceiling, the operational complexity, and — critically — whether multi-key atomic Lua scripts can span all rate-limit keys in a single execution.
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, margin: "16px 0 24px 0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, margin: "16px 0 24px 0" }}>
                 {[
                   {
                     title: "Redis Sentinel (Chosen)", color: "#c084fc",
@@ -287,7 +287,7 @@ return {1, 0}  -- allowed`}</GoCodeBlock>
               <p>
                 The audit subsystem records every rate-limit decision (allowed, denied, circuit-open) with its request metadata for compliance, debugging, and billing reconciliation. The question is whether this write should block the rate-limit hot path.
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, margin: "16px 0 24px 0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, margin: "16px 0 24px 0" }}>
                 {[
                   {
                     title: "Async Buffered (Chosen)", color: "#c084fc",
@@ -359,7 +359,7 @@ return {1, 0}  -- allowed`}</GoCodeBlock>
                 </table>
               </div>
               <p>
-                <strong>Default choice: FAIL_OPEN with configurable override.</strong> The system defaults to fail-open because the Redis HA setup (Sentinel with 3 nodes) makes sustained outages rare; the more likely scenario is a brief 10–30s failover window during which denying all legitimate traffic is a disproportionate response. Operators with payment-grade requirements are expected to set <code>CIRCUIT_BREAKER_FAIL_MODE=fail_closed</code> explicitly in their deployment configuration.
+                <strong>Default choice: FAIL_OPEN with configurable override.</strong> my system defaults to fail-open because the Redis HA setup (Sentinel with 3 nodes) makes sustained outages rare; the more likely scenario is a brief 10–30s failover window during which denying all legitimate traffic is a disproportionate response. Operators with payment-grade requirements are expected to set <code>CIRCUIT_BREAKER_FAIL_MODE=fail_closed</code> explicitly in their deployment configuration.
               </p>
               <div style={{
                 background: "rgba(219, 39, 119, 0.06)", border: "1px solid rgba(219, 39, 119, 0.2)",
@@ -375,7 +375,7 @@ return {1, 0}  -- allowed`}</GoCodeBlock>
               <p>
                 Redis Lua uses Lua 5.1, which represents all numbers as double-precision IEEE 754 floats. For the token bucket, the token level and refill rate are rational numbers (e.g., 1.5 tokens/sec, 0.333 tokens/sec). The question is whether to store these as floats directly or scale them to fixed-point integers.
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, margin: "16px 0 24px 0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, margin: "16px 0 24px 0" }}>
                 {[
                   {
                     title: "Fixed-Point Integer (Chosen)", color: "#c084fc",

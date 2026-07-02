@@ -23,7 +23,7 @@ export default function IntroDocsPage() {
 
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <p>
-                This platform houses the formal architectural specifications, core invariants, write/read path analyses, and failure postmortems for our storage engine (PebbleDB) and distributed coordination systems (Distributed Rate Limiter). Navigate using the sidebar categories.
+                This platform houses the formal architectural specifications, core invariants, write/read path analyses, and failure postmortems for my storage engine (PebbleDB) and distributed coordination systems (Distributed Rate Limiter). Navigate using the sidebar categories.
               </p>
 
               {/* Project 1: PebbleDB */}
@@ -40,7 +40,7 @@ export default function IntroDocsPage() {
                   1. PebbleDB LSM Storage Engine
                 </h2>
                 <p style={{ fontSize: 14, lineHeight: 1.6, color: "#a1a1aa" }}>
-                  An embedded, single-process, Log-Structured Merge (LSM) key-value engine written in Go. PebbleDB implements concurrent write pipelines, group-commits, background compaction threads, binary WAL replay checkpoints, and space-efficient Bloom filters.
+                  An embedded, single-process, Log-Structured Merge (LSM) key-value engine written in Go. I implemented in PebbleDB concurrent write pipelines, group-commits, background compaction threads, binary WAL replay checkpoints, and space-efficient Bloom filters.
                 </p>
                 <div style={{
                   background: "rgba(219, 39, 119, 0.06)",

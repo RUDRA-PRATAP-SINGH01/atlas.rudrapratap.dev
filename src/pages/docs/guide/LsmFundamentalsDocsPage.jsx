@@ -64,7 +64,7 @@ export default function LsmFundamentalsDocsPage() {
             
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <p>
-                Before diving into how databases like PebbleDB are implemented, it is essential to understand the core database theory that inspired them. This guide explains the fundamental engineering challenges of database storage engines and why the Log-Structured Merge-Tree (LSM Tree) was invented.
+                Before diving into how databases like PebbleDB are implemented, it is essential to understand the core database theory that inspired them. in this guide, I explain the fundamental engineering challenges of database storage engines and why the Log-Structured Merge-Tree (LSM Tree) was invented.
               </p>
 
               <h2 className="guide-sub-heading" id="why-btrees-expensive" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>1. B-Tree In-Place Mutations & Random I/O Overhead</h2>

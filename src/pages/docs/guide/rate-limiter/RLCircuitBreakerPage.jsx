@@ -142,7 +142,7 @@ export default function RLCircuitBreakerPage() {
                 borderRadius: 8, padding: "14px 18px",
                 fontSize: 13, lineHeight: 1.65, marginBottom: 28
               }}>
-                <strong style={{ color: "#ff5cad" }}>What Makes This "Distributed":</strong> The circuit breaker state (state, failure_count, probe_count, etc.) is stored in Redis, not in process memory. This means multiple sidecar instances share the same circuit state — if one sidecar detects that gateway-a is failing, all sidecars see the circuit as Open within milliseconds.
+                <strong style={{ color: "#ff5cad" }}>What Makes This "Distributed":</strong> my circuit breaker state (state, failure_count, probe_count, etc.) is stored in Redis, not in process memory. This means multiple sidecar instances share the same circuit state — if one sidecar detects that gateway-a is failing, all sidecars see the circuit as Open within milliseconds.
               </div>
 
               {/* State Machine */}
@@ -151,7 +151,7 @@ export default function RLCircuitBreakerPage() {
               </h2>
               <DocsMermaid chart={stateMachineDiagram} />
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 16, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, marginTop: 16, marginBottom: 28 }}>
                 {[
                   {
                     state: "CLOSED",
@@ -302,8 +302,8 @@ return {0, 'half_open', probe_count, tonumber(fields[4]) or 0}  -- probes full`}
               <h2 className="guide-sub-heading" id="metrics" style={{ fontSize: 22, color: "#ffffff", marginTop: 36, marginBottom: 12 }}>
                 Trip Metric Dimensions
               </h2>
-              <p>The circuit breaker can trip based on any combination of these independently configured thresholds:</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
+              <p>my circuit breaker can trip based on any combination of these independently configured thresholds:</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginBottom: 28 }}>
                 {[
                   { metric: "Failure Rate", env: "CB_FAILURE_RATE", default: "0.5 (50%)", desc: "Trip when failure_count/total_count exceeds this threshold, with at least min_samples total requests." },
                   { metric: "Consecutive Failures", env: "CB_CONSECUTIVE_FAILURES", default: "5", desc: "Trip immediately if this many failures occur in a row, even without hitting the min_samples threshold." },
@@ -328,7 +328,7 @@ return {0, 'half_open', probe_count, tonumber(fields[4]) or 0}  -- probes full`}
               {/* EMA */}
               <h3 style={{ fontSize: 17, color: "#ffffff", marginBottom: 8 }}>Latency Exponential Moving Average (EMA)</h3>
               <p style={{ marginBottom: 12 }}>
-                The circuit breaker tracks latency via an EMA rather than raw averages. This gives recent measurements more weight — a sudden spike in latency is reflected in the EMA within a few requests.
+                my circuit breaker tracks latency via an EMA rather than raw averages. This gives recent measurements more weight — a sudden spike in latency is reflected in the EMA within a few requests.
               </p>
               <GoCodeBlock>{`-- EMA update in record.lua
 -- ARGV = alpha (e.g., 0.2 = recent measurements weighted 20%)

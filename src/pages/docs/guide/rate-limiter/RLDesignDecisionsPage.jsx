@@ -23,7 +23,7 @@ export default function RLDesignDecisionsPage() {
             <div className="guide-body-text" style={{ marginTop: 24 }}>
               <p>
                 This document catalogs every major design decision made during the development of the Distributed Rate Limiter system.
-                For each decision, we outline the <strong>Chosen Alternative</strong>, the <strong>Rejected Alternatives</strong>,
+                For each decision, I outline the <strong>Chosen Alternative</strong>, the <strong>Rejected Alternatives</strong>,
                 and the detailed <strong>Technical Rationale</strong> behind the choice.
               </p>
 

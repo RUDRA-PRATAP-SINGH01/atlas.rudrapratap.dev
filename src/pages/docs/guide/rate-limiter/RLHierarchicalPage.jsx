@@ -123,7 +123,7 @@ export default function RLHierarchicalPage() {
               <p style={{ marginTop: 12 }}>
                 The core problems flat limits fail to solve:
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
                   { icon: "", title: "Noisy Neighbor", body: "One high-volume tenant consumes so much Redis CPU that key lookups for other tenants begin to queue. They suffer elevated latency without exceeding their own limits." },
                   { icon: "", title: "Runaway Script", body: "A single user inside a tenant runs a batch job that hammers the API. Per-user limits help, but without a tenant cap, the tenant as a whole can still saturate upstream." },
@@ -204,7 +204,7 @@ export default function RLHierarchicalPage() {
 
               <DocsMermaid chart={twoPhaseFlowDiagram} />
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 20, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginTop: 20, marginBottom: 28 }}>
                 {[
                   { title: "Phase 1: Speculative Check", color: "#c084fc", body: "Read all four buckets, lazily refill them based on elapsed time, and evaluate all four checks. Track the minimum remaining tokens across all levels. No tokens are consumed yet." },
                   { title: "Phase 2: Conditional Commit", color: "#c084fc", body: "Only if Phase 1 concludes that ALL four levels have ≥ 1 token does the script decrement each bucket. If any level fails, the script skips Phase 2 entirely and returns denied." },
@@ -440,7 +440,7 @@ curl -X DELETE http://localhost:8082/admin/limits/tenant/acme \\
                 The four hierarchical keys (<code>rate:global:default</code>, <code>rate:tenant:acme</code>, <code>rate:user:alice</code>, <code>rate:ep:acme:/orders</code>) will almost certainly hash to different slots.
               </p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 16, marginBottom: 24 }}>
                 <div style={{ background: "#111113", border: "1px solid #c084fc33", borderRadius: 8, padding: "16px 18px" }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "#c084fc", marginBottom: 8 }}>[OK] Supported: Redis Sentinel HA</div>
                   <p style={{ fontSize: 12.5, color: "#a1a1aa", lineHeight: 1.6, margin: 0 }}>

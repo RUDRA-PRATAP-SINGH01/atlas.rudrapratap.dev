@@ -143,7 +143,7 @@ return {1, math.floor(new_tokens)}   -- allowed, remaining`}</GoCodeBlock>
               </div>
 
               {/* Properties of token bucket */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginBottom: 28 }}>
                 {[
                   { title: "Burst Handling", body: "If no requests arrive for 10 seconds and refill_rate=1, the bucket refills by 10 tokens (up to capacity). This allows short bursts after idle periods — good for API clients.", icon: "", color: "#c084fc" },
                   { title: "Smooth Steady-State", body: "At exactly refill_rate requests/second in steady state, the bucket stays near-full. Clients get predictable throughput without jitter.", icon: "", color: "#c084fc" },
@@ -217,7 +217,7 @@ return {1, limit - count}`}</GoCodeBlock>
               </p>
 
               <div style={{
-                display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 16, marginBottom: 20
+                display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8, marginTop: 16, marginBottom: 20
               }}>
                 {[
                   { level: "Global", key: "rate:global:default", desc: "System-wide cap. Protects Redis and upstream from total overload." },

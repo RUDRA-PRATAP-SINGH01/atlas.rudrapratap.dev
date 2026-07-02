@@ -105,7 +105,7 @@ export default function RLRoutingPage() {
               <p style={{ marginTop: 12 }}>
                 Intelligent routing solves this by continuously measuring each gateway's performance and shifting traffic away from degraded gateways in real time — without manual intervention or configuration changes.
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginTop: 16, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginTop: 16, marginBottom: 24 }}>
                 {[
                   { icon: "", title: "Score-Based Selection", body: "Each gateway has a health score (0.0–1.0) computed from its recent latency EMA, error rate, and timeout rate. The highest-scoring gateway is selected as primary.", color: "#c084fc" },
                   { icon: "", title: "Automatic Failover", body: "If the primary gateway returns a 5xx or times out, the router immediately retries with the next-best gateway — the user sees no failure if the fallback succeeds.", color: "#c084fc" },
@@ -204,7 +204,7 @@ export default function RLRoutingPage() {
                   {"but reacts over ~20 samples to a sustained change (responsive)."}
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginBottom: 28 }}>
                 {[
                   { label: "α = 0.1 (default, smooth)", desc: "Stable under random latency spikes. Takes ~20–30 requests before a genuinely degraded gateway has its score visibly penalized. Good for stable traffic.", color: "#c084fc" },
                   { label: "α = 0.5 (responsive, noisy)", desc: "Reacts aggressively to every individual request. A single slow response causes a large score drop. Good for low-volume traffic where quick reaction matters more than stability.", color: "#c084fc" },
