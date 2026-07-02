@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { BrowserRouter } from "react-router-dom";
-import RouteFallback from "@/components/common/RouteFallback";
-import AppRoutes from "@/routes/AppRoutes";
-import { useCopyClipboard } from "@/hooks/useCopyClipboard";
+import RouteFallback from "@/core/components/RouteFallback";
+import AppRoutes from "@/core/routing/AppRoutes";
+import { useCopyClipboard } from "@/core/hooks/useCopyClipboard";
 
 function AppContent() {
   useCopyClipboard();

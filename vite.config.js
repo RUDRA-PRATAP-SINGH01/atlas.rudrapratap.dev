@@ -20,16 +20,13 @@ export default defineConfig({
         // The landing page, hub, and reference pages load their own minimal chunks.
         // All 60+ PebbleDB pages share one chunk; all 17 Rate Limiter pages share another.
         manualChunks(id) {
-          if (id.includes("/pages/docs/guide/rate-limiter/")) {
+          if (id.includes("/features/docs/pages/rate-limiter/")) {
             return "rate-limiter-guide";
           }
-          if (
-            id.includes("/pages/docs/guide/") ||
-            id.includes("/pages/docs/reference/")
-          ) {
+          if (id.includes("/features/docs/pages/")) {
             return "pebbledb-guide";
           }
-          if (id.includes("/pages/docs/hub/") || id.includes("/pages/landing/")) {
+          if (id.includes("/features/landing/")) {
             return "hub";
           }
           // Vendor splitting: mermaid is large (~1MB), isolate it
