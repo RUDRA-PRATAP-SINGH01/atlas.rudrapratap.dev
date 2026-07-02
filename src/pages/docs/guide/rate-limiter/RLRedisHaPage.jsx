@@ -47,45 +47,42 @@ flowchart TD
 `;
 
 const failoverDiagram = `
-sequenceDiagram
-    participant M as Redis Master
-    participant R1 as Replica 1
-    participant S1 as Sentinel 1
-    participant S2 as Sentinel 2
-    participant S3 as Sentinel 3
-    participant GC as go-redis Client
+flowchart TD
+    A["Master ONLINE\n(accepting writes)"]
+    B["Sentinels detect\nPING timeout\n→ mark SDOWN"]
+    C{"Quorum check\n≥ 2 sentinels\nagree?"}
+    D["Mark ODOWN\n(Objective Down)"]
+    E["Raft-style leader\nelection across\nSentinels"]
+    F["Leader selects best\nreplica by lowest\nreplication offset lag"]
+    G["Send SLAVEOF NO ONE\nto chosen replica"]
+    H["Replica promoted\nto new master"]
+    I["Sentinels publish\ntopology change on\n__sentinel__:hello"]
+    J["go-redis FailoverClient\nrediscovers master via\nSENTINEL get-master-addr"]
+    K["Write traffic resumes\non new master\n(~10–30s total)"]
 
-    Note over M,GC: Normal operation
-    GC->>M: SET rate:user:alice tokens 500
+    A -->|"master crash"| B
+    B --> C
+    C -->|"No — split-brain\nprotection"| A
+    C -->|"Yes — quorum met"| D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    J --> K
 
-    Note over M: Master fails (crash / network partition)
-    M--xS1: PING timeout
-    M--xS2: PING timeout
-    M--xS3: PING timeout
-
-    Note over S1,S3: Sentinels detect SDOWN (subjective down)
-    S1->>S2: Is master SDOWN for you?
-    S2-->>S1: Yes
-    S1->>S3: Is master SDOWN for you?
-    S3-->>S1: Yes
-    Note over S1: Quorum reached → ODOWN (objective down)
-
-    Note over S1,S3: Sentinel leader election (Raft-like)
-    S1->>S2: Vote request epoch=42
-    S2-->>S1: Vote granted
-    S1->>S3: Vote request epoch=42
-    S3-->>S1: Vote granted
-    Note over S1: S1 elected as failover leader
-
-    S1->>R1: SLAVEOF NO ONE (promote to master)
-    R1-->>S1: OK — now master
-    S1->>S2: Update config: new master=R1
-    S1->>S3: Update config: new master=R1
-
-    Note over GC: go-redis detects topology change via Pub/Sub
-    GC->>S1: SENTINEL get-master-addr-by-name mymaster
-    S1-->>GC: R1:6380
-    GC->>R1: SET rate:user:alice tokens 500 (writes resume)
+    style A fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style B fill:#1e1e2e,stroke:#ec4899,color:#fff
+    style C fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style D fill:#18181b,stroke:#ec4899,color:#fff
+    style E fill:#18181b,stroke:#c084fc,color:#fff
+    style F fill:#18181b,stroke:#c084fc,color:#fff
+    style G fill:#18181b,stroke:#c084fc,color:#fff
+    style H fill:#1e1e2e,stroke:#ff5cad,color:#fff
+    style I fill:#18181b,stroke:#c084fc,color:#fff
+    style J fill:#18181b,stroke:#c084fc,color:#fff
+    style K fill:#1e1e2e,stroke:#c084fc,color:#fff
 `;
 
 export default function RLRedisHaPage() {
