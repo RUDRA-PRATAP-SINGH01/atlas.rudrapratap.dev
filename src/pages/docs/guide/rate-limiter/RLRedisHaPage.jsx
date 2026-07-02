@@ -367,7 +367,7 @@ docker-compose -f docker-compose.ha.yml stop sentinel-1 sentinel-2
         --save 60 1           # RDB persistence: snapshot every 60s if ≥1 change
         --appendonly yes      # AOF: log every write for crash safety
         --appendfsync everysec # Fsync once/sec (balance durability vs throughput)
-        --requirepass ${REDIS_PASSWORD}
+        --requirepass \${REDIS_PASSWORD}
 
   # ── Redis Replicas ─────────────────────────────────────────
   redis-replica-1:
@@ -375,8 +375,8 @@ docker-compose -f docker-compose.ha.yml stop sentinel-1 sentinel-2
     command: >
       redis-server
         --slaveof redis-master 6379
-        --masterauth ${REDIS_PASSWORD}
-        --requirepass ${REDIS_PASSWORD}
+        --masterauth \${REDIS_PASSWORD}
+        --requirepass \${REDIS_PASSWORD}
         --replica-read-only yes
 
   # ── Sentinel 1 ─────────────────────────────────────────────
@@ -398,7 +398,7 @@ docker-compose -f docker-compose.ha.yml stop sentinel-1 sentinel-2
       REDIS_MODE: sentinel
       REDIS_SENTINEL_ADDRS: "sentinel-1:26379,sentinel-2:26380,sentinel-3:26381"
       REDIS_SENTINEL_MASTER: mymaster
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PASSWORD: \${REDIS_PASSWORD}
       REDIS_POOL_SIZE: "20"`}</GoCodeBlock>
               </div>
 

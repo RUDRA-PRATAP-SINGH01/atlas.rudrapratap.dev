@@ -410,7 +410,7 @@ scrape_configs:
     scrape_interval: 15s
     # If METRICS_REQUIRE_AUTH=true:
     authorization:
-      credentials: "${INTERNAL_API_KEY}"`}</GoCodeBlock>
+      credentials: "\${INTERNAL_API_KEY}"`}</GoCodeBlock>
                 </div>
               </div>
 
