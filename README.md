@@ -2,7 +2,7 @@
 
 **The Interactive Atlas of Modern Software Engineering**
 
-[atlas.rudrapratap.dev](https://atlas.rudrapratap.dev)
+[rps-atlas.netlify.app](https://rps-atlas.netlify.app/)
 
 ---
 
