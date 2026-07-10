@@ -7,7 +7,8 @@ export const routingPages = {
     topics: [
       { label: "Proxy Boundary & Interception", href: "#boundary" },
       { label: "Middleware Sequence", href: "#middleware" },
-      { label: "OTel Tracing Integration", href: "#tracing" }
+      { label: "OTel Tracing Integration", href: "#tracing" },
+      { label: "Sidecar Interceptor Code", href: "#interceptor-code" }
     ],
     content: (
       <div>
@@ -44,6 +45,44 @@ flowchart TD
         <p>
           The sidecar initializes OpenTelemetry tracing using W3C propagation headers. It maps incoming spans, associates transaction IDs, and creates sub-spans tracking the rate checking round-trip, the routing selection step, and the upstream execution duration.
         </p>
+
+        <h2 className="guide-sub-heading" id="interceptor-code">Sidecar Interceptor Code</h2>
+        <p>
+          Below is a Go code snippet showing how the sidecar sets up the proxy handler pipeline:
+        </p>
+        <pre style={{ background: "#0e0e11", border: "1px solid #27272a", padding: 14, borderRadius: 6, fontSize: 12, overflowX: "auto" }}>
+{`func (proxy *SidecarProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    ctx, span := proxy.tracer.Start(r.Context(), "sidecar.ServeHTTP")
+    defer span.End()
+
+    // 1. Resolve authentication keys
+    clientID := resolveClientID(r)
+    
+    // 2. Perform idempotency lease checks
+    idemKey := r.Header.Get("Idempotency-Key")
+    if idemKey != "" {
+        lease, err := proxy.idempotencyStore.Claim(ctx, clientID, idemKey, r.Body)
+        if err != nil {
+            http.Error(w, "Idempotency conflict", http.StatusConflict)
+            return
+        }
+        if lease.Completed {
+            replayCachedResponse(w, lease)
+            return
+        }
+    }
+
+    // 3. Perform rate limiting checks
+    allowed, err := proxy.limiterClient.Check(ctx, clientID)
+    if err != nil || !allowed {
+        w.WriteHeader(http.StatusTooManyRequests)
+        return
+    }
+
+    // 4. Forward to backend
+    proxy.forwardToUpstream(w, r.WithContext(ctx))
+}`}
+        </pre>
       </div>
     )
   },
@@ -53,7 +92,8 @@ flowchart TD
     topics: [
       { label: "Scoring Formula", href: "#scoring" },
       { label: "Selection Algorithm", href: "#selection" },
-      { label: "Scale Boundaries", href: "#boundaries" }
+      { label: "Scale Boundaries", href: "#boundaries" },
+      { label: "Go Score Calculator", href: "#score-code" }
     ],
     content: (
       <div>
@@ -94,6 +134,30 @@ flowchart TD
         <p>
           Gateway states are ranked using an insertion sort since gateway pools are typically small (3-10 targets). Gateway parameters are persisted in Redis, ensuring all sidecar replicas route using synchronized health views.
         </p>
+
+        <h2 className="guide-sub-heading" id="score-code">Go Score Calculator</h2>
+        <p>
+          Below is the Go code structure implementing the gateway ranking calculation:
+        </p>
+        <pre style={{ background: "#0e0e11", border: "1px solid #27272a", padding: 14, borderRadius: 6, fontSize: 12, overflowX: "auto" }}>
+{`func CalculateGatewayScore(g *Gateway) float64 {
+    latencyFactor := 1.0
+    if g.LatencyEMA > 0 {
+        latencyFactor = float64(g.TargetLatencyMs) / float64(g.LatencyEMA)
+        if latencyFactor > 1.0 {
+            latencyFactor = 1.0 // cap latency boost
+        }
+    }
+
+    healthFactor := float64(g.HealthScore) / 100.0
+    errorFactor := 1.0 - (g.ErrorRate * g.ErrorPenalty)
+    if errorFactor < 0.0 {
+        errorFactor = 0.0
+    }
+
+    return float64(g.BaseWeight) * latencyFactor * healthFactor * errorFactor
+}`}
+        </pre>
       </div>
     )
   },

@@ -79,37 +79,45 @@ export default function RateLimiterDocPage() {
 
               {/* Prev / Next Footer Navigation */}
               <div style={{
-                marginTop: 56,
-                paddingTop: 24,
-                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                marginTop: 48,
+                paddingTop: 20,
+                borderTop: "1px solid rgba(255, 255, 255, 0.05)",
                 display: "flex",
                 justifyContent: "space-between",
-                gap: 16,
-                flexWrap: "wrap"
+                alignItems: "center",
+                gap: 16
               }}>
                 {prevPage ? (
                   <Link
                     to={`/docs/distributed-rate-limiter/${prevPage.section}/${prevPage.slug}`}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      padding: "16px 20px",
-                      background: "#111113",
-                      border: "1px solid #27272a",
-                      borderRadius: 8,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "8px 14px",
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      borderRadius: 20,
                       textDecoration: "none",
-                      color: "#a1a1aa",
+                      color: "rgba(255, 255, 255, 0.7)",
                       fontSize: 12,
-                      minWidth: 160,
-                      maxWidth: "45%",
-                      transition: "border-color 0.2s ease"
+                      fontWeight: 500,
+                      transition: "all 0.2s ease",
+                      maxWidth: "48%"
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.borderColor = "rgba(255, 92, 173, 0.4)"}
-                    onMouseLeave={(e) => e.currentTarget.style.borderColor = "#27272a"}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#ff5cad";
+                      e.currentTarget.style.background = "rgba(255, 92, 173, 0.08)";
+                      e.currentTarget.style.color = "#ffffff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                      e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)";
+                    }}
                   >
-                    <span style={{ color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>&larr; Previous</span>
-                    <span style={{ fontWeight: "bold", color: "#ffffff", fontSize: 13 }}>
+                    <span>&larr;</span>
+                    <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                       {rateLimiterRegistry[prevPage.slug]?.title || prevPage.slug}
                     </span>
                   </Link>
@@ -119,28 +127,36 @@ export default function RateLimiterDocPage() {
                   <Link
                     to={`/docs/distributed-rate-limiter/${nextPage.section}/${nextPage.slug}`}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                      padding: "16px 20px",
-                      background: "#111113",
-                      border: "1px solid #27272a",
-                      borderRadius: 8,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "8px 14px",
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      borderRadius: 20,
                       textDecoration: "none",
-                      color: "#a1a1aa",
+                      color: "rgba(255, 255, 255, 0.7)",
                       fontSize: 12,
-                      minWidth: 160,
-                      maxWidth: "45%",
-                      textAlign: "right",
-                      transition: "border-color 0.2s ease"
+                      fontWeight: 500,
+                      transition: "all 0.2s ease",
+                      maxWidth: "48%",
+                      marginLeft: "auto"
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.borderColor = "rgba(255, 92, 173, 0.4)"}
-                    onMouseLeave={(e) => e.currentTarget.style.borderColor = "#27272a"}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#ff5cad";
+                      e.currentTarget.style.background = "rgba(255, 92, 173, 0.08)";
+                      e.currentTarget.style.color = "#ffffff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                      e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)";
+                    }}
                   >
-                    <span style={{ color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>Next &rarr;</span>
-                    <span style={{ fontWeight: "bold", color: "#ffffff", fontSize: 13 }}>
+                    <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                       {rateLimiterRegistry[nextPage.slug]?.title || nextPage.slug}
                     </span>
+                    <span>&rarr;</span>
                   </Link>
                 ) : <div />}
               </div>

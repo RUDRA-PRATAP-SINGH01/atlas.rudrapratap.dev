@@ -1,33 +1,46 @@
 import React from "react";
+import DocsMermaid from "@/features/docs/components/DocsMermaid";
 
 export const journalPages = {
   "major-design-decisions": {
     title: "Major Design Decisions",
     topics: [
-      { label: "Why Sidecars?", href: "#sidecar" },
-      { label: "Why Lua Scripting?", href: "#lua" },
-      { label: "Why Version Invalidation?", href: "#versioning" }
+      { label: "1. Edge Sidecar Proxies vs. Library Integrations", href: "#sidecar-choice" },
+      { label: "2. Atomic Lua Scripts vs. Distributed Locking", href: "#lua-choice" },
+      { label: "3. Monotonic Generations vs. Pub/Sub", href: "#generation-choice" }
     ],
     content: (
       <div>
         <p>
-          This engineering journal reviews the primary design choices and architectural trade-offs accepted during development.
+          Building a high-throughput, low-latency rate limiter requires making significant architectural trade-offs. This journal outlines the core engineering choices made during development.
         </p>
 
-        <h2 className="guide-sub-heading" id="sidecar">Decision 1: Edge Sidecar Proxies</h2>
+        <h2 className="guide-sub-heading" id="sidecar-choice">1. Edge Sidecar Proxies vs. Library Integrations</h2>
         <p>
-          We chose a transparent sidecar architecture to separate rate enforcement from core application logic. While this introduces a latency penalty (~+3.7 ms p50), it allows language-agnostic integration and keeps codebases clean of coordination libraries.
+          We chose an edge sidecar proxy pattern (`cmd/sidecar`) over native language coordination libraries. 
         </p>
+        <ul className="guide-bullets-list">
+          <li><strong>The Trade-off:</strong> Intercepting request routing introduces a network hop, adding **+3.7 ms p50** latency overhead.</li>
+          <li><strong>The Rationale:</strong> Library integrations tightly couple rate limiting logic and Redis connection management with the application's runtime. If an application instance is busy with garbage collection or high CPU usage, connection drops propagate. The sidecar isolates this logic completely, allowing independent scaling, clean upgrades, and language-agnostic integration.</li>
+        </ul>
 
-        <h2 className="guide-sub-heading" id="lua">Decision 2: Atomic Lua Execution</h2>
+        <h2 className="guide-sub-heading" id="lua-choice">2. Atomic Lua Scripts vs. Distributed Locking</h2>
         <p>
-          Alternative designs, like using distributed locks to coordinate token bucket balances, added significant latency and complex failure states. Executing transaction check-and-act operations inside Redis Lua scripts guarantees atomicity while keeping operations fast.
+          We evaluated coordinating token bucket updates using Redis transactions (`MULTI`/`EXEC`) or distributed locks (Redlock).
         </p>
+        <ul className="guide-bullets-list">
+          <li><strong>The Trade-off:</strong> Lua scripts block all commands in the Redis engine during execution, serialized to a single thread.</li>
+          <li><strong>The Rationale:</strong> Distributed locks require multiple network round-trips to acquire, verify, and release locks, increasing check latency from **~1.1 ms** to over **15 ms** under load. Running checks inside Lua scripts allows evaluating limits, updating tokens, and writing keys in a single atomic database operation, ensuring high throughput.</li>
+        </ul>
 
-        <h2 className="guide-sub-heading" id="versioning">Decision 3: Monotonic Generation Versioning</h2>
+        <h2 className="guide-sub-heading" id="generation-choice">3. Monotonic Generations vs. Pub/Sub</h2>
         <p>
-          We rejected Redis Pub/Sub for config invalidation due to missed-message risks during network cuts. Instead, we use a version generation counter, version checking cached overrides on every request. This ensures consistency without Pub/Sub failure risks.
+          For runtime configuration overrides, we rejected Redis Pub/Sub channels in favor of a monotonic version generation counter (`config:generation`).
         </p>
+        <ul className="guide-bullets-list">
+          <li><strong>The Trade-off:</strong> Replicas query `config:generation` before running checks, adding a fast lookup call (though typically collapsed via local caches).</li>
+          <li><strong>The Rationale:</strong> Pub/Sub is a fire-and-forget channel. If a rate-limiter replica is temporarily offline or disconnected during a VPC network partition, it will miss the invalidation message, resulting in permanent configuration drift. Monotonic version checks guarantee consistency: a recovering replica compares generations, detects a mismatch, and immediately invalidates its local cache.</li>
+        </ul>
       </div>
     )
   },
@@ -35,35 +48,54 @@ export const journalPages = {
   "bugs-found-through-audits": {
     title: "Bugs Found Through Audits",
     topics: [
-      { label: "Overlap Race Condition", href: "#race-bug" },
-      { label: "Idempotency Hash Mismatch", href: "#idem-bug" }
+      { label: "1. Overlap Race Condition under Concurrency", href: "#race-bug" },
+      { label: "2. Idempotency Key Re-play Collisions", href: "#idem-bug" },
+      { label: "3. Lua Precision Floating-Point Drift", href: "#float-bug" }
     ],
     content: (
       <div>
         <p>
-          This section reviews core bugs identified and resolved during testing.
+          Detailed code reviews and chaos testing revealed critical concurrency bugs in initial implementations. This section documents those issues, their root causes, and their fixes.
         </p>
 
-        <h2 className="guide-sub-heading" id="race-bug">Bug 1: Overlap Race Condition during Outages</h2>
+        <h2 className="guide-sub-heading" id="race-bug">1. Overlap Race Condition under Concurrency</h2>
         <p>
-          <strong>Symptom:</strong> Under Redis outage recovery, concurrent requests sometimes bypassed the circuit breaker, resulting in double-admissions.
+          <strong>Symptom:</strong> During active Redis outage recovery, concurrent client requests bypassed the circuit breaker, overloading recovering downstream backends.
         </p>
         <p>
-          <strong>Root Cause:</strong> The check-then-set transition in the circuit breaker allowed multiple requests to evaluate state concurrently when the circuit transitioned to half-open, exceeding probe limits.
+          <strong>Root Cause:</strong> The client circuit breaker used a check-then-set logic pattern across two Go functions (`Allow()` and `Record()`). When the circuit transitioned to half-open, multiple concurrent threads read the state as half-open and initiated backend probes simultaneously, bypassing the max probe limit.
         </p>
         <p>
-          <strong>Fix:</strong> Shifted health checking logic into atomic Lua scripts (`allow.lua`), ensuring probe bounds are strictly enforced.
+          <strong>Fix:</strong> Shifted health checks and probe counters into an atomic Lua script (`allow.lua`). The script atomically increments the probe counter and denies requests once the cap is reached, locking execution at the database layer.
         </p>
 
-        <h2 className="guide-sub-heading" id="idem-bug">Bug 2: Idempotency Key Re-play Hijacking</h2>
+        <h2 className="guide-sub-heading" id="idem-bug">2. Idempotency Key Re-play Collisions</h2>
         <p>
-          <strong>Symptom:</strong> Replaying an idempotency request with a different body sometimes returned the cached response of the original key.
+          <strong>Symptom:</strong> Replaying a request key containing a modified payload bypassed body validations, returning the cached response of the original transaction.
         </p>
         <p>
-          <strong>Root Cause:</strong> The system validated key existence but failed to check body signatures, exposing it to collisions.
+          <strong>Root Cause:</strong> The idempotency middleware checked key existence but did not validate body signatures, exposing the system to payload collisions.
         </p>
         <p>
-          <strong>Fix:</strong> The claim script now calculates and stores request body hashes, returning a mismatch error if the retried body diverges.
+          <strong>Fix:</strong> Modified the idempotency claim script to calculate and store body signatures. If a retried request payload does not match the stored signature, the system rejects it, preventing collision issues.
+        </p>
+        <pre style={{ background: "#0e0e11", border: "1px solid #27272a", padding: 14, borderRadius: 6, fontSize: 12, overflowX: "auto" }}>
+{`-- Inside claim.lua
+local stored_hash = redis.call('HGET', KEYS[1], 'body_hash')
+if stored_hash and stored_hash != ARGV[2] then
+    return { "ERROR_PAYLOAD_MISMATCH", "" }
+end`}
+        </pre>
+
+        <h2 className="guide-sub-heading" id="float-bug">3. Lua Precision Floating-Point Drift</h2>
+        <p>
+          <strong>Symptom:</strong> Token balances occasionally drifted into negative values, resulting in spurious `429 Too Many Requests` errors under low traffic volume.
+        </p>
+        <p>
+          <strong>Root Cause:</strong> Lua handles numbers as double-precision floats. Lazy mathematical refills computed elapsed times as fractional seconds, leading to minor precision loss. Under high concurrency, these fractional errors accumulated, causing token balances to drift below zero.
+        </p>
+        <p>
+          <strong>Fix:</strong> Refactored calculations to use millisecond timestamps and clamped token values strictly between `0` and `capacity`, ensuring numerical consistency.
         </p>
       </div>
     )
@@ -72,25 +104,44 @@ export const journalPages = {
   "performance-evolution": {
     title: "Performance Evolution",
     topics: [
-      { label: "Initial Prototypes", href: "#proto" },
-      { label: "Optimization Steps", href: "#opts" }
+      { label: "1. Early Prototype Baseline", href: "#proto-baseline" },
+      { label: "2. Shifting to Atomic Lua Scripts", href: "#lua-refactor" },
+      { label: "3. Implementing Local In-Memory Cache layers", href: "#cache-refactor" }
     ],
     content: (
       <div>
         <p>
-          This section details how performance was optimized from initial prototypes to current benchmarks.
+          This section details how optimization steps improved performance metrics and latency bounds from early prototypes to the current release.
         </p>
 
-        <h2 className="guide-sub-heading" id="proto">Initial Prototype Baseline</h2>
+        <h2 className="guide-sub-heading" id="proto-baseline">1. Early Prototype Baseline</h2>
         <p>
-          Early prototype iterations used full Redis commands for read-check-write sequences. Under heavy load, this pattern generated extensive race conditions, resulting in severe over-admission and high latency (p99 &gt; 250 ms at 200 target RPS).
+          Our initial prototype queried keys, computed refills in Go, and wrote values back using standard Redis pipelines. 
         </p>
-
-        <h2 className="guide-sub-heading" id="opts">Key Optimization Steps</h2>
         <ul className="guide-bullets-list">
-          <li><strong>Moving Logic to Lua:</strong> Shifting checks to atomic Lua scripts eliminated races, reducing p99 latency to &lt; 10 ms at 500 target RPS.</li>
-          <li><strong>Script Caching:</strong> Implementing `EVALSHA` reduced network utilization, lowering bandwidth requirements.</li>
-          <li><strong>Denial Caching:</strong> Offloading denied checks in memory protected Redis from being hammered during bursts, keeping overall latency stable.</li>
+          <li><strong>Throughput:</strong> Capped at **200 target RPS**.</li>
+          <li><strong>Latency:</strong> p99 latency exceeded **250 ms** under active concurrency.</li>
+          <li><strong>Over-Admission Rate:</strong> Up to **18%** of requests bypassed limits due to read-modify-write race conditions.</li>
+        </ul>
+
+        <h2 className="guide-sub-heading" id="lua-refactor">2. Shifting to Atomic Lua Scripts</h2>
+        <p>
+          Moving the check-and-refill logic into Lua scripts executed directly inside Redis eliminated concurrency races.
+        </p>
+        <ul className="guide-bullets-list">
+          <li><strong>Throughput:</strong> Scaled to **872 target RPS** (sliding window) and **4,161 target RPS** (token bucket).</li>
+          <li><strong>Latency:</strong> p99 latency dropped to **8 ms** (sliding window) and **11 ms** (token bucket).</li>
+          <li><strong>Over-Admission Rate:</strong> Reduced to strictly **0%**, ensuring exact limit compliance.</li>
+        </ul>
+
+        <h2 className="guide-sub-heading" id="cache-refactor">3. Implementing Local In-Memory Cache Layers</h2>
+        <p>
+          Adding process-local denial caches and singleflight request collapsing to the sidecar proxy protected Redis during traffic bursts.
+        </p>
+        <ul className="guide-bullets-list">
+          <li><strong>Throughput:</strong> Handled bursts up to **17,662 RPS** targeting denied keys.</li>
+          <li><strong>Latency:</strong> p99 latency for denied calls remained under **7.1 ms**.</li>
+          <li><strong>Database Load:</strong> Network calls to Redis dropped by **99.9%** during active rate limiting, protecting database performance.</li>
         </ul>
       </div>
     )
@@ -99,29 +150,42 @@ export const journalPages = {
   "what-i-would-change-at-10x-scale": {
     title: "What I Would Change at 10× Scale",
     topics: [
-      { label: "Cluster Routing", href: "#routing" },
-      { label: "Decentralized Token Refills", href: "#refills" },
-      { label: "Batching Updates", href: "#batching" }
+      { label: "1. Decentralized Quotas & Local Token Slices", href: "#local-slices" },
+      { label: "2. Consistent Hashing Cluster Rings", href: "#cluster-sharding" },
+      { label: "3. Hybrid Memory Models & RocksDB", href: "#hybrid-storage" }
     ],
     content: (
       <div>
         <p>
-          Scaling this rate limiter to handle 10,000+ RPS would require resolving key design limitations.
+          Scaling this rate limiter to handle 100,000+ RPS requires addressing the synchronization bottlenecks of centralized Redis architectures.
         </p>
 
-        <h2 className="guide-sub-heading" id="routing">Redis Cluster Sharding via Hash Rings</h2>
+        <h2 className="guide-sub-heading" id="local-slices">1. Decentralized Quotas & Local Token Slices</h2>
         <p>
-          To scale past a single Redis master, we would need to shard user keys across a cluster using consistent hashing rings, routing keys directly to designated master nodes.
+          Rather than querying Redis on every request, sidecar proxies should acquire quota slices (e.g. 100 tokens at a time) from the central database.
+        </p>
+        <p>
+          The proxy evaluates limits locally against its cached slice, syncing consumption asynchronously in the background. This shifts the majority of checks to memory-speed lookups, reducing database network traffic.
         </p>
 
-        <h2 className="guide-sub-heading" id="refills">Decentralized Token Refills</h2>
+        <h2 className="guide-sub-heading" id="cluster-sharding">2. Consistent Hashing Cluster Rings</h2>
         <p>
-          Rather than coordinating every request with a database master, sidecar replicas could acquire token slices (e.g., 50 tokens at a time) from the central cluster. The proxies could then enforce these quotas locally, syncing usage statistics asynchronously and reducing master connection volume.
+          To scale past a single master database instance, we must shard key spaces across a Redis Cluster.
         </p>
-
-        <h2 className="guide-sub-heading" id="batching">Batching Updates</h2>
         <p>
-          Under peak loads, sidecars could batch usage increments over 50-100 ms windows before flushing updates to Redis, trading real-time consistency for substantial throughput gains.
+          Using consistent hashing rings at the sidecar routing layer allows mapping keys directly to the correct shard. This eliminates multi-key slot hashes and avoids slot hotspots, distributing load evenly across cluster nodes.
+        </p>
+        <DocsMermaid chart={`
+graph TD
+    Client[Proxy Client] -->|Hash Key: user_993| Ring[Consistent Hash Ring]
+    Ring -->|Slot 4821| Shard1[Redis Shard Master 1]
+    Ring -->|Slot 11200| Shard2[Redis Shard Master 2]
+    Ring -->|Slot 15900| Shard3[Redis Shard Master 3]
+        `} />
+
+        <h2 className="guide-sub-heading" id="hybrid-storage">3. Hybrid Memory Models</h2>
+        <p>
+          For high-volume transaction audits, Redis's in-memory storage becomes cost-prohibitive. We would replace the audit logger with a LSM-tree engine (like RocksDB) deployed on SSD storage, streaming logs asynchronously to maintain high-throughput rate checks.
         </p>
       </div>
     )

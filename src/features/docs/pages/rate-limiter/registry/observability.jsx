@@ -6,24 +6,30 @@ export const observabilityPages = {
     title: "Overview",
     topics: [
       { label: "Telemetry pillars", href: "#pillars" },
-      { label: "Correlation ID mapping", href: "#correlation" }
+      { label: "Correlation ID mapping", href: "#correlation" },
+      { label: "Jaeger Trace Dashboard", href: "#jaeger" }
     ],
     content: (
       <div>
         <p>
-          Managing high-throughput systems requires structured, correlated telemetry across all execution layers.
+          Managing high-throughput distributed systems requires structured, correlated telemetry across all execution layers. This section outlines the three pillars of telemetry in our system.
         </p>
 
         <h2 className="guide-sub-heading" id="pillars">Telemetry Pillars</h2>
         <ul className="guide-bullets-list">
-          <li><strong>Metrics (Prometheus):</strong> Aggregates system metrics (RPS, errors, latencies, circuit states, audit queue size). Used for dashboards and alerting.</li>
-          <li><strong>Distributed Tracing (OpenTelemetry):</strong> Tracks request pathways across sidecars, limiters, and upstreams. Provides high-fidelity latency analysis.</li>
-          <li><strong>Structured Logs (slog):</strong> Emits structured JSON logs containing correlation IDs (Request IDs, Trace IDs) to support search indexing and log parsing.</li>
+          <li><strong>Metrics (Prometheus):</strong> Aggregates system metrics (RPS, errors, latencies, circuit states, audit queue size) to identify cluster trends and alert operators.</li>
+          <li><strong>Distributed Tracing (OpenTelemetry):</strong> Tracks request pathways across sidecars, limiters, and upstreams, capturing span timings to locate performance bottlenecks.</li>
+          <li><strong>Structured Logs (slog):</strong> Emits structured JSON logs containing correlation IDs (Request IDs, Trace IDs) to support search indexing and Loki query matching.</li>
         </ul>
 
         <h2 className="guide-sub-heading" id="correlation">Correlation ID Mapping</h2>
         <p>
           To trace an execution path, the sidecar generates a unique `X-Request-ID` UUID for every inbound call. This ID is propagated through headers to downstreams, matching spans in Jaeger and log entries in Elasticsearch or Loki.
+        </p>
+
+        <h2 className="guide-sub-heading" id="jaeger">Jaeger Trace Dashboard</h2>
+        <p>
+          The system publishes traces to a local Jaeger collector listening on port `:4317` (gRPC) or `:4318` (HTTP). Operators can view trace timelines, database lock delays, and circuit status overrides directly from the Jaeger Web UI at `http://localhost:16686`.
         </p>
       </div>
     )
@@ -34,7 +40,8 @@ export const observabilityPages = {
     topics: [
       { label: "OpenTelemetry Setup", href: "#setup" },
       { label: "Span Hierarchy", href: "#hierarchy" },
-      { label: "429 Error Semantics", href: "#span-errors" }
+      { label: "429 Error Semantics", href: "#span-errors" },
+      { label: "Go OTel Initialization", href: "#go-otel-code" }
     ],
     content: (
       <div>
@@ -76,6 +83,36 @@ gantt
         }}>
           <strong>Correct Span Status:</strong> A rate-limiting rejection (`429 Too Many Requests`) is expected business logic, not a server infrastructure crash. Therefore, spans representing a 429 write back the status code but are **not** marked as errored in the trace system, keeping alert statistics clean.
         </div>
+
+        <h2 className="guide-sub-heading" id="go-otel-code">Go OTel Initialization</h2>
+        <p>
+          This is the Go codebase setup function for initializing the OTel exporter:
+        </p>
+        <pre style={{ background: "#0e0e11", border: "1px solid #27272a", padding: 14, borderRadius: 6, fontSize: 12, overflowX: "auto" }}>
+{`func InitTracer(serviceName string, collectorAddr string) (*sdktrace.TracerProvider, error) {
+    exporter, err := otlptracegrpc.New(context.Background(),
+        otlptracegrpc.WithInsecure(),
+        otlptracegrpc.WithEndpoint(collectorAddr),
+    )
+    if err != nil {
+        return nil, err
+    }
+
+    tp := sdktrace.NewTracerProvider(
+        sdktrace.WithBatcher(exporter),
+        sdktrace.WithResource(resource.NewWithAttributes(
+            semconv.SchemaURL,
+            semconv.ServiceNameKey.String(serviceName),
+        )),
+    )
+    otel.SetTracerProvider(tp)
+    otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+        propagation.TraceContext{},
+        propagation.Baggage{},
+    ))
+    return tp, nil
+}`}
+        </pre>
       </div>
     )
   },
@@ -85,7 +122,8 @@ gantt
     topics: [
       { label: "Go slog Engine", href: "#slog" },
       { label: "Log Structuring", href: "#fields" },
-      { label: "State Transition Logging", href: "#transitions" }
+      { label: "State Transition Logging", href: "#transitions" },
+      { label: "JSON Log Output Example", href: "#json-log" }
     ],
     content: (
       <div>
@@ -112,6 +150,24 @@ gantt
         <p>
           To protect disk storage and avoid performance degradation, logs are kept clean. Standard checks do not write logs. System logs are reserved for transition events, such as a circuit breaker changing state (`Closed` &rarr; `Open`), warning operators of potential issues.
         </p>
+
+        <h2 className="guide-sub-heading" id="json-log">JSON Log Output Example</h2>
+        <p>
+          Below is a raw log output sample produced by the sidecar proxy:
+        </p>
+        <pre style={{ background: "#0e0e11", border: "1px solid #27272a", padding: 14, borderRadius: 6, fontSize: 12, overflowX: "auto" }}>
+{`{
+  "time": "2026-07-10T13:52:11.902Z",
+  "level": "INFO",
+  "msg": "circuit breaker state transition",
+  "prev_state": "Closed",
+  "new_state": "Open",
+  "gateway": "gateway_beta",
+  "error_rate": 0.54,
+  "request_id": "req-9882a-bc91",
+  "trace_id": "4fa88d01bc1d283"
+}`}
+        </pre>
       </div>
     )
   },
@@ -120,7 +176,8 @@ gantt
     title: "Metrics & Prometheus",
     topics: [
       { label: "Metric Names", href: "#metric-names" },
-      { label: "Cardinality Control", href: "#cardinality" }
+      { label: "Cardinality Control", href: "#cardinality" },
+      { label: "Prometheus Scraper Config", href: "#prometheus-config" }
     ],
     content: (
       <div>
@@ -146,6 +203,19 @@ gantt
         }}>
           <strong>Cardinality Safety:</strong> High cardinality labels (like User IDs or Request IDs) are strictly excluded from Prometheus metrics. Including them would generate millions of unique time series, crashing Prometheus servers. User-specific traces are reserved for OpenTelemetry.
         </div>
+
+        <h2 className="guide-sub-heading" id="prometheus-config">Prometheus Scraper Config</h2>
+        <p>
+          Add the following block to your `prometheus.yml` configuration:
+        </p>
+        <pre style={{ background: "#0e0e11", border: "1px solid #27272a", padding: 14, borderRadius: 6, fontSize: 12, overflowX: "auto" }}>
+{`scrape_configs:
+  - job_name: 'rate-limiter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['rate-limiter:8080', 'rate-sidecar:9090']
+    metrics_path: '/metrics'`}
+        </pre>
       </div>
     )
   },
