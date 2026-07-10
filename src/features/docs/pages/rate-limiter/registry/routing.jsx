@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,9 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  Limitation
 } from "../components/RLDocBlocks.jsx";
 
 const routingMiddlewareFlow = `
@@ -120,7 +121,7 @@ export const routingPages = {
           conceptual proxy struct. Idempotency runs <em>before</em> the denial cache; rate limiting always precedes
           upstream forwarding.
         </p>
-        <DocsMermaid chart={routingMiddlewareFlow} />
+        <MermaidDiagram chart={routingMiddlewareFlow} />
 
         <h2 className="guide-sub-heading" id="tracing">OTel Span Hierarchy</h2>
         <p>
@@ -331,16 +332,16 @@ export const routingPages = {
         </ul>
 
         <h2 className="guide-sub-heading" id="limitations">Limitations</h2>
-        <RLCallout variant="limitation" title="Proxy handler does not serve /health">
+        <Limitation title="Proxy handler does not serve /health">
           <code>ServeHTTP</code> returns <code>404</code> for <code>/health</code> and <code>/metrics</code>. Load balancers
           must probe the mux-mounted endpoints, not proxied application paths.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
-        <RLCallout variant="limitation" title="Body buffering on routing path">
+        </Limitation>
+        <Limitation title="Body buffering on routing path">
           When <code>ENABLE_ROUTING=true</code>, <code>forwardRequest</code> reads the full request body into memory
           before <code>Router.Forward</code> — required for retry across gateways. Large payloads increase sidecar memory
           footprint. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { section: "architecture", slug: "anatomy-of-a-request", title: "Anatomy of a Request", note: "full allowed/denied/idempotent walkthrough" },
@@ -541,8 +542,8 @@ func ParseGatewaysEnv(raw string) ([]Gateway, error) {
 }`}</RLSourceExcerpt>
 
         <h2 className="guide-sub-heading" id="redis-keys">Redis State Keys</h2>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Key</th>
@@ -611,11 +612,11 @@ if failover {
           tune <code>CB_FAILURE_RATE</code>, <code>CB_MIN_SAMPLES</code>, <code>CB_OPEN_COOLDOWN_MS</code>, etc.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
         </RLCallout>
-        <RLCallout variant="limitation" title="ROUTING_ERROR_PENALTY not env-configurable">
+        <Limitation title="ROUTING_ERROR_PENALTY not env-configurable">
           <code>ErrorPenalty</code> defaults to <code>2.0</code> in <code>DefaultConfig()</code> but has no{" "}
           <code>ROUTING_ERROR_PENALTY</code> env loader in <code>LoadConfigFromEnv()</code>. Changing error
           sensitivity requires a code change. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { section: "request-routing", slug: "gateway-health-and-failover", title: "Gateway Health & Failover" },
@@ -666,7 +667,7 @@ if failover {
           <code>{"{url}"}/health</code>, and records the outcome. Success means no transport error and HTTP status
           &lt; 500.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart LR
     Ticker["Ticker every ProbeIntervalSec=15s"] --> List["ListGateways\\nSMEMBERS route:index"]
     List --> Probe["GET gateway/health"]
@@ -746,7 +747,7 @@ redis.call('HSET', key,
           forward, records the outcome, and continues on failure. The client sees <code>503 all gateways unavailable</code>{" "}
           only when every candidate is exhausted.
         </p>
-        <DocsMermaid chart={failoverSequence} />
+        <MermaidDiagram chart={failoverSequence} />
 
         <RLSourceExcerpt
           source="internal/routing/router.go — Forward failover loop"
@@ -842,18 +843,18 @@ if r.breaker != nil {
         </ul>
 
         <h2 className="guide-sub-heading" id="limitations">Limitations</h2>
-        <RLCallout variant="limitation" title="Health score formula mismatch">
+        <Limitation title="Health score formula mismatch">
           <code>record_outcome.lua</code> computes <code>health_score</code> with a fixed 200ms latency baseline
           and 0.3 penalty weight, while <code>ComputeScore</code> uses <code>ROUTING_TARGET_LATENCY_MS</code> (default
           100ms) for selection. Probe-driven health and selection scoring use different math — operators should treat
           <code>health_score</code> as a relative signal, not a direct input to the selection formula.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
-        <RLCallout variant="limitation" title="No request-level retry to client">
+        </Limitation>
+        <Limitation title="No request-level retry to client">
           Failover is transparent inside the sidecar. If all gateways fail, the client receives a single{" "}
           <code>503</code> — there is no partial response or per-gateway error detail in the body.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { section: "request-routing", slug: "intelligent-routing", title: "Intelligent Routing", note: "scoring formula and selection" },

@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,10 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  DocsGrid,
+  Limitation
 } from "../components/RLDocBlocks.jsx";
 
 export const introductionPages = {
@@ -40,39 +42,46 @@ export const introductionPages = {
         </RLCallout>
 
         <h2 className="guide-sub-heading" id="capabilities">Core Capabilities & Limits</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 16, marginBottom: 24 }}>
-          <div style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 16 }}>
-            <h3 style={{ color: "#ffffff", fontSize: 14, fontWeight: "bold", margin: "0 0 8px 0" }}>Atomic Multi-Tier Quotas</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
-              Evaluates Global, Tenant, User, and Endpoint buckets in a single Lua round-trip. If any tier fails, the entire request is rejected and no tokens are deducted.
-            </p>
-          </div>
-          <div style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 16 }}>
-            <h3 style={{ color: "#ffffff", fontSize: 14, fontWeight: "bold", margin: "0 0 8px 0" }}>Denial-Only Local Shielding</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
-              Process-local singleflight collapses concurrent misses on the same key into one limiter call. The denial cache (<code style={{ color: "#ff5cad" }}>CACHE_TTL_MS</code>, default 30 ms) serves only denials — allowed entries are stored but ignored on hit so token counts stay accurate.
-            </p>
-          </div>
-          <div style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 16 }}>
-            <h3 style={{ color: "#ffffff", fontSize: 14, fontWeight: "bold", margin: "0 0 8px 0" }}>Stripe-Style Idempotency Replay</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
-              Lease-locked idempotency keys prevent duplicate response replay. Fencing tokens block stale writers — but idempotency does <em>not</em> guarantee exactly-once upstream side effects if the sidecar crashes before completion.
-            </p>
-          </div>
-          <div style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 16 }}>
-            <h3 style={{ color: "#ffffff", fontSize: 14, fontWeight: "bold", margin: "0 0 8px 0" }}>Dynamic Overrides</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
-              Operators override limits via a monotonic <code style={{ color: "#ff5cad" }}>config:generation</code> counter. The limiter reads overrides through a local TTL cache (<code style={{ color: "#ff5cad" }}>OVERRIDE_CACHE_TTL_MS</code>, default 5000 ms) without Pub/Sub.
-            </p>
-          </div>
-        </div>
+        <DocsGrid
+          min={280}
+          items={[
+            {
+              title: "Atomic Multi-Tier Quotas",
+              body: "Evaluates Global, Tenant, User, and Endpoint buckets in a single Lua round-trip. If any tier fails, the entire request is rejected and no tokens are deducted.",
+            },
+            {
+              title: "Denial-Only Local Shielding",
+              body: (
+                <>
+                  Process-local singleflight collapses concurrent misses on the same key into one limiter call. The denial cache (<code style={{ color: "#ff5cad" }}>CACHE_TTL_MS</code>, default 30 ms) serves only denials — allowed entries are stored but ignored on hit so token counts stay accurate.
+                </>
+              ),
+            },
+            {
+              title: "Stripe-Style Idempotency Replay",
+              body: (
+                <>
+                  Lease-locked idempotency keys prevent duplicate response replay. Fencing tokens block stale writers — but idempotency does <em>not</em> guarantee exactly-once upstream side effects if the sidecar crashes before completion.
+                </>
+              ),
+            },
+            {
+              title: "Dynamic Overrides",
+              body: (
+                <>
+                  Operators override limits via a monotonic <code style={{ color: "#ff5cad" }}>config:generation</code> counter. The limiter reads overrides through a local TTL cache (<code style={{ color: "#ff5cad" }}>OVERRIDE_CACHE_TTL_MS</code>, default 5000 ms) without Pub/Sub.
+                </>
+              ),
+            },
+          ]}
+        />
 
         <h2 className="guide-sub-heading" id="overview">Architectural Overview</h2>
         <p>
           The architecture segregates concerns across three runtime tiers: the edge transparent sidecar proxy, the stateless central limiter pool, and the backing high-availability Redis Sentinel cluster.
         </p>
 
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart TD
     Client(["Client HTTP Request"])
     Sidecar["Sidecar Proxy (:9090)\\n(cmd/sidecar)"]
@@ -95,8 +104,8 @@ flowchart TD
         `} />
 
         <h2 className="guide-sub-heading" id="defaults">Verified Defaults Snapshot</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Parameter</th>
@@ -184,7 +193,7 @@ flowchart TD
           If a tenant is capped at 1,000 requests/minute, and we run 5 application replicas, a naive local counter would allow up to 1,000 requests × 5 instances = 5,000 requests/minute to hit our database upstreams. Alternatively, hard-allocating 200 requests/replica fails under uneven traffic distribution: if Replica 1 is idle while Replica 2 is flooded, requests are rejected even though the overall tenant limit is not exhausted.
         </p>
 
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 sequenceDiagram
     autonumber
     actor Client 1
@@ -272,8 +281,8 @@ return {allowed, math.floor(new_tokens)}`}</RLSourceExcerpt>
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="matrix">Distributed Systems Guarantee Matrix</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>System Property</th>
@@ -354,9 +363,9 @@ return {allowed, math.floor(new_tokens)}`}</RLSourceExcerpt>
 logging.Debug(ctx, "allowed cache entry ignored", ...)`}</RLSourceExcerpt>
 
         <h2 className="guide-sub-heading" id="limitations">Documented Limitations</h2>
-        <RLCallout variant="limitation" title="Not exactly-once upstream side effects">
+        <Limitation title="Not exactly-once upstream side effects">
           If a client sends an idempotent POST request, the sidecar claims the key, proxies it to the backend, and the backend succeeds. If the sidecar crashes before writing the completion status to Redis, the idempotency lease eventually expires. A subsequent client retry will reclaim the expired lock, calling the upstream service a second time. At-most-once side-effects must be handled inside the upstream application database.
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="idempotency-scope">Idempotency Scope</h2>
         <p>
@@ -436,8 +445,8 @@ return {allowed, math.floor(new_tokens)}`}</RLSourceExcerpt>
         <p>
           Resilience is built into both the sidecar and limiter layers with explicit timeout budgets:
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Layer</th>

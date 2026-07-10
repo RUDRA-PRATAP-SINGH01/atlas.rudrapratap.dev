@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,11 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  Invariant,
+  Limitation,
+  FailureScenario
 } from "../components/RLDocBlocks.jsx";
 
 /* ─────────────────────────────────────────────
@@ -169,7 +172,6 @@ sequenceDiagram
 const TABLE_TH = { padding: "10px 8px", fontSize: 12, fontWeight: 700, color: "#a1a1aa", borderBottom: "2px solid #27272a", textAlign: "left" };
 const TABLE_TD = { padding: "10px 8px", fontSize: 12, borderBottom: "1px solid #27272a", verticalAlign: "top" };
 const TABLE_TD_BOLD = { ...TABLE_TD, fontWeight: 700 };
-const PINK_TEXT = { color: "#ff5cad" };
 
 /* ─────────────────────────────────────────────
    Export
@@ -213,8 +215,8 @@ export const resiliencePages = {
           clients, worst-case latency bound, recovery path, and correctness effect on quota enforcement.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="BENCHMARK-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>Failure</th>
@@ -357,15 +359,15 @@ export const resiliencePages = {
           grounded in a verified default.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" />
         </p>
-        <DocsMermaid chart={failureDecisionTree} />
+        <MermaidDiagram chart={failureDecisionTree} />
 
         <h2 className="guide-sub-heading" id="blast-radius">Blast Radius by Component</h2>
         <p style={{ fontSize: 13, color: "#a1a1aa", marginBottom: 16 }}>
           Blast radius describes how many request paths are affected when a component fails. Failures in Redis or the
           limiter are the most impactful; sidecar and observability failures are scoped.
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0 24px" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>Component</th>
@@ -499,7 +501,7 @@ export const resiliencePages = {
         </p>
 
         <h2 className="guide-sub-heading" id="state-machine">State Machine</h2>
-        <DocsMermaid chart={cbStateMachine} />
+        <MermaidDiagram chart={cbStateMachine} />
 
         <h2 className="guide-sub-heading" id="transitions">Transition Table</h2>
         <p style={{ fontSize: 13, color: "#a1a1aa", marginBottom: 16 }}>
@@ -507,8 +509,8 @@ export const resiliencePages = {
           No transition is possible outside of a Redis Lua script execution.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0 24px" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>From State</th>
@@ -546,8 +548,8 @@ export const resiliencePages = {
           Loaded from environment variables in <code>internal/circuitbreaker/config.go</code>.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0 24px" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>Variable</th>
@@ -600,8 +602,8 @@ export const resiliencePages = {
           enforcement under load would otherwise inflate failure rates and spuriously open the circuit.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0 24px" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>Trigger</th>
@@ -678,19 +680,19 @@ export const resiliencePages = {
           (default), the sidecar treats this as a denial — it cannot confirm the circuit is closed, so it rejects the
           request with 503. This is intentionally conservative: an unknown circuit state is treated as Open.
         </p>
-        <RLCallout variant="limitation" title="Circular dependency">
+        <Limitation title="Circular dependency">
           The circuit breaker protects against Redis unavailability, but it also reads from Redis to perform that
           protection. With <code>CIRCUIT_FAIL_OPEN=false</code>, a Redis outage causes fail-closed regardless of
           whether the CB would have been Closed. The Redis pool timeout (500 ms) and pool ceiling (1,000 ms) bound
           the duration of this ambiguity before a definitive 503 is returned.
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="timeline">Outage Timeline</h2>
         <p style={{ fontSize: 13, color: "#a1a1aa", marginBottom: 16 }}>
           End-to-end sequence from a Redis outage through circuit opening, half-open probing, and circuit close.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="BENCHMARK-PROVEN" />
         </p>
-        <DocsMermaid chart={cbOutageTimeline} />
+        <MermaidDiagram chart={cbOutageTimeline} />
 
         <h2 className="guide-sub-heading" id="lua">Lua Script Integration</h2>
         <ul className="guide-bullets-list">
@@ -769,10 +771,10 @@ end`}</RLSourceExcerpt>
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="lifecycle">Lease-Locked Lifecycle</h2>
-        <DocsMermaid chart={idempotencyLifecycle} />
+        <MermaidDiagram chart={idempotencyLifecycle} />
 
-        <div style={{ overflowX: "auto", margin: "16px 0 24px" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>State</th>
@@ -845,7 +847,7 @@ end`}</RLSourceExcerpt>
           updated atomically to <code>COMPLETED</code> and the response body and status are stored.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" />
         </p>
-        <DocsMermaid chart={idempotencyFencingSequence} />
+        <MermaidDiagram chart={idempotencyFencingSequence} />
 
         <RLSourceExcerpt
           source="internal/sidecar/idempotency/lua/complete.lua — fence verification"
@@ -865,7 +867,7 @@ redis.call('PEXPIRE', key, completed_ttl_ms)
 return {1, 'OK'}`}</RLSourceExcerpt>
 
         <h2 className="guide-sub-heading" id="crash-window">Crash-Before-Completion Window</h2>
-        <RLCallout variant="limitation" title="Exactly-once is not guaranteed after crash and reclaim">
+        <FailureScenario title="Exactly-once is not guaranteed after crash and reclaim">
           If the sidecar process crashes after forwarding a request to the upstream backend but before calling{" "}
           <code>complete.lua</code>, the processing lease will eventually expire. A subsequent retry by the client
           (or another sidecar replica) will successfully reclaim the lease with a new fence token and re-forward
@@ -874,7 +876,7 @@ return {1, 'OK'}`}</RLSourceExcerpt>
           per key at any moment and duplicate-safe replay after a COMPLETED record is written, but it{" "}
           <strong>does not guarantee exactly-once upstream execution</strong> across the crash-before-completion
           window. The reclaim gap is bounded by <code>IDEMPOTENCY_LOCK_TTL_MS</code> (60,000 ms).
-        </RLCallout>
+        </FailureScenario>
         <p style={{ fontSize: 13, lineHeight: 1.7, color: "#d4d4d8" }}>
           Operators who require exactly-once upstream semantics must implement idempotency at the backend itself
           (e.g. database UPSERT with unique constraint), using the fence token passed in the forwarded request as
@@ -882,13 +884,14 @@ return {1, 'OK'}`}</RLSourceExcerpt>
         </p>
 
         <h2 className="guide-sub-heading" id="guarantees">Guarantee Matrix</h2>
-        <div style={{ overflowX: "auto", margin: "16px 0 24px" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>Scenario</th>
                 <th style={TABLE_TH}>Guarantee</th>
                 <th style={TABLE_TH}>Notes</th>
+                <th style={TABLE_TH}>Level</th>
               </tr>
             </thead>
             <tbody>
@@ -935,16 +938,14 @@ return {1, 'OK'}`}</RLSourceExcerpt>
                   notes: "Dangerous operator override. Never use on payment paths.",
                   level: "NO GUARANTEE"
                 }
-              ].map(({ scenario, guarantee, notes, level }) => {
-                const levelColor = level === "STRONG" ? "#ff5cad" : level === "DOCUMENTED LIMITATION" ? "#db4577" : level === "NO GUARANTEE" ? "#c45a8a" : "#ff7ebd";
-                return (
+              ].map(({ scenario, guarantee, notes, level }) => (
                   <tr key={scenario}>
                     <td style={TABLE_TD}>{scenario}</td>
                     <td style={{ ...TABLE_TD, fontWeight: 600 }}>{guarantee}</td>
                     <td style={TABLE_TD}>{notes}</td>
+                    <td style={{ ...TABLE_TD, color: "#ff5cad", fontWeight: 700, whiteSpace: "nowrap" }}>{level}</td>
                   </tr>
-                );
-              })}
+                ))}
             </tbody>
           </table>
         </div>
@@ -1013,7 +1014,7 @@ return {1, 'OK'}`}</RLSourceExcerpt>
           { label: "Cache serve rate (hammer test)", value: "99.9%", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 sequenceDiagram
     autonumber
     participant Client
@@ -1038,11 +1039,11 @@ sequenceDiagram
         `} />
 
         <h2 className="guide-sub-heading" id="invariant">Denials-Only Security Invariant</h2>
-        <RLCallout variant="limitation" title="Allowances are never served from cache">
+        <Invariant title="Allowances are never served from cache">
           Only denials are served from the local cache. Cache entries with <code>Allowed=true</code> always fall
           through to the central limiter. Caching an allowance would create a quota-freeze attack vector: a user
           cached as allowed could bypass enforcement even after their quota was exhausted at the central store.
-        </RLCallout>
+        </Invariant>
         <RLSourceExcerpt
           source="cmd/sidecar/main.go — denial-only cache serving"
           establishes="Cache hits return 429 only when Allowed=false; allowed entries always re-check the limiter."
@@ -1122,8 +1123,8 @@ if shared {
         ]} />
 
         <h2 className="guide-sub-heading" id="timeouts">Timeout Configuration</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>Layer</th>
@@ -1177,8 +1178,8 @@ CacheTTLMs:             envInt("CACHE_TTL_MS", 30),`}</RLSourceExcerpt>
           bounded — no unbounded hangs are possible under the default configuration.{" "}
           <RLEvidenceBadge type="BENCHMARK-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr>
                 <th style={TABLE_TH}>Failure Scenario</th>
@@ -1300,7 +1301,7 @@ CacheTTLMs:             envInt("CACHE_TTL_MS", 30),`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="sequence">Recovery Sequence</h2>
-        <DocsMermaid chart={recoverySequence} />
+        <MermaidDiagram chart={recoverySequence} />
 
         <h2 className="guide-sub-heading" id="recovery-latency">Observed Recovery Latency</h2>
         <RLStatGrid stats={[

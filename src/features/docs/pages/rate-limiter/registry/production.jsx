@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,9 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  Limitation
 } from "../components/RLDocBlocks.jsx";
 
 export const productionPages = {
@@ -40,7 +41,7 @@ export const productionPages = {
         <p>
           Each application host runs a sidecar companion that intercepts inbound HTTP before it reaches the upstream service. The sidecar delegates quota decisions to a central limiter that executes atomic Lua scripts against Redis. This separation keeps enforcement logic language-agnostic at the edge while concentrating Redis connection pools in the limiter tier.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 graph TD
     Client[Edge Load Balancer] -->|HTTP| Sidecar1[Sidecar :9090]
     Client -->|HTTP| Sidecar2[Sidecar :9090]
@@ -65,8 +66,8 @@ graph TD
         <p>
           Configure security groups and Kubernetes NetworkPolicies around these verified ports from <code>docker-compose.yml</code> and service defaults:
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Port</th>
@@ -136,8 +137,8 @@ graph TD
         <pre style={{ background: "#0e0e11", border: "1px solid #27272a", padding: 14, borderRadius: 6, fontSize: 12, overflowX: "auto", color: "#e4e4e7" }}>
 {`docker compose -f docker-compose.yml -f docker-compose.scale.yml --profile scale up --build`}
         </pre>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Service</th>
@@ -279,8 +280,8 @@ sentinel parallel-syncs mymaster 1`}</RLSourceExcerpt>
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="limiter-config">Central Limiter (<code>cmd/limiter/config.go</code>)</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Variable</th>
@@ -326,8 +327,8 @@ OverrideCacheTTLMs: mustParseIntEnv("OVERRIDE_CACHE_TTL_MS", "5000", strict),
 AllowQueryUserID:   getEnv("ALLOW_QUERY_USER_ID", "false") == "true",`}</RLSourceExcerpt>
 
         <h2 className="guide-sub-heading" id="sidecar-config">Sidecar (<code>cmd/sidecar/main.go</code>)</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Variable</th>
@@ -374,8 +375,8 @@ allowQueryUserID := os.Getenv("ALLOW_QUERY_USER_ID") == "true"`}</RLSourceExcerp
         <p>
           Audit configuration lives in <code>internal/audit/config.go</code>. <code>DefaultConfig()</code> enables audit by default with a 7-day retention window:
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Variable</th>
@@ -417,11 +418,11 @@ allowQueryUserID := os.Getenv("ALLOW_QUERY_USER_ID") == "true"`}</RLSourceExcerp
 }`}</RLSourceExcerpt>
 
         <h2 className="guide-sub-heading" id="wrong-names">Deprecated / Wrong Names</h2>
-        <RLCallout variant="limitation" title="Common documentation errors">
+        <Limitation title="Common documentation errors">
           Earlier drafts used env names that do not exist in source. Use the corrected names below:
-        </RLCallout>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        </Limitation>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Wrong Name</th>
@@ -542,9 +543,9 @@ func checkLimiterHealth(ctx context.Context, client *http.Client, limiterURL str
         </p>
 
         <h2 className="guide-sub-heading" id="no-ready">No <code>/ready</code> Endpoint</h2>
-        <RLCallout variant="limitation" title="Documentation correction">
+        <Limitation title="Documentation correction">
           Prior drafts described a separate <code>/ready</code> endpoint with invented <code>HandleReadiness</code> pseudocode. Source exposes only <code>/health</code> on both binaries. Use <code>/health</code> for all orchestrator probes.
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { section: "request-routing", slug: "gateway-health-and-failover", title: "Gateway Health & Failover", note: "routing health probes" },
@@ -579,7 +580,7 @@ func checkLimiterHealth(ctx context.Context, client *http.Client, limiterURL str
         ]} />
 
         <h2 className="guide-sub-heading" id="limiter-shutdown">Limiter Shutdown Order</h2>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart TD
     SIG["SIGINT / SIGTERM"] --> Admin["1. adminSrv.Shutdown(5s)\\nAdmin API :8082"]
     Admin --> Main["2. srv.Shutdown(5s)\\nMain HTTP :8080"]
@@ -673,8 +674,8 @@ if sharedRdb != nil {
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="security-auth">Authentication Tiers</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Tier</th>

@@ -21,12 +21,21 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Split guide pages into two lazy chunks so the initial bundle stays small.
-        // The landing page, hub, and reference pages load their own minimal chunks.
-        // All 60+ PebbleDB pages share one chunk; all 17 Rate Limiter pages share another.
+        // Route-isolated docs chunks: RL shell stays light; each registry section
+        // and Mermaid load only when needed.
         manualChunks(id) {
+          if (id.includes("/features/docs/pages/rate-limiter/registry/")) {
+            const match = id.match(/rate-limiter\/registry\/([^/]+)\./);
+            if (match && match[1] !== "nav" && match[1] !== "index") {
+              return `rl-section-${match[1]}`;
+            }
+            return "rate-limiter-nav";
+          }
           if (id.includes("/features/docs/pages/rate-limiter/")) {
-            return "rate-limiter-guide";
+            return "rate-limiter-shell";
+          }
+          if (id.includes("/features/docs/components/system/")) {
+            return "docs-system";
           }
           if (id.includes("/features/docs/pages/")) {
             return "pebbledb-guide";
@@ -34,7 +43,6 @@ export default defineConfig({
           if (id.includes("/features/landing/")) {
             return "hub";
           }
-          // Vendor splitting: mermaid is large (~1MB), isolate it
           if (id.includes("node_modules/mermaid")) {
             return "mermaid-vendor";
           }

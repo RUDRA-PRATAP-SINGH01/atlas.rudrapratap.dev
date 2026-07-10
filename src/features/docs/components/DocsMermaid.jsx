@@ -118,9 +118,17 @@ export default function DocsMermaid({ chart, className = "" }) {
 
   if (error) {
     return (
-      <pre className={`guide-mermaid guide-mermaid--error ${className}`.trim()}>
+      <pre className={`guide-mermaid guide-mermaid--error ${className}`.trim()} role="img" aria-label="Diagram failed to render; showing source">
         {chart}
       </pre>
+    );
+  }
+
+  if (!svg) {
+    return (
+      <div className={`guide-mermaid ${className}`.trim()} aria-busy="true">
+        <div className="docs-diagram__loading">Rendering diagram…</div>
+      </div>
     );
   }
 
@@ -128,6 +136,8 @@ export default function DocsMermaid({ chart, className = "" }) {
     <div
       ref={containerRef}
       className={`guide-mermaid ${className}`.trim()}
+      role="img"
+      aria-label="Architecture diagram"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

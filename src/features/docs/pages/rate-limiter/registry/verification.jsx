@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,10 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  Limitation,
+  FailureScenario
 } from "../components/RLDocBlocks.jsx";
 
 const multiReplicaTopology = `
@@ -55,13 +57,6 @@ sequenceDiagram
     Limiter->>Redis: EVALSHA succeeds
     Sidecar-->>k6: 200 or 429 (quota restored)
 `;
-
-const PINK_BADGE = {
-  strong:    { bg: "rgba(255,92,173,0.14)", color: "#ff5cad" },
-  partial:   { bg: "rgba(255,92,173,0.09)", color: "#ff7ebd" },
-  none:      { bg: "rgba(219,69,119,0.12)", color: "#db4577" },
-  limit:     { bg: "rgba(219,69,119,0.08)", color: "#c45a8a" }
-};
 
 function MatrixCell({ value }) {
   if (value === "Y") {
@@ -120,8 +115,8 @@ export const verificationPages = {
         </RLCallout>
 
         <h2 className="guide-sub-heading" id="categories">Evidence Categories</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Badge</th>
@@ -172,8 +167,8 @@ export const verificationPages = {
           { value: "0", label: "Claims without an explicit limitation statement", evidence: "SOURCE-PROVEN" }
         ]} />
 
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left", background: "rgba(255,92,173,0.04)" }}>
                 <th style={{ padding: "10px 8px", minWidth: 220 }}>Claim</th>
@@ -355,12 +350,12 @@ for i := 0; i < 60; i++ {
 wg.Wait()
 // Runtime result: allowed=10, denied=50`}</RLSourceExcerpt>
 
-        <RLCallout variant="limitation" title="Redis Cluster incompatibility">
+        <Limitation title="Redis Cluster incompatibility">
           Hierarchical rate limiting evaluates four keys in one Lua script. Redis Cluster distributes keys across
           16,384 hash slots; keys in different namespaces hash to different slots, causing{" "}
           <code>CROSSSLOT Keys in request don't hash to the same slot</code>. Standalone Redis or Sentinel is required
           for hierarchical quotas. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
           Claim: Lua Transition Atomicity{" "}
@@ -460,11 +455,11 @@ if callCount != 1 {
     t.Fatalf("expected 1 network call, got %d", callCount)
 }
 // N requests served; N-1 received shared=true from singleflight`}</RLSourceExcerpt>
-        <RLCallout variant="limitation" title="Process-local scope">
+        <Limitation title="Process-local scope">
           Singleflight collapse is per sidecar instance. Two replicas routing the same user key each issue one limiter
           call — for N replicas the collapse ratio is N×1 real calls, not 1. Redis is still authoritative; quota
           correctness is unaffected. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
           Claim: Stale Fencing-Token Rejection{" "}
@@ -488,12 +483,12 @@ if newCount != 1 {
 if newCount+conflictCount != int64(N) {
     t.Fatalf("claim results do not account for all goroutines")
 }`}</RLSourceExcerpt>
-        <RLCallout variant="limitation" title="Crash-before-complete window">
+        <FailureScenario title="Crash-before-complete window">
           Fencing prevents stale concurrent writes. It does not prevent a crash that occurs after the upstream
           backend executed but before <code>complete.lua</code> was called. The lease expires after{" "}
           <code>IDEMPOTENCY_LOCK_TTL_MS</code> (60 s), and a retry may execute the backend action again.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </FailureScenario>
 
         <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
           Claim: Denial Cache Cannot Create Admission{" "}
@@ -547,13 +542,13 @@ metrics.RecordCacheMiss()`}</RLSourceExcerpt>
     }
     return nil
 }`}</RLSourceExcerpt>
-        <RLCallout variant="limitation" title="Propagation lag up to OVERRIDE_CACHE_TTL_MS">
+        <Limitation title="Propagation lag up to OVERRIDE_CACHE_TTL_MS">
           Replicas check the generation counter at cache-miss time or on a background interval. Stale overrides may
           persist for up to <code>OVERRIDE_CACHE_TTL_MS</code> (default 5000ms) before the mismatch is detected.
           Cross-replica override lag is a known design trade-off versus Pub/Sub — it is safe under network partitions
           (Pub/Sub would miss the message; generation check does not).{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
           Claim: Race-Test Status (go test -race){" "}
@@ -570,12 +565,12 @@ metrics.RecordCacheMiss()`}</RLSourceExcerpt>
           { value: "43", label: "*_test.go files exercised under -race", evidence: "TEST-PROVEN" },
           { value: "0", label: "Data-race warnings across all packages", evidence: "TEST-PROVEN" }
         ]} />
-        <RLCallout variant="limitation" title="Race detector scope boundary">
+        <Limitation title="Race detector scope boundary">
           Go's race detector instruments Go-level heap and stack memory accesses. Redis Lua atomicity — which prevents
           the quota TOCTOU race — is entirely outside the detector's scope. The detector proves correctness of
           process-local caches and handler bookkeeping; Redis proves quota correctness.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="failure-claims">Failure Boundary Claims</h2>
 
@@ -651,12 +646,12 @@ if auditStore != nil && !auditStore.RedisCloseSafe() {
           { value: "269,269", label: "Total requests over 15 minutes", evidence: "BENCHMARK-PROVEN" },
           { value: "10.01ms", label: "p99 latency (stream-derived, under 100ms threshold)", evidence: "BENCHMARK-PROVEN" }
         ]} />
-        <RLCallout variant="limitation" title="Soak scope boundary">
+        <Limitation title="Soak scope boundary">
           The 15-minute window validates immediate stability: no memory growth, no socket leak accumulation, no
           cumulative latency drift. Long-horizon concerns — Redis AOF growth, connection pool drift, Go heap
           fragmentation over days of traffic — are outside the verified window.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="state-validation">State Validation Assertions</h2>
         <p>
@@ -752,8 +747,8 @@ if auditStore != nil && !auditStore.RedisCloseSafe() {
           The automated pipeline enforces four sequential gates before merge. All must pass; there is no skip path for
           the race detector. <RLEvidenceBadge type="TEST-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Stage</th>
@@ -1025,7 +1020,7 @@ go test -race -v -count=5 ./cmd/sidecar/...`}
           <code>503 Service Unavailable</code> — no traffic reaches the upstream backend without quota enforcement.{" "}
           <RLEvidenceBadge type="RUNTIME-PROVEN" />
         </p>
-        <DocsMermaid chart={chaosFailClosedSequence} />
+        <MermaidDiagram chart={chaosFailClosedSequence} />
         <RLStatGrid stats={[
           { value: "503", label: "HTTP response during docker pause redis", evidence: "RUNTIME-PROVEN" },
           { value: "~1003ms", label: "Limiter Redis timeout bound", evidence: "BENCHMARK-PROVEN" },
@@ -1137,9 +1132,9 @@ docker compose -f docker-compose.ha.yml unpause redis-master`}
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="setup">Multi-Replica Setup Topology</h2>
-        <DocsMermaid chart={multiReplicaTopology} />
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <MermaidDiagram chart={multiReplicaTopology} />
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Component</th>
@@ -1271,14 +1266,14 @@ wg.Wait()
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="cluster">Redis Cluster Multi-Key Incompatibility</h2>
-        <RLCallout variant="limitation" title="DOCUMENTED LIMITATION">
+        <Limitation title="DOCUMENTED LIMITATION">
           Hierarchical rate limiting evaluates four keys atomically in a single Lua script (
           <code>hierarchical.lua</code>). Redis Cluster distributes keys across 16,384 hash slots. Keys in different
           namespaces hash to different slots, causing <code>CROSSSLOT Keys in request don't hash to the same slot</code>.
           Hash tags (e.g. <code>rate:{"{rl}"}:global</code>) force co-location but concentrate all traffic on one cluster
           node — defeating horizontal scaling. The system supports standalone Redis or Sentinel only.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
         <RLSourceExcerpt
           source="internal/limiter/lua/hierarchical.lua — KEYS declaration"
           establishes="Four distinct key namespaces are passed to EVALSHA; incompatible with cross-slot Cluster execution without hash tags."
@@ -1290,14 +1285,14 @@ wg.Wait()
 -- All four must reside on the same Redis node`}</RLSourceExcerpt>
 
         <h2 className="guide-sub-heading" id="idempotency">Idempotency Crash Window</h2>
-        <RLCallout variant="limitation" title="DOCUMENTED LIMITATION">
+        <Limitation title="DOCUMENTED LIMITATION">
           The idempotency engine cannot guarantee exactly-once upstream side effects. If a sidecar crashes{" "}
           <em>after</em> forwarding to the backend but <em>before</em> persisting the result via{" "}
           <code>complete.lua</code>, the processing lease eventually expires (<code>IDEMPOTENCY_LOCK_TTL_MS</code> = 60 s).
           A client retry reclaims the lease with a new fence token and may execute the backend action again.
           Idempotency guarantees at-most-once response replay, not at-most-once upstream mutation.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
         <p>
           Fencing tokens prevent stale writers from polluting Redis state — proven by{" "}
           <code>TestClaimSingleWinnerUnderConcurrency</code>. They do not prevent duplicate backend execution when the
@@ -1321,14 +1316,14 @@ wg.Wait()
         ]} />
 
         <h2 className="guide-sub-heading" id="denial-cache">Cross-Replica Denial Cache Not Synced</h2>
-        <RLCallout variant="limitation" title="DOCUMENTED LIMITATION">
+        <Limitation title="DOCUMENTED LIMITATION">
           The denial cache (<code>sync.Map</code>, <code>CACHE_TTL_MS</code> default 30 ms) is process-local. A denial
           recorded on sidecar :9090 is invisible to sidecar :9092. During the TTL window, replica 2 may issue
           redundant limiter/Redis round-trips for a key already denied on replica 1. This is a performance inefficiency,
           not a correctness failure — Redis still enforces the global quota. Cross-replica denial deduplication is not
           implemented and not planned in the current architecture.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
         <RLSourceExcerpt
           source="cmd/sidecar/main.go — denial-only cache (process-local sync.Map)"
           establishes="Cache is in-memory per process; no cross-replica pub/sub or Redis backing for denial entries."
@@ -1342,7 +1337,7 @@ if entry, ok := s.cache.Load(cacheKey); ok {
 }`}</RLSourceExcerpt>
 
         <h2 className="guide-sub-heading" id="fail-open">Fail-Open Override Breaks Guarantee</h2>
-        <RLCallout variant="limitation" title="DOCUMENTED LIMITATION">
+        <Limitation title="DOCUMENTED LIMITATION">
           Setting <code>FAIL_OPEN=true</code>, <code>IDEMPOTENCY_FAIL_OPEN=true</code>, or{" "}
           <code>CIRCUIT_FAIL_OPEN=true</code> allows traffic through during dependency outages. Quota enforcement,
           idempotency deduplication, and circuit breaker protection are all bypassed for the duration of the outage.
@@ -1350,7 +1345,7 @@ if entry, ok := s.cache.Load(cacheKey); ok {
           abuse-sensitive paths breaks the correctness guarantees documented on this page.{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" /> for defaults;{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" /> for override risk.
-        </RLCallout>
+        </Limitation>
         <RLSourceExcerpt
           source="cmd/sidecar/config.go — fail-closed defaults"
           establishes="FAIL_OPEN, IDEMPOTENCY_FAIL_OPEN default to false; fail-open requires explicit env=true."
@@ -1358,8 +1353,8 @@ if entry, ok := s.cache.Load(cacheKey); ok {
 IdempotencyFailOpen: envBool("IDEMPOTENCY_FAIL_OPEN", false),
 // Operators must explicitly set =true to bypass enforcement`}</RLSourceExcerpt>
 
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Limitation</th>

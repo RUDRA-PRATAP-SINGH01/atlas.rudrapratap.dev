@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,11 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  Invariant,
+  Limitation,
+  TradeoffPanel
 } from "../components/RLDocBlocks.jsx";
 
 export const architecturePages = {
@@ -65,7 +68,7 @@ export const architecturePages = {
           is reached. The sidecar delegates quota evaluation to the central limiter, which issues a single Lua
           script invocation to Redis. The upstream is contacted only after explicit admission.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart LR
     Client(["Client Request"]) --> SC["Sidecar Proxy\\n:9090"]
     SC -->|"GET /check_hierarchical"| LM["Central Limiter\\n:8080"]
@@ -88,7 +91,7 @@ flowchart LR
           &rarr; upstream proxy. The observability stack (Prometheus, Grafana, Jaeger) spans all layers but has
           zero impact on the hot path. The admin port is network-isolated from the hot path.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart TD
     Client(["Client"]) -->|":9090"| SC["Sidecar Proxy — cmd/sidecar\\n─ denial_cache  sync.Map  30ms TTL\\n─ singleflight.Group  per cacheKey\\n─ idempotency_store\\n─ gateway_router\\n─ cb:central-limiter circuit"]
     SC -->|"GET /check_hierarchical\\nHTTP timeout 1500ms"| LM["Central Limiter Pool — cmd/limiter :8080\\n─ override loader (config:generation check)\\n─ token bucket / sliding window engine\\n─ OTel spans + Prometheus counters"]
@@ -130,7 +133,7 @@ flowchart TD
           master. All quota state is authoritative in that master; both stateless processes restart cleanly
           against it without any state recovery logic.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart LR
     Client(["Client"]) --> SC["Sidecar\\n:9090"]
     SC --> LM["Limiter\\n:8080"]
@@ -156,7 +159,7 @@ flowchart LR
           <code>EVALSHA</code>. The denial cache is local to each sidecar replica; a cold-cache replica incurs
           one extra limiter round-trip before the 30 ms denial window materializes.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart TB
     LB(["Load Balancer"]) --> SCA["Sidecar-A\\n:9090"]
     LB --> SCB["Sidecar-B\\n:9092"]
@@ -189,7 +192,7 @@ flowchart TB
           and reconnect on failover. Replicas receive asynchronous replication from the master; during failover
           the brief write gap is bounded by Redis replication lag.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart TB
     SCA["Sidecar-A :9090"] & SCB["Sidecar-B :9092"] -->|"HTTP"| LMA["Limiter-A :8080"] & LMB["Limiter-B :8083"]
     LMA & LMB -->|"Read / Write"| Master[("Redis Master :6379")]
@@ -210,8 +213,8 @@ flowchart TB
 
         {/* ── Required vs Optional ─────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="required-optional">Required vs Optional Components</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Component</th>
@@ -246,8 +249,8 @@ flowchart TB
 
         {/* ── Component Matrix ─────────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="component-matrix">Component Responsibility Matrix</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Dimension</th>
@@ -400,8 +403,8 @@ flowchart TB
 
         {/* ── Ports & Redis Keys ───────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="ports-keys">Ports and Redis Key Reference</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Redis Key Pattern</th>
@@ -491,7 +494,7 @@ flowchart TB
 
         {/* ── serveNormal pipeline ─────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="serve-normal">serveNormal Pipeline</h2>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart TD
     Entry(["serveNormal called"]) --> IC{Denial cache hit?\\nAllowed=false only}
     IC -->|"yes — Allowed=false"| D429["writeDenial 429\\n+ Retry-After header"]
@@ -559,7 +562,7 @@ flowchart TD
 
         {/* ── Allowed Path ─────────────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="allowed-path">1. The Allowed Request Path</h2>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 sequenceDiagram
     participant C as Client
     participant S as Sidecar :9090
@@ -618,7 +621,7 @@ sequenceDiagram
 
         {/* ── Denied Path ──────────────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="denied-path">2. The Rate-Limited Path</h2>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 sequenceDiagram
     participant C as Client
     participant S as Sidecar :9090
@@ -689,7 +692,7 @@ return {allowed, remaining}`}</RLSourceExcerpt>
         </p>
 
         <h3 style={{ color: "#ff5cad", fontSize: 14, marginTop: 20, marginBottom: 8 }}>3a. Limiter Unavailable</h3>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 sequenceDiagram
     participant C as Client
     participant S as Sidecar :9090
@@ -763,7 +766,7 @@ defer func() {
 
         {/* ── Idempotent Path ──────────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="idempotency-path">4. The Idempotent Request Path</h2>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 sequenceDiagram
     participant C as Client
     participant S as Sidecar :9090
@@ -831,8 +834,8 @@ sequenceDiagram
 
         {/* ── Stage Ownership ──────────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="stage-ownership">Stage Ownership Table</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Stage</th>
@@ -911,8 +914,8 @@ sequenceDiagram
 
         {/* ── Full Ownership Matrix ────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="ownership-matrix">Full State Ownership Matrix</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>State</th>
@@ -1079,8 +1082,8 @@ sequenceDiagram
 
         {/* ── Visibility ───────────────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="visibility">Strong vs Eventual Visibility</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Operation</th>
@@ -1111,7 +1114,7 @@ sequenceDiagram
 
         {/* ── Consistency Diagram ──────────────────────────────────────── */}
         <h2 className="guide-sub-heading" id="consistency-diagram">Consistency Boundary Diagram</h2>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 flowchart LR
     subgraph SC["Sidecar Process (per replica)"]
         DC["denial_cache\\nsync.Map\\n30ms TTL\\ndenial-only"]
@@ -1310,7 +1313,7 @@ func configKey(level, id string) string {
           compare-and-swap approaches. Multi-key Lua (used by hierarchical quotas) extends this atomicity
           across four keys in one invocation.
         </p>
-        <RLCallout variant="limitation" title="Redis Cluster incompatibility">
+        <Limitation title="Redis Cluster incompatibility">
           <code>hierarchical.lua</code> touches four keys across separate namespaces (
           <code>rate:global</code>, <code>rate:tenant:*</code>, <code>rate:user:*</code>,{" "}
           <code>rate:endpoint:*:*</code>) in a single <code>EVALSHA</code>. Redis Cluster hashes these keys to
@@ -1318,7 +1321,7 @@ func configKey(level, id string) string {
           single-master or Sentinel topology. Cluster support would require a shared hash tag on all keys (e.g.,{" "}
           <code>{"{rl}"}</code>), which concentrates all slot traffic to one shard — functionally equivalent to
           single-master. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="cb-why">Why Distributed Circuit Breakers?</h2>
         <p>
@@ -1371,32 +1374,28 @@ func configKey(level, id string) string {
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="invariants">Core System Invariants</h2>
-        <ul className="guide-bullets-list">
-          <li>
-            <strong>Invariant 1 — Quota Upper Bound:</strong> While Redis is reachable, admitted requests
-            never exceed the configured capacity for any tier. Redis single-threaded Lua execution serializes
-            all token deductions; no two concurrent callers can both observe sufficient tokens when only one
-            token remains. <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
-          </li>
-          <li>
-            <strong>Invariant 2 — Hierarchical All-or-Nothing:</strong> In a hierarchical check, if any one
-            tier denies the request, zero tokens are deducted from any tier. The <code>hierarchical.lua</code>{" "}
-            script has a binary branch: the deduction loop only executes when <code>allowed == 1</code>. On
-            denial, only refill timestamps are updated. <RLEvidenceBadge type="SOURCE-PROVEN" />
-          </li>
-          <li>
-            <strong>Invariant 3 — Idempotency Lease Integrity:</strong> A sidecar that acquired a lease with
-            fence token N cannot write a completion result after a newer fence holder with token N+1 has
-            written. The <code>complete.lua</code> script verifies the fence value atomically before any write.{" "}
-            <RLEvidenceBadge type="TEST-PROVEN" />
-          </li>
-          <li>
-            <strong>Invariant 4 — Denial Cache Safety:</strong> The sidecar denial cache can only accelerate
-            a denial that Redis has already issued. It never produces an admission. Allowed=true entries are
-            stored but ignored — the limiter is always re-consulted on the next request.{" "}
-            <RLEvidenceBadge type="SOURCE-PROVEN" />
-          </li>
-        </ul>
+        <Invariant title="Invariant 1 — Quota Upper Bound">
+          While Redis is reachable, admitted requests never exceed the configured capacity for any tier. Redis
+          single-threaded Lua execution serializes all token deductions; no two concurrent callers can both observe
+          sufficient tokens when only one token remains.{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </Invariant>
+        <Invariant title="Invariant 2 — Hierarchical All-or-Nothing">
+          In a hierarchical check, if any one tier denies the request, zero tokens are deducted from any tier. The{" "}
+          <code>hierarchical.lua</code> script has a binary branch: the deduction loop only executes when{" "}
+          <code>allowed == 1</code>. On denial, only refill timestamps are updated.{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" />
+        </Invariant>
+        <Invariant title="Invariant 3 — Idempotency Lease Integrity">
+          A sidecar that acquired a lease with fence token N cannot write a completion result after a newer fence
+          holder with token N+1 has written. The <code>complete.lua</code> script verifies the fence value atomically
+          before any write. <RLEvidenceBadge type="TEST-PROVEN" />
+        </Invariant>
+        <Invariant title="Invariant 4 — Denial Cache Safety">
+          The sidecar denial cache can only accelerate a denial that Redis has already issued. It never produces an
+          admission. Allowed=true entries are stored but ignored — the limiter is always re-consulted on the next
+          request. <RLEvidenceBadge type="SOURCE-PROVEN" />
+        </Invariant>
 
         <h2 className="guide-sub-heading" id="hierarchical-proof">Hierarchical All-or-Nothing Proof</h2>
         <p>
@@ -1500,18 +1499,20 @@ logging.Debug(ctx, "allowed cache entry ignored — will re-check limiter", ...)
           { value: "false", label: "CIRCUIT_FAIL_OPEN default", evidence: "SOURCE-PROVEN" },
           { value: "false", label: "IDEMPOTENCY_FAIL_OPEN default", evidence: "SOURCE-PROVEN" },
         ]} />
-        <ul className="guide-bullets-list">
-          <li>
-            <strong>Fail-Open (<code>FAIL_OPEN=true</code>):</strong> When the limiter is unreachable, traffic
-            is forwarded without rate-limit enforcement. Preserves request availability; risks downstream
-            overload if the limiter is down during a traffic spike.
-          </li>
-          <li>
-            <strong>Fail-Closed (default, <code>FAIL_OPEN=false</code>):</strong> Limiter unreachable &rarr;
-            503. Protects downstream systems; makes the limiter a hard availability dependency. The operational
-            posture: it is safer to drop traffic than to flood an unprotected backend.
-          </li>
-        </ul>
+        <TradeoffPanel title="Fail-Closed vs Fail-Open">
+          <ul className="guide-bullets-list" style={{ margin: 0 }}>
+            <li>
+              <strong>Fail-Open (<code>FAIL_OPEN=true</code>):</strong> When the limiter is unreachable, traffic
+              is forwarded without rate-limit enforcement. Preserves request availability; risks downstream
+              overload if the limiter is down during a traffic spike.
+            </li>
+            <li>
+              <strong>Fail-Closed (default, <code>FAIL_OPEN=false</code>):</strong> Limiter unreachable &rarr;
+              503. Protects downstream systems; makes the limiter a hard availability dependency. The operational
+              posture: it is safer to drop traffic than to flood an unprotected backend.
+            </li>
+          </ul>
+        </TradeoffPanel>
         <RLSourceExcerpt
           source="cmd/sidecar/main.go — FAIL_OPEN default"
           establishes="FAIL_OPEN is false unless the environment variable is explicitly set to the string 'true'. The default path always fails closed."
@@ -1532,13 +1533,13 @@ if err != nil {
           <code>rate:endpoint:{"{t}"}:{"{ep}"}</code>) have different prefixes and therefore hash to different
           slots in Redis Cluster, resulting in a <code>CROSSSLOT</code> error.
         </p>
-        <RLCallout variant="limitation" title="Accepted throughput ceiling">
+        <Limitation title="Accepted throughput ceiling">
           The single-master topology was accepted as the cost of atomic hierarchical correctness. Benchmarks
           show approximately 870 sustainable RPS with p99 latency around 11 ms. Adding a shared hash tag
           (e.g., <code>{"{rl}"}</code>) to all keys would permit Cluster usage but route all traffic to a
           single shard — no throughput benefit over single-master.{" "}
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" /> <RLEvidenceBadge type="BENCHMARK-PROVEN" />
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="denial-stale">Denial Cache Staleness Trade-off</h2>
         <RLStatGrid stats={[
@@ -1546,13 +1547,13 @@ if err != nil {
           { value: "5000ms", label: "OVERRIDE_CACHE_TTL_MS default", evidence: "SOURCE-PROVEN" },
           { value: "5s", label: "Graceful shutdown drain", evidence: "SOURCE-PROVEN" },
         ]} />
-        <p>
+        <TradeoffPanel title="Denial cache staleness">
           A 30 ms denial window reduces repeated calls to the limiter during burst rejections — if a user
           sends 1000 requests/s while denied, only one request per 30 ms hits the limiter, a 30&times;
           reduction. The cost is that a quota refill occurring inside a 30 ms window may be invisible to the
           sidecar for up to 30 ms. Allowed entries are explicitly never cached, preventing the inverse problem:
           a quota-freeze attack where a cached admission is replayed after the quota is exhausted.
-        </p>
+        </TradeoffPanel>
         <RLSourceExcerpt
           source="cmd/sidecar/main.go — CACHE_TTL_MS default"
           establishes="Hardcoded 30ms default; overridable via CACHE_TTL_MS environment variable."
@@ -1571,12 +1572,12 @@ if raw := os.Getenv("CACHE_TTL_MS"); raw != "" {
           the upstream receives the request but before <code>complete.lua</code> writes the result, a retry
           can trigger a second upstream call.
         </p>
-        <RLCallout variant="limitation" title="At-most-once, not exactly-once">
+        <Limitation title="At-most-once, not exactly-once">
           For workloads such as financial transactions where upstream side effects must be truly idempotent,
           the upstream service itself must implement idempotent database operations. The sidecar layer
           provides duplicate request suppression and response replay, not exactly-once delivery
           guarantees. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { section: "introduction", slug: "guarantees-and-limitations", title: "Guarantees & Limitations", note: "Full limitation surface" },

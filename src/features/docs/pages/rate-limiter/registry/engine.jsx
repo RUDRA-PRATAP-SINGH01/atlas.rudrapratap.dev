@@ -6,7 +6,7 @@ import {
   RLSourceExcerpt,
   RLRelatedPages,
   RLStatGrid,
-  RLEvidenceBadge
+  Limitation
 } from "../components/RLDocBlocks.jsx";
 
 export const enginePages = {
@@ -191,8 +191,8 @@ return {1, limit - count}`}</RLSourceExcerpt>
         <p>
           The two algorithms use different timestamp resolutions by design:
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Algorithm</th>
@@ -254,8 +254,8 @@ return {1, limit - count}`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="math">5. Mathematical Comparison</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Metric / Feature</th>
@@ -332,7 +332,7 @@ return {1, limit - count}`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="limitations">Limitations</h2>
-        <RLCallout variant="limitation" title="Documented constraints">
+        <Limitation title="Documented constraints">
           <ul style={{ margin: "8px 0 0 0", paddingLeft: 16 }}>
             <li>
               Token bucket uses second-resolution timestamps. Sub-second refill granularity requires
@@ -355,7 +355,7 @@ return {1, limit - count}`}</RLSourceExcerpt>
               extreme concurrency; values are clamped to [0, capacity] on every refill.
             </li>
           </ul>
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { slug: "redis-lua-atomicity", section: "rate-limiting-engine", title: "Redis + Lua Atomicity", note: "why every check runs inside a single Lua script" },
@@ -465,8 +465,8 @@ return {1, limit - count}`}</RLSourceExcerpt>
           The token bucket script takes 1 KEY and 3 ARGV values. Every field is intentional:
         </p>
 
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Parameter</th>
@@ -538,8 +538,8 @@ return {1, math.floor(new_tokens)}`}</RLSourceExcerpt>
           The sliding window script takes 1 KEY and 4 ARGV values. It uses a nanosecond-scored
           ZSET to store every in-window request as a unique member:
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Parameter</th>
@@ -706,8 +706,8 @@ return result, err`}</RLSourceExcerpt>
         </p>
 
         <h2 className="guide-sub-heading" id="complexity">7. Script Complexity</h2>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Script</th>
@@ -760,7 +760,7 @@ return result, err`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="cluster">9. Redis Cluster Implications</h2>
-        <RLCallout variant="limitation" title="Multi-key scripts and Redis Cluster">
+        <Limitation title="Multi-key scripts and Redis Cluster">
           Redis Cluster distributes keys across 16,384 hash slots. A Lua script that accesses
           multiple keys in a single call requires all those keys to hash to the same slot. If they
           do not, Redis returns <code>CROSSSLOT Keys in request don't hash to the same slot</code>.
@@ -774,7 +774,7 @@ return result, err`}</RLSourceExcerpt>
           These hash to different slots. Hash-tag workarounds concentrate all traffic on one slot,
           defeating the purpose of Cluster. The hierarchical engine requires standalone Redis or
           Sentinel (single-master topology).
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="rationale">Design Rationale</h2>
         <ul className="guide-bullets-list">
@@ -824,7 +824,7 @@ return result, err`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="limitations">Limitations</h2>
-        <RLCallout variant="limitation" title="Documented constraints">
+        <Limitation title="Documented constraints">
           <ul style={{ margin: "8px 0 0 0", paddingLeft: 16 }}>
             <li>
               Lua scripts block the Redis event loop. A script that performs many Redis sub-calls
@@ -849,7 +849,7 @@ return result, err`}</RLSourceExcerpt>
               to the same slot — which concentrates all traffic to one cluster node.
             </li>
           </ul>
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { slug: "algorithm-explorer", section: "rate-limiting-engine", title: "Algorithm Explorer", note: "the Lua scripts — full keys/args/returns and timestamp precision" },
@@ -929,8 +929,8 @@ return result, err`}</RLSourceExcerpt>
           Each tier maps to a Redis HASH key. The key patterns are fixed and used as KEYS in
           the Lua script call:
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Tier</th>
@@ -1060,8 +1060,8 @@ return {0, math.floor(min_remaining)}`}</RLSourceExcerpt>
           Consider a concrete hierarchy for a tenant <code>acme</code>, user <code>alice</code>,
           path <code>/checkout</code>:
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Tier</th>
@@ -1154,7 +1154,7 @@ return {0, math.floor(min_remaining)}`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="cluster">10. Redis Cluster Limitation</h2>
-        <RLCallout variant="limitation" title="Redis Cluster incompatibility">
+        <Limitation title="Redis Cluster incompatibility">
           Redis Cluster routes keys to 16,384 hash slots. The four hierarchical keys
           (<code>rate:global:default</code>, <code>rate:tenant:{"{tenantID}"}</code>,
           <code>rate:user:{"{userID}"}</code>, <code>rate:ep:{"{tenantID}"}:{"{path}"}</code>)
@@ -1167,7 +1167,7 @@ return {0, math.floor(min_remaining)}`}</RLSourceExcerpt>
           <br /><br />
           The hierarchical engine is designed for standalone Redis or Redis Sentinel (single active
           master). Flat token bucket and sliding window scripts (1 key each) are Cluster-compatible.
-        </RLCallout>
+        </Limitation>
 
         <h2 className="guide-sub-heading" id="rationale">Design Rationale</h2>
         <ul className="guide-bullets-list">
@@ -1217,7 +1217,7 @@ return {0, math.floor(min_remaining)}`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="limitations">Limitations</h2>
-        <RLCallout variant="limitation" title="Documented constraints">
+        <Limitation title="Documented constraints">
           <ul style={{ margin: "8px 0 0 0", paddingLeft: 16 }}>
             <li>
               Hierarchical checks use token bucket math only. Sliding window is not supported for
@@ -1240,7 +1240,7 @@ return {0, math.floor(min_remaining)}`}</RLSourceExcerpt>
               negates horizontal scaling.
             </li>
           </ul>
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { slug: "redis-lua-atomicity", section: "rate-limiting-engine", title: "Redis + Lua Atomicity", note: "why single-script execution eliminates the TOCTOU race" },
@@ -1291,8 +1291,8 @@ return {0, math.floor(min_remaining)}`}</RLSourceExcerpt>
           The multi-replica correctness test spins up the following processes against a shared
           Redis master:
         </p>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Process</th>
@@ -1534,7 +1534,7 @@ assert.Equal(t, int64(50), denied)`}</RLSourceExcerpt>
         </ul>
 
         <h2 className="guide-sub-heading" id="limitations">Limitations</h2>
-        <RLCallout variant="limitation" title="Documented constraints">
+        <Limitation title="Documented constraints">
           <ul style={{ margin: "8px 0 0 0", paddingLeft: 16 }}>
             <li>
               Correctness depends on Redis master availability. During failover (typically 1–30s for
@@ -1559,7 +1559,7 @@ assert.Equal(t, int64(50), denied)`}</RLSourceExcerpt>
               soak tests under mixed traffic patterns and churning key populations are pending.
             </li>
           </ul>
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { slug: "redis-lua-atomicity", section: "rate-limiting-engine", title: "Redis + Lua Atomicity", note: "why EVALSHA is the correctness foundation for all replicas" },
@@ -1627,8 +1627,8 @@ assert.Equal(t, int64(50), denied)`}</RLSourceExcerpt>
             detects the generation advance and invalidates the local cache.
           </li>
         </ol>
-        <div style={{ overflowX: "auto", margin: "16px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "10px 8px" }}>Level</th>
@@ -1820,7 +1820,7 @@ func (l *HierarchicalLimiter) AllowWithParams(ctx context.Context, levels []Leve
         </ul>
 
         <h2 className="guide-sub-heading" id="limitations">Limitations</h2>
-        <RLCallout variant="limitation" title="Documented constraints">
+        <Limitation title="Documented constraints">
           <ul style={{ margin: "8px 0 0 0", paddingLeft: 16 }}>
             <li>
               Override propagation is eventually consistent. In the failure path (generation GET
@@ -1843,7 +1843,7 @@ func (l *HierarchicalLimiter) AllowWithParams(ctx context.Context, levels []Leve
               next generation check.
             </li>
           </ul>
-        </RLCallout>
+        </Limitation>
 
         <RLRelatedPages pages={[
           { slug: "hierarchical-quotas", section: "rate-limiting-engine", title: "Hierarchical Quotas", note: "where resolved overrides feed into Lua ARGV" },

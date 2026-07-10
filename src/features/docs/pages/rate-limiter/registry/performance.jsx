@@ -72,8 +72,8 @@ export const performancePages = {
           <code>benchmarks/scripts/parse-k6-stream.py</code> over NDJSON metric streams; they are reproducible but not
           identical to the summary JSON percentile fields. Tables below label each metric source explicitly.
         </RLCallout>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Metric Class</th>
@@ -143,8 +143,8 @@ export const performancePages = {
           Commit <code style={{ color: "#ff5cad" }}>{COMMIT}</code>. Actual RPS from raw summary JSON{" "}
           <RLEvidenceBadge type="BENCHMARK-PROVEN" />; p99 from stream parser (labeled inline).
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Workload</th>
@@ -208,8 +208,8 @@ export const performancePages = {
         </p>
 
         <h2 className="guide-sub-heading" id="algorithms">Algorithm Comparison at Peak</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Algorithm</th>
@@ -272,8 +272,8 @@ export const performancePages = {
           Sequential tests at 1,000 target RPS compare direct limiter checks against sidecar-proxied end-to-end calls.
           p50 and p95 are <RLEvidenceBadge type="BENCHMARK-PROVEN" /> from raw summary JSON; p99 is stream-derived.
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Execution Path</th>
@@ -381,8 +381,8 @@ export const performancePages = {
           { value: "~23 ms", label: "Open circuit fast-fail (503)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Failure Scenario</th>
@@ -501,8 +501,8 @@ export const performancePages = {
           A correctness benchmark sent 60 requests across 3 sidecar replicas against a 10 RPS global cap. Results:{" "}
           <RLEvidenceBadge type="BENCHMARK-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Metric</th>
@@ -580,8 +580,8 @@ export const performancePages = {
           { value: "0%", label: "Non-429 error rate", color: "#ff7ebd", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Metric</th>
@@ -728,8 +728,8 @@ export const performancePages = {
           p99 with configurable percentile (default 70th stream window). Tag as stream-derived in documentation.
         </RLCallout>
 
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Benchmark</th>
@@ -748,8 +748,8 @@ export const performancePages = {
               ].map(([name, summary, stream]) => (
                 <tr key={name} style={{ borderBottom: "1px solid #27272a" }}>
                   <td style={{ padding: "12px 8px", fontWeight: "bold" }}>{name}</td>
-                  <td style={{ padding: "12px 8px" }}><code>raw/{"{summary}"}</code></td>
-                  <td style={{ padding: "12px 8px" }}><code>raw/{"{stream}"}</code></td>
+                  <td style={{ padding: "12px 8px" }}><code>raw/{summary}</code></td>
+                  <td style={{ padding: "12px 8px" }}><code>raw/{stream}</code></td>
                 </tr>
               ))}
             </tbody>

@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,10 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  DecisionRecord,
+  TradeoffPanel
 } from "../components/RLDocBlocks.jsx";
 
 const COMMIT = "a1de9ec";
@@ -44,19 +46,19 @@ export const journalPages = {
         <p>
           We chose an edge sidecar proxy pattern (<code>cmd/sidecar</code>) over native language coordination libraries.
         </p>
-        <ul className="guide-bullets-list">
-          <li>
-            <strong>The Trade-off:</strong> Intercepting request routing introduces a network hop, adding approximately{" "}
-            <strong>+3.7 ms p50</strong> latency overhead at sustainable throughput.{" "}
-            <RLEvidenceBadge type="BENCHMARK-PROVEN" />
-          </li>
-          <li>
-            <strong>The Rationale:</strong> Library integrations tightly couple rate limiting logic and Redis connection
-            management with the application runtime. If an application instance is busy with garbage collection or high
-            CPU usage, connection drops propagate. The sidecar isolates this logic completely, allowing independent
-            scaling, clean upgrades, and language-agnostic integration.
-          </li>
-        </ul>
+        <DecisionRecord
+          decision="Edge sidecar proxy vs language libraries"
+          chosen="cmd/sidecar transparent proxy"
+          alternatives={["Native language coordination libraries"]}
+          tradeoffs={
+            <>
+              Intercepting request routing introduces a network hop, adding approximately{" "}
+              <strong>+3.7 ms p50</strong> latency overhead at sustainable throughput.{" "}
+              <RLEvidenceBadge type="BENCHMARK-PROVEN" />
+            </>
+          }
+          rationale="Library integrations tightly couple rate limiting logic and Redis connection management with the application runtime. If an application instance is busy with garbage collection or high CPU usage, connection drops propagate. The sidecar isolates this logic completely, allowing independent scaling, clean upgrades, and language-agnostic integration."
+        />
 
         <RLSourceExcerpt
           source="benchmarks — latency comparison @ 1000 target RPS (commit a1de9ec)"
@@ -70,18 +72,20 @@ Delta (approx.)     : p50 +3.73 ms`}</RLSourceExcerpt>
           We evaluated coordinating token bucket updates using Redis transactions (<code>MULTI</code>/<code>EXEC</code>)
           or distributed locks (Redlock).
         </p>
-        <ul className="guide-bullets-list">
-          <li>
-            <strong>The Trade-off:</strong> Lua scripts block all commands in the Redis engine during execution,
-            serialized to a single thread.
-          </li>
-          <li>
-            <strong>The Rationale:</strong> Distributed locks require multiple network round-trips to acquire, verify,
-            and release locks, increasing check latency from ~1.1 ms to over 15 ms under load. Running checks inside Lua
-            scripts evaluates limits, updates tokens, and writes keys in a <strong>single atomic round-trip</strong>,
-            ensuring high throughput. <RLEvidenceBadge type="SOURCE-PROVEN" />
-          </li>
-        </ul>
+        <DecisionRecord
+          decision="Atomic Lua scripts vs distributed locking"
+          chosen="Lua EVALSHA inside Redis"
+          alternatives={["MULTI/EXEC transactions", "Redlock distributed locks"]}
+          tradeoffs="Lua scripts block all commands in the Redis engine during execution, serialized to a single thread."
+          rationale={
+            <>
+              Distributed locks require multiple network round-trips to acquire, verify, and release locks, increasing
+              check latency from ~1.1 ms to over 15 ms under load. Running checks inside Lua scripts evaluates limits,
+              updates tokens, and writes keys in a <strong>single atomic round-trip</strong>, ensuring high throughput.{" "}
+              <RLEvidenceBadge type="SOURCE-PROVEN" />
+            </>
+          }
+        />
 
         <RLSourceExcerpt
           source="internal/limiter/lua/token_bucket.lua — atomic read-refill-check-write"
@@ -114,19 +118,26 @@ return {1, math.floor(new_tokens)}`}</RLSourceExcerpt>
           For runtime configuration overrides, we rejected Redis Pub/Sub channels in favor of a monotonic version
           generation counter (<code>config:generation</code>).
         </p>
-        <ul className="guide-bullets-list">
-          <li>
-            <strong>The Trade-off:</strong> Replicas query <code>config:generation</code> before running checks, adding
-            a fast lookup call (typically collapsed via local caches between invalidations).
-          </li>
-          <li>
-            <strong>The Rationale:</strong> Pub/Sub is a fire-and-forget channel. If a rate-limiter replica is
-            temporarily offline or disconnected during a VPC network partition, it will <strong>miss the invalidation
-            message</strong>, resulting in permanent configuration drift. Monotonic version checks guarantee consistency:
-            a recovering replica compares generations, detects a mismatch, and immediately invalidates its local cache.{" "}
-            <RLEvidenceBadge type="SOURCE-PROVEN" />
-          </li>
-        </ul>
+        <DecisionRecord
+          decision="Monotonic generations vs Pub/Sub invalidation"
+          chosen="config:generation pull-based counter"
+          alternatives={["Redis Pub/Sub invalidation channels"]}
+          tradeoffs={
+            <>
+              Replicas query <code>config:generation</code> before running checks, adding a fast lookup call (typically
+              collapsed via local caches between invalidations).
+            </>
+          }
+          rationale={
+            <>
+              Pub/Sub is a fire-and-forget channel. If a rate-limiter replica is temporarily offline or disconnected
+              during a VPC network partition, it will <strong>miss the invalidation message</strong>, resulting in
+              permanent configuration drift. Monotonic version checks guarantee consistency: a recovering replica
+              compares generations, detects a mismatch, and immediately invalidates its local cache.{" "}
+              <RLEvidenceBadge type="SOURCE-PROVEN" />
+            </>
+          }
+        />
 
         <RLSourceExcerpt
           source="internal/override/store.go — RefreshGeneration"
@@ -332,8 +343,8 @@ end`}</RLSourceExcerpt>
           <li><strong>Over-Admission Rate:</strong> Reduced to strictly <strong>0%</strong>, ensuring exact limit compliance.</li>
         </ul>
 
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Phase</th>
@@ -423,10 +434,10 @@ end`}</RLSourceExcerpt>
           The proxy evaluates limits locally against its cached slice, syncing consumption asynchronously in the
           background. This shifts the majority of checks to memory-speed lookups, reducing database network traffic.
         </p>
-        <RLCallout variant="limitation" title="Consistency trade-off">
+        <TradeoffPanel title="Consistency trade-off">
           Local slices introduce eventual consistency between sidecar replicas. Over-admission is bounded by slice size
           but non-zero — acceptable only for soft quotas, not hard billing limits.
-        </RLCallout>
+        </TradeoffPanel>
 
         <h2 className="guide-sub-heading" id="cluster-sharding">
           2. Consistent Hashing Cluster Rings <RLEvidenceBadge type="FUTURE DESIGN" />
@@ -440,7 +451,7 @@ end`}</RLSourceExcerpt>
           nodes. Hash tags (e.g. <code>rate:{"{tenant}"}:user:123</code>) would be required for hierarchical multi-key
           Lua scripts.
         </p>
-        <DocsMermaid chart={`
+        <MermaidDiagram chart={`
 graph TD
     Client[Proxy Client] -->|Hash Key: user_993| Ring[Consistent Hash Ring]
     Ring -->|Slot 4821| Shard1[Redis Shard Master 1]

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../../features/docs/components/system/docs-system.css";
 
 @font-face {
   font-family: "Poppins";

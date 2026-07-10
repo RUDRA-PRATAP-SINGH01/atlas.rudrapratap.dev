@@ -1,5 +1,4 @@
 import React from "react";
-import DocsMermaid from "@/features/docs/components/DocsMermaid";
 import {
   RLThesis,
   RLQuickModel,
@@ -7,7 +6,10 @@ import {
   RLCallout,
   RLSourceExcerpt,
   RLRelatedPages,
-  RLStatGrid
+  RLStatGrid,
+  MermaidDiagram,
+  DocsGrid,
+  Limitation
 } from "../components/RLDocBlocks.jsx";
 
 const traceSpanTimeline = `
@@ -60,29 +62,29 @@ export const observabilityPages = {
         </RLQuickModel>
 
         <h2 className="guide-sub-heading" id="pillars">Telemetry Pillars</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16, margin: "16px 0 24px" }}>
-          <div style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 16 }}>
-            <h3 style={{ color: "#ffffff", fontSize: 14, fontWeight: "bold", margin: "0 0 8px 0" }}>Metrics (Prometheus)</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
+        <DocsGrid min={260}>
+          <div className="docs-grid-card">
+            <h3 className="docs-grid-card__title">Metrics (Prometheus)</h3>
+            <div className="docs-grid-card__body">
               Counters and histograms registered in <code>internal/metrics/metrics.go</code>. Scrape <code>limiter:8080/metrics</code> and <code>sidecar:9090/metrics</code>. Key families: <code>rate_limiter_requests_total{"{handler, allowed}"}</code>, <code>circuit_breaker_state{"{target}"}</code>, <code>routing_gateway_health_score</code>.
-            </p>
+            </div>
             <div style={{ marginTop: 8 }}><RLEvidenceBadge type="SOURCE-PROVEN" /></div>
           </div>
-          <div style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 16 }}>
-            <h3 style={{ color: "#ffffff", fontSize: 14, fontWeight: "bold", margin: "0 0 8px 0" }}>Distributed Tracing (OpenTelemetry)</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
+          <div className="docs-grid-card">
+            <h3 className="docs-grid-card__title">Distributed Tracing (OpenTelemetry)</h3>
+            <div className="docs-grid-card__body">
               Spans created via <code>internal/telemetry</code> helpers. OTLP/HTTP export defaults to <code>http://localhost:4318</code> (<code>OTEL_EXPORTER_OTLP_ENDPOINT</code>). W3C <code>traceparent</code> propagates sidecar → limiter → Redis child spans.
-            </p>
+            </div>
             <div style={{ marginTop: 8 }}><RLEvidenceBadge type="SOURCE-PROVEN" /></div>
           </div>
-          <div style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 16 }}>
-            <h3 style={{ color: "#ffffff", fontSize: 14, fontWeight: "bold", margin: "0 0 8px 0" }}>Structured Logs (log/slog)</h3>
-            <p style={{ margin: 0, fontSize: 13, color: "#a1a1aa", lineHeight: 1.6 }}>
+          <div className="docs-grid-card">
+            <h3 className="docs-grid-card__title">Structured Logs (log/slog)</h3>
+            <div className="docs-grid-card__body">
               Go standard library <code>log/slog</code> with JSON handler. Hot-path quota checks stay silent; state transitions (circuit opens, audit drops) emit searchable records with <code>request_id</code> and <code>trace_id</code>.
-            </p>
+            </div>
             <div style={{ marginTop: 8 }}><RLEvidenceBadge type="SOURCE-PROVEN" /></div>
           </div>
-        </div>
+        </DocsGrid>
 
         <RLStatGrid stats={[
           { value: ":8080", label: "Limiter /metrics endpoint", evidence: "SOURCE-PROVEN" },
@@ -186,7 +188,7 @@ export const observabilityPages = {
         <p>
           A single API call produces a nested span tree spanning both services:
         </p>
-        <DocsMermaid chart={traceSpanTimeline} />
+        <MermaidDiagram chart={traceSpanTimeline} />
 
         <h2 className="guide-sub-heading" id="span-errors">429 Status Semantics</h2>
         <RLCallout variant="warning" title="429 is business logic, not a span error">
@@ -195,8 +197,8 @@ export const observabilityPages = {
         </RLCallout>
 
         <h2 className="guide-sub-heading" id="span-attributes">Key Span Attributes</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Span Name</th>
@@ -348,8 +350,8 @@ logging.Debug(ctx, "allowed cache entry ignored",
           Verified metric names and labels from <code>internal/metrics/metrics.go</code>:{" "}
           <RLEvidenceBadge type="SOURCE-PROVEN" />
         </p>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Metric</th>
@@ -390,10 +392,10 @@ logging.Debug(ctx, "allowed cache entry ignored",
         </RLCallout>
 
         <h2 className="guide-sub-heading" id="cardinality">Cardinality Control</h2>
-        <RLCallout variant="limitation" title="Cardinality safety">
+        <Limitation title="Cardinality safety">
           High-cardinality labels (user IDs, request IDs, tenant IDs as metric labels) are strictly excluded. Including them would generate millions of unique time series and crash Prometheus. Per-user visibility belongs in the audit log and OpenTelemetry traces, not time-series labels.
           <span style={{ display: "block", marginTop: 8 }}><RLEvidenceBadge type="DOCUMENTED LIMITATION" /></span>
-        </RLCallout>
+        </Limitation>
         <p>Safe label dimensions in this codebase:</p>
         <ul className="guide-bullets-list">
           <li><code>handler</code> — bounded set of HTTP handler names (<code>/check</code>, <code>/check_hierarchical</code>, etc.).</li>
@@ -466,8 +468,8 @@ logging.Debug(ctx, "allowed cache entry ignored",
         </ol>
 
         <h2 className="guide-sub-heading" id="panels">Key Panels</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Panel</th>
@@ -546,7 +548,7 @@ logging.Debug(ctx, "allowed cache entry ignored",
         <p>
           When a client reports intermittent checkout failures, execute this checklist:
         </p>
-        <DocsMermaid chart={incidentWorkflow} />
+        <MermaidDiagram chart={incidentWorkflow} />
 
         <h2 className="guide-sub-heading" id="debugging">Debugging Example</h2>
         <p>
@@ -565,8 +567,8 @@ logging.Debug(ctx, "allowed cache entry ignored",
         </RLCallout>
 
         <h2 className="guide-sub-heading" id="mapping">Metric-to-Log Field Mapping</h2>
-        <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="docs-table-wrap">
+          <table className="docs-table">
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Prometheus Metric</th>
