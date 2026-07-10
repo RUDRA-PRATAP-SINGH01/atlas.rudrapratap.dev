@@ -1,25 +1,34 @@
 import React from "react";
 import GoCodeBlock from "@/features/docs/components/GoCodeBlock";
 
+/** Pink-only evidence badge palette — intensity varies by evidence strength, hue stays pink. */
 const EVIDENCE_COLORS = {
-  "SOURCE-PROVEN": { bg: "#22c55e20", color: "#22c55e" },
-  "TEST-PROVEN": { bg: "#3b82f620", color: "#60a5fa" },
-  "RUNTIME-PROVEN": { bg: "#a855f720", color: "#c084fc" },
-  "BENCHMARK-PROVEN": { bg: "#f59e0b20", color: "#fbbf24" },
-  "DOCUMENTED LIMITATION": { bg: "#ef444420", color: "#f87171" },
-  "FUTURE DESIGN": { bg: "#71717a20", color: "#a1a1aa" }
+  "SOURCE-PROVEN": { bg: "rgba(255,92,173,0.14)", color: "#ff5cad" },
+  "TEST-PROVEN": { bg: "rgba(255,92,173,0.10)", color: "#ff7ebd" },
+  "RUNTIME-PROVEN": { bg: "rgba(219,69,119,0.14)", color: "#db4577" },
+  "BENCHMARK-PROVEN": { bg: "rgba(255,143,191,0.14)", color: "#ff8fbf" },
+  "DOCUMENTED LIMITATION": { bg: "rgba(255,92,173,0.08)", color: "#e879a9" },
+  "FUTURE DESIGN": { bg: "rgba(255,92,173,0.06)", color: "#c45a8a" }
+};
+
+const PINK = {
+  accent: "#ff5cad",
+  soft: "rgba(255,92,173,0.08)",
+  border: "rgba(255,92,173,0.25)",
+  text: "#ffb3d4",
+  muted: "#e879a9"
 };
 
 export function RLThesis({ children }) {
   return (
     <div style={{
-      background: "linear-gradient(135deg, rgba(255,92,173,0.08) 0%, rgba(219,69,119,0.04) 100%)",
-      border: "1px solid rgba(255,92,173,0.25)",
+      background: `linear-gradient(135deg, ${PINK.soft} 0%, rgba(219,69,119,0.04) 100%)`,
+      border: `1px solid ${PINK.border}`,
       borderRadius: 10,
       padding: "20px 24px",
       marginBottom: 24
     }}>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", color: "#ff5cad", marginBottom: 8, textTransform: "uppercase" }}>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", color: PINK.accent, marginBottom: 8, textTransform: "uppercase" }}>
         Page Thesis
       </div>
       <p style={{ fontSize: 15, lineHeight: 1.75, color: "#e4e4e7", margin: 0 }}>{children}</p>
@@ -31,7 +40,7 @@ export function RLQuickModel({ children }) {
   return (
     <div style={{
       background: "rgba(39, 39, 42, 0.35)",
-      border: "1px solid rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,92,173,0.12)",
       borderRadius: 8,
       padding: "14px 18px",
       marginBottom: 24,
@@ -39,7 +48,7 @@ export function RLQuickModel({ children }) {
       lineHeight: 1.7,
       color: "#d4d4d8"
     }}>
-      <strong style={{ color: "#fff", display: "block", marginBottom: 6 }}>Quick mental model</strong>
+      <strong style={{ color: PINK.accent, display: "block", marginBottom: 6 }}>Quick mental model</strong>
       {children}
     </div>
   );
@@ -64,12 +73,13 @@ export function RLEvidenceBadge({ type }) {
 }
 
 export function RLCallout({ variant = "info", title, children }) {
-  const variants = {
-    info: { bg: "rgba(59, 130, 246, 0.05)", border: "rgba(59, 130, 246, 0.2)", title: "#93c5fd", text: "#bfdbfe" },
-    warning: { bg: "rgba(234, 179, 8, 0.05)", border: "rgba(234, 179, 8, 0.2)", title: "#fbbf24", text: "#fde68a" },
-    limitation: { bg: "rgba(239, 68, 68, 0.05)", border: "rgba(239, 68, 68, 0.2)", title: "#f87171", text: "#fca5a5" }
+  // All variants use pink shades only — intensity encodes severity.
+  const intensity = {
+    info: { bg: "rgba(255,92,173,0.05)", border: "rgba(255,92,173,0.22)", title: PINK.accent, text: PINK.text },
+    warning: { bg: "rgba(255,92,173,0.08)", border: "rgba(255,92,173,0.35)", title: "#ff7ebd", text: "#ffb3d4" },
+    limitation: { bg: "rgba(219,69,119,0.08)", border: "rgba(219,69,119,0.35)", title: "#db4577", text: "#e879a9" }
   };
-  const v = variants[variant] || variants.info;
+  const v = intensity[variant] || intensity.info;
   return (
     <div style={{ background: v.bg, border: `1px solid ${v.border}`, borderRadius: 8, padding: "14px 18px", margin: "16px 0" }}>
       {title && <div style={{ color: v.title, fontWeight: 700, fontSize: 13, marginBottom: 6 }}>{title}</div>}
@@ -85,7 +95,7 @@ export function RLSourceExcerpt({ source, language = "go", children, establishes
         Implementation excerpt
       </div>
       <div style={{ fontSize: 12, color: "#a1a1aa", marginBottom: 8 }}>
-        Source: <code style={{ color: "#ff5cad" }}>{source}</code>
+        Source: <code style={{ color: PINK.accent }}>{source}</code>
       </div>
       {language === "go" ? (
         <GoCodeBlock>{children}</GoCodeBlock>
@@ -111,7 +121,7 @@ export function RLRelatedPages({ pages }) {
       <ul className="guide-bullets-list" style={{ fontSize: 13 }}>
         {pages.map((p) => (
           <li key={p.slug}>
-            <a href={`/docs/distributed-rate-limiter/${p.section}/${p.slug}`} style={{ color: "#ff5cad" }}>{p.title}</a>
+            <a href={`/docs/distributed-rate-limiter/${p.section}/${p.slug}`} style={{ color: PINK.accent }}>{p.title}</a>
             {p.note && <span style={{ color: "#71717a" }}> — {p.note}</span>}
           </li>
         ))}
@@ -124,8 +134,8 @@ export function RLStatGrid({ stats }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, margin: "16px 0 24px" }}>
       {stats.map((s) => (
-        <div key={s.label} style={{ background: "#111113", border: "1px solid #27272a", borderRadius: 8, padding: 14, textAlign: "center" }}>
-          <div style={{ fontSize: 24, fontWeight: 800, color: s.color || "#ff5cad" }}>{s.value}</div>
+        <div key={s.label} style={{ background: "#111113", border: "1px solid rgba(255,92,173,0.15)", borderRadius: 8, padding: 14, textAlign: "center" }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: PINK.accent }}>{s.value}</div>
           <div style={{ fontSize: 11, color: "#a1a1aa", marginTop: 4, lineHeight: 1.4 }}>{s.label}</div>
           {s.evidence && <div style={{ marginTop: 6 }}><RLEvidenceBadge type={s.evidence} /></div>}
         </div>

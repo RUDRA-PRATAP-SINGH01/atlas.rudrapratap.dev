@@ -304,7 +304,7 @@ sentinel parallel-syncs mymaster 1`}</RLSourceExcerpt>
               ].map(([v, def, purpose, evidence]) => (
                 <tr key={v} style={{ borderBottom: "1px solid #27272a" }}>
                   <td style={{ padding: "12px 8px", fontWeight: "bold", fontFamily: "monospace", color: "#ff5cad" }}>{v}</td>
-                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#c084fc" }}>{def}</td>
+                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#ff5cad" }}>{def}</td>
                   <td style={{ padding: "12px 8px", color: "#a1a1aa" }}>{purpose}</td>
                   <td style={{ padding: "12px 8px" }}><RLEvidenceBadge type={evidence} /></td>
                 </tr>
@@ -347,7 +347,7 @@ AllowQueryUserID:   getEnv("ALLOW_QUERY_USER_ID", "false") == "true",`}</RLSourc
               ].map(([v, def, purpose, evidence]) => (
                 <tr key={v} style={{ borderBottom: "1px solid #27272a" }}>
                   <td style={{ padding: "12px 8px", fontWeight: "bold", fontFamily: "monospace", color: "#ff5cad" }}>{v}</td>
-                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#c084fc" }}>{def}</td>
+                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#ff5cad" }}>{def}</td>
                   <td style={{ padding: "12px 8px", color: "#a1a1aa" }}>{purpose}</td>
                   <td style={{ padding: "12px 8px" }}><RLEvidenceBadge type={evidence} /></td>
                 </tr>
@@ -394,7 +394,7 @@ allowQueryUserID := os.Getenv("ALLOW_QUERY_USER_ID") == "true"`}</RLSourceExcerp
               ].map(([v, def, purpose]) => (
                 <tr key={v} style={{ borderBottom: "1px solid #27272a" }}>
                   <td style={{ padding: "12px 8px", fontWeight: "bold", fontFamily: "monospace", color: "#ff5cad" }}>{v}</td>
-                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#c084fc" }}>{def}</td>
+                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#ff5cad" }}>{def}</td>
                   <td style={{ padding: "12px 8px", color: "#a1a1aa" }}>{purpose}</td>
                 </tr>
               ))}
@@ -438,8 +438,8 @@ allowQueryUserID := os.Getenv("ALLOW_QUERY_USER_ID") == "true"`}</RLSourceExcerp
                 ["REDIS_ADDRS", "REDIS_ADDR (standalone) or REDIS_SENTINEL_ADDRS (sentinel)"]
               ].map(([wrong, correct]) => (
                 <tr key={wrong} style={{ borderBottom: "1px solid #27272a" }}>
-                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#f87171", textDecoration: "line-through" }}>{wrong}</td>
-                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#22c55e" }}>{correct}</td>
+                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#db4577", textDecoration: "line-through" }}>{wrong}</td>
+                  <td style={{ padding: "12px 8px", fontFamily: "monospace", color: "#ff5cad" }}>{correct}</td>
                 </tr>
               ))}
             </tbody>
@@ -574,7 +574,7 @@ func checkLimiterHealth(ctx context.Context, client *http.Client, limiterURL str
         </RLQuickModel>
 
         <RLStatGrid stats={[
-          { value: "5s", label: "HTTP shutdown timeout", color: "#22c55e", evidence: "SOURCE-PROVEN" },
+          { value: "5s", label: "HTTP shutdown timeout", color: "#ff5cad", evidence: "SOURCE-PROVEN" },
           { value: "5", label: "Limiter shutdown steps", evidence: "SOURCE-PROVEN" }
         ]} />
 
@@ -588,7 +588,7 @@ flowchart TD
     OTEL --> Redis["5. redisclient.Close(rdb)\\nOnly if auditStore.RedisCloseSafe()"]
     Redis --> Exit["Process exit"]
     style SIG fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style Exit fill:#1e1e2e,stroke:#22c55e,color:#fff
+    style Exit fill:#1e1e2e,stroke:#ff5cad,color:#fff
         `} />
 
         <RLSourceExcerpt

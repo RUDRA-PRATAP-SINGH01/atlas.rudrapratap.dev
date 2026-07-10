@@ -36,8 +36,8 @@ export const journalPages = {
 
         <RLStatGrid stats={[
           { value: "+3.73 ms", label: "Sidecar p50 overhead vs direct /check @ ~871 RPS", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
-          { value: "1 RTT", label: "Lua quota check (vs 2–3 RTTs for Redlock)", color: "#22c55e", evidence: "SOURCE-PROVEN" },
-          { value: "config:generation", label: "Monotonic override invalidation key", color: "#c084fc", evidence: "SOURCE-PROVEN" }
+          { value: "1 RTT", label: "Lua quota check (vs 2–3 RTTs for Redlock)", color: "#ff5cad", evidence: "SOURCE-PROVEN" },
+          { value: "config:generation", label: "Monotonic override invalidation key", color: "#ff5cad", evidence: "SOURCE-PROVEN" }
         ]} />
 
         <h2 className="guide-sub-heading" id="sidecar-choice">1. Edge Sidecar Proxies vs. Library Integrations</h2>
@@ -297,8 +297,8 @@ end`}</RLSourceExcerpt>
 
         <RLStatGrid stats={[
           { value: "~200 RPS", label: "Early prototype ceiling (journal narrative)", color: "#71717a" },
-          { value: "872 RPS", label: "Sustainable sliding window (sidecar e2e @ 1K target)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" },
-          { value: "4,161 RPS", label: "Token bucket peak (direct @ 5K target)", color: "#fbbf24", evidence: "BENCHMARK-PROVEN" },
+          { value: "872 RPS", label: "Sustainable sliding window (sidecar e2e @ 1K target)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
+          { value: "4,161 RPS", label: "Token bucket peak (direct @ 5K target)", color: "#ff8fbf", evidence: "BENCHMARK-PROVEN" },
           { value: "17,662 RPS", label: "Denial cache hammer throughput", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" }
         ]} />
 

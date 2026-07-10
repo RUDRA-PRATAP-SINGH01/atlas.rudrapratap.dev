@@ -61,8 +61,8 @@ export const performancePages = {
 
         <RLStatGrid stats={[
           { value: "~872 RPS", label: "Max sustainable sidecar e2e (1000 target, p99 11.21 ms)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
-          { value: "871.38 RPS", label: "Sidecar e2e actual @ 1000 target (raw JSON)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" },
-          { value: "0%", label: "Non-429 error rate across sustainable workloads", color: "#60a5fa", evidence: "BENCHMARK-PROVEN" }
+          { value: "871.38 RPS", label: "Sidecar e2e actual @ 1000 target (raw JSON)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
+          { value: "0%", label: "Non-429 error rate across sustainable workloads", color: "#ff7ebd", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
         <h2 className="guide-sub-heading" id="evidence">Evidence Taxonomy</h2>
@@ -101,7 +101,7 @@ export const performancePages = {
         <h2 className="guide-sub-heading" id="criteria">Sustainable Criteria</h2>
         <RLCallout variant="info" title="Definition of sustainable load">
           A workload is considered <strong>sustainable</strong> when all three conditions hold simultaneously:
-          <ul style={{ margin: "8px 0 0 0", paddingLeft: 16, fontSize: 13, color: "#93c5fd" }}>
+          <ul style={{ margin: "8px 0 0 0", paddingLeft: 16, fontSize: 13, color: "#ffb3d4" }}>
             <li>Actual throughput stays within <strong>15%</strong> of the target arrival rate.</li>
             <li>p99 latency is strictly under <strong>100 ms</strong>.</li>
             <li>Non-429 error rate remains at <strong>0%</strong>.</li>
@@ -160,37 +160,37 @@ export const performancePages = {
                 <td>1,000</td>
                 <td>871 <RLEvidenceBadge type="BENCHMARK-PROVEN" /></td>
                 <td>{streamDerived("8 ms")}</td>
-                <td><span style={{ color: "#22c55e", fontWeight: "bold" }}>SUSTAINABLE</span></td>
+                <td><span style={{ color: "#ff5cad", fontWeight: "bold" }}>SUSTAINABLE</span></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Sidecar Proxy e2e Path</td>
                 <td>1,000</td>
                 <td>871.38 <RLEvidenceBadge type="BENCHMARK-PROVEN" /></td>
                 <td>{streamDerived("11.21 ms")}</td>
-                <td><span style={{ color: "#22c55e", fontWeight: "bold" }}>SUSTAINABLE</span></td>
+                <td><span style={{ color: "#ff5cad", fontWeight: "bold" }}>SUSTAINABLE</span></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Direct Sliding Window</td>
                 <td>5,000</td>
                 <td>285 <RLEvidenceBadge type="BENCHMARK-PROVEN" /></td>
                 <td>{streamDerived("50,756 ms")}</td>
-                <td><span style={{ color: "#ef4444", fontWeight: "bold" }}>CONGESTED (Saturated)</span></td>
+                <td><span style={{ color: "#db4577", fontWeight: "bold" }}>CONGESTED (Saturated)</span></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Direct Token Bucket</td>
                 <td>5,000</td>
                 <td>4,156.18 <RLEvidenceBadge type="BENCHMARK-PROVEN" /></td>
                 <td>{streamDerived("148 ms")}</td>
-                <td><span style={{ color: "#eab308", fontWeight: "bold" }}>PEAK CAPACITY (p99 &gt; 100 ms)</span></td>
+                <td><span style={{ color: "#e879a9", fontWeight: "bold" }}>PEAK CAPACITY (p99 &gt; 100 ms)</span></td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <RLStatGrid stats={[
-          { value: "871 RPS", label: "Direct sliding @ 1000 target (sustainable)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" },
-          { value: "285 RPS", label: "Direct sliding @ 5000 target (saturated)", color: "#ef4444", evidence: "BENCHMARK-PROVEN" },
-          { value: "4,156 RPS", label: "Direct token @ 5000 target (peak)", color: "#fbbf24", evidence: "BENCHMARK-PROVEN" }
+          { value: "871 RPS", label: "Direct sliding @ 1000 target (sustainable)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
+          { value: "285 RPS", label: "Direct sliding @ 5000 target (saturated)", color: "#db4577", evidence: "BENCHMARK-PROVEN" },
+          { value: "4,156 RPS", label: "Direct token @ 5000 target (peak)", color: "#ff8fbf", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
         <h2 className="guide-sub-heading" id="knee">The Saturation Knee</h2>
@@ -311,8 +311,8 @@ export const performancePages = {
 
         <RLStatGrid stats={[
           { value: "+3.73 ms", label: "Sidecar p50 overhead vs direct /check", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
-          { value: "11.21 ms", label: "Sidecar e2e p99 @ 1000 target (stream)", color: "#c084fc" },
-          { value: "0", label: "Non-429 errors (sidecar e2e @ 1000)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" }
+          { value: "11.21 ms", label: "Sidecar e2e p99 @ 1000 target (stream)", color: "#ff5cad" },
+          { value: "0", label: "Non-429 errors (sidecar e2e @ 1000)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
         <p>
@@ -377,8 +377,8 @@ export const performancePages = {
 
         <RLStatGrid stats={[
           { value: "1003–1006 ms", label: "Redis master outage (503)", color: "#f472b6", evidence: "BENCHMARK-PROVEN" },
-          { value: "~504 ms", label: "Limiter pool outage (503)", color: "#c084fc", evidence: "BENCHMARK-PROVEN" },
-          { value: "~23 ms", label: "Open circuit fast-fail (503)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" }
+          { value: "~504 ms", label: "Limiter pool outage (503)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
+          { value: "~23 ms", label: "Open circuit fast-fail (503)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
         <div style={{ overflowX: "auto", margin: "20px 0" }}>
@@ -475,8 +475,8 @@ export const performancePages = {
 
         <RLStatGrid stats={[
           { value: "17,662 RPS", label: "Denial cache hammer actual throughput", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
-          { value: "7.11 ms", label: "Denial hammer p99 (stream parser)", color: "#22c55e" },
-          { value: "99.9%", label: "Requests served from in-memory denial cache", color: "#60a5fa", evidence: "BENCHMARK-PROVEN" }
+          { value: "7.11 ms", label: "Denial hammer p99 (stream parser)", color: "#ff5cad" },
+          { value: "99.9%", label: "Requests served from in-memory denial cache", color: "#ff7ebd", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
         <p>
@@ -575,9 +575,9 @@ export const performancePages = {
         </p>
 
         <RLStatGrid stats={[
-          { value: "299.2 RPS", label: "Actual throughput (300 target)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" },
+          { value: "299.2 RPS", label: "Actual throughput (300 target)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
           { value: "269,269", label: "Total requests over 15 minutes", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
-          { value: "0%", label: "Non-429 error rate", color: "#60a5fa", evidence: "BENCHMARK-PROVEN" }
+          { value: "0%", label: "Non-429 error rate", color: "#ff7ebd", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
         <div style={{ overflowX: "auto", margin: "20px 0" }}>

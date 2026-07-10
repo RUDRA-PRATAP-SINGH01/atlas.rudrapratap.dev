@@ -38,7 +38,7 @@ flowchart TD
     RP --> Out
     style In fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style Out fill:#1e1e2e,stroke:#ff5cad,color:#fff
-    style IR fill:#1e1e2e,stroke:#c084fc,color:#fff
+    style IR fill:#1e1e2e,stroke:#ff5cad,color:#fff
     style Deny429 fill:#1e1e2e,stroke:#ec4899,color:#fff
 `;
 

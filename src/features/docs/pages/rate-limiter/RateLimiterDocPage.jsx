@@ -78,46 +78,14 @@ export default function RateLimiterDocPage() {
               {pageData.content}
 
               {/* Prev / Next Footer Navigation */}
-              <div style={{
-                marginTop: 48,
-                paddingTop: 20,
-                borderTop: "1px solid rgba(255, 255, 255, 0.05)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 16
-              }}>
+              <div className="guide-pager">
                 {prevPage ? (
                   <Link
                     to={`/docs/distributed-rate-limiter/${prevPage.section}/${prevPage.slug}`}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "8px 14px",
-                      background: "rgba(255, 255, 255, 0.03)",
-                      border: "1px solid rgba(255, 255, 255, 0.08)",
-                      borderRadius: 20,
-                      textDecoration: "none",
-                      color: "rgba(255, 255, 255, 0.7)",
-                      fontSize: 12,
-                      fontWeight: 500,
-                      transition: "all 0.2s ease",
-                      maxWidth: "48%"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#ff5cad";
-                      e.currentTarget.style.background = "rgba(255, 92, 173, 0.08)";
-                      e.currentTarget.style.color = "#ffffff";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
-                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-                      e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)";
-                    }}
+                    className="guide-pager-link"
                   >
                     <span>&larr;</span>
-                    <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                    <span className="guide-pager-link-label">
                       {rateLimiterRegistry[prevPage.slug]?.title || prevPage.slug}
                     </span>
                   </Link>
@@ -126,34 +94,9 @@ export default function RateLimiterDocPage() {
                 {nextPage ? (
                   <Link
                     to={`/docs/distributed-rate-limiter/${nextPage.section}/${nextPage.slug}`}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "8px 14px",
-                      background: "rgba(255, 255, 255, 0.03)",
-                      border: "1px solid rgba(255, 255, 255, 0.08)",
-                      borderRadius: 20,
-                      textDecoration: "none",
-                      color: "rgba(255, 255, 255, 0.7)",
-                      fontSize: 12,
-                      fontWeight: 500,
-                      transition: "all 0.2s ease",
-                      maxWidth: "48%",
-                      marginLeft: "auto"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#ff5cad";
-                      e.currentTarget.style.background = "rgba(255, 92, 173, 0.08)";
-                      e.currentTarget.style.color = "#ffffff";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
-                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-                      e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)";
-                    }}
+                    className="guide-pager-link guide-pager-link--next"
                   >
-                    <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                    <span className="guide-pager-link-label">
                       {rateLimiterRegistry[nextPage.slug]?.title || nextPage.slug}
                     </span>
                     <span>&rarr;</span>
@@ -171,7 +114,7 @@ export default function RateLimiterDocPage() {
             <ul className="guide-sidebar-right-list">
               {pageData.topics && pageData.topics.map((topic) => (
                 <li key={topic.label} className="guide-sidebar-right-item">
-                  <a href={topic.href} className="guide-sidebar-right-link" style={{ fontSize: 12.5 }}>
+                  <a href={topic.href} className="guide-sidebar-right-link">
                     {topic.label}
                   </a>
                 </li>

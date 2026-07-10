@@ -285,49 +285,49 @@ return {allowed, math.floor(new_tokens)}`}</RLSourceExcerpt>
             <tbody>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Atomic Quota Check</td>
-                <td><span style={{ background: "#22c55e20", color: "#22c55e", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>STRONG</span></td>
+                <td><span style={{ background: "rgba(255,92,173,0.14)", color: "#ff5cad", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>STRONG</span></td>
                 <td>Redis atomic Lua script execution</td>
                 <td><RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" /></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Multi-Replica Correctness</td>
-                <td><span style={{ background: "#22c55e20", color: "#22c55e", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>STRONG</span></td>
+                <td><span style={{ background: "rgba(255,92,173,0.14)", color: "#ff5cad", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>STRONG</span></td>
                 <td>Shared Redis master state coordinator</td>
                 <td><RLEvidenceBadge type="RUNTIME-PROVEN" /></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Denial Cache Safety</td>
-                <td><span style={{ background: "#22c55e20", color: "#22c55e", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>STRONG</span></td>
+                <td><span style={{ background: "rgba(255,92,173,0.14)", color: "#ff5cad", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>STRONG</span></td>
                 <td>Only cached denials served; allowed entries ignored on hit</td>
                 <td><RLEvidenceBadge type="SOURCE-PROVEN" /></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Singleflight Dedup</td>
-                <td><span style={{ background: "#eab30820", color: "#eab308", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>PROCESS-LOCAL</span></td>
+                <td><span style={{ background: "rgba(255,92,173,0.08)", color: "#e879a9", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>PROCESS-LOCAL</span></td>
                 <td><code>golang.org/x/sync/singleflight</code> per sidecar instance</td>
                 <td><RLEvidenceBadge type="TEST-PROVEN" /></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Idempotency Replay</td>
-                <td><span style={{ background: "#eab30820", color: "#eab308", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>CONDITIONAL</span></td>
+                <td><span style={{ background: "rgba(255,92,173,0.08)", color: "#e879a9", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>CONDITIONAL</span></td>
                 <td>Redis metadata lookup + body caching + fencing tokens</td>
                 <td><RLEvidenceBadge type="TEST-PROVEN" /> <RLEvidenceBadge type="RUNTIME-PROVEN" /></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Upstream Side Effects</td>
-                <td><span style={{ background: "#ef444420", color: "#ef4444", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>NONE</span></td>
+                <td><span style={{ background: "rgba(219,69,119,0.12)", color: "#db4577", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>NONE</span></td>
                 <td>Best-effort only — crash-before-complete window exists</td>
                 <td><RLEvidenceBadge type="DOCUMENTED LIMITATION" /></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Audit Log Delivery</td>
-                <td><span style={{ background: "#ef444420", color: "#ef4444", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>BEST-EFFORT</span></td>
+                <td><span style={{ background: "rgba(219,69,119,0.12)", color: "#db4577", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>BEST-EFFORT</span></td>
                 <td>Bounded memory queue + async workers</td>
                 <td><RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" /></td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Sustainable Throughput</td>
-                <td><span style={{ background: "#f59e0b20", color: "#fbbf24", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>~872 RPS</span></td>
+                <td><span style={{ background: "rgba(255,92,173,0.10)", color: "#ff7ebd", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: "bold" }}>~872 RPS</span></td>
                 <td>Sidecar e2e @ 1000 target, p99 &lt; 100 ms, 0% non-429 errors</td>
                 <td><RLEvidenceBadge type="BENCHMARK-PROVEN" /></td>
               </tr>
@@ -501,8 +501,8 @@ DialTimeout:   500 * time.Millisecond,`}</RLSourceExcerpt>
 
         <RLStatGrid stats={[
           { value: "~872 RPS", label: "Max sustainable load (sidecar e2e @ 1000 target, p99 11 ms)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
-          { value: "+3.7 ms", label: "Sidecar proxy overhead (p50 vs direct limiter @ ~871 RPS)", color: "#c084fc", evidence: "BENCHMARK-PROVEN" },
-          { value: "7.11 ms", label: "Denial cache hammer p99 (in-memory 429, no Redis RTT)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" }
+          { value: "+3.7 ms", label: "Sidecar proxy overhead (p50 vs direct limiter @ ~871 RPS)", color: "#ff5cad", evidence: "BENCHMARK-PROVEN" },
+          { value: "7.11 ms", label: "Denial cache hammer p99 (in-memory 429, no Redis RTT)", evidence: "BENCHMARK-PROVEN" }
         ]} />
 
         <RLCallout variant="info" title="Algorithm context">

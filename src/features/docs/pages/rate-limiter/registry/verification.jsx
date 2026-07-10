@@ -56,29 +56,68 @@ sequenceDiagram
     Sidecar-->>k6: 200 or 429 (quota restored)
 `;
 
+const PINK_BADGE = {
+  strong:    { bg: "rgba(255,92,173,0.14)", color: "#ff5cad" },
+  partial:   { bg: "rgba(255,92,173,0.09)", color: "#ff7ebd" },
+  none:      { bg: "rgba(219,69,119,0.12)", color: "#db4577" },
+  limit:     { bg: "rgba(219,69,119,0.08)", color: "#c45a8a" }
+};
+
+function MatrixCell({ value }) {
+  if (value === "Y") {
+    return <span style={{ color: "#ff5cad", fontWeight: 700 }}>Y</span>;
+  }
+  if (value === "—") {
+    return <span style={{ color: "#52525b" }}>—</span>;
+  }
+  return <span style={{ color: "#a1a1aa", fontSize: 11 }}>{value}</span>;
+}
+
 export const verificationPages = {
   "what-has-been-proven": {
     title: "What Has Been Proven?",
     topics: [
+      { label: "Evidence Taxonomy", href: "#taxonomy" },
       { label: "Evidence Categories", href: "#categories" },
-      { label: "Core Correctness Claims", href: "#claims" },
-      { label: "Verified Evidence Matrix", href: "#matrix" },
-      { label: "State Validation Assertions", href: "#state-validation" }
+      { label: "Full Verification Matrix", href: "#matrix" },
+      { label: "Quota Correctness", href: "#quota-claims" },
+      { label: "Concurrency Safety", href: "#concurrency-claims" },
+      { label: "Failure Boundaries", href: "#failure-claims" },
+      { label: "Operational Durability", href: "#operational" },
+      { label: "State Validation", href: "#state-validation" }
     ],
     content: (
       <div>
         <RLThesis>
-          Every headline guarantee in this platform maps to one of five evidence categories — source code, automated
-          tests, runtime integration, benchmark artifacts, or documented limitation. Nothing on this page is asserted
-          without a traceable proof path; unverified claims are explicitly marked as limitations.
+          This page separates two distinct claims about the platform. An{" "}
+          <strong style={{ color: "#ff5cad" }}>architecture claim</strong> is what the design asserts should hold by
+          construction — it is not a proof. A{" "}
+          <strong style={{ color: "#ff5cad" }}>verified claim</strong> is one backed by at least one of five evidence
+          tiers: source code enforcement, automated Go test assertion, multi-container runtime confirmation, k6
+          benchmark measurement, or an explicit documented limitation. Every headline guarantee below is labelled with
+          its strongest tier; unverified scope is marked as a limitation, not silently omitted.
         </RLThesis>
 
         <RLQuickModel>
-          SOURCE-PROVEN = implementation guarantees the behaviour. TEST-PROVEN = Go unit/integration test asserts it.
-          RUNTIME-PROVEN = multi-container or live integration run confirms it. BENCHMARK-PROVEN = k6 or scripted
-          measurement under load. DOCUMENTED LIMITATION = known boundary, not a failure — but not proven safe beyond
-          stated scope.
+          SOURCE-PROVEN: the production code path structurally prevents violation. TEST-PROVEN: an automated Go test
+          deterministically asserts the property. RUNTIME-PROVEN: a live multi-container integration run confirmed it
+          end-to-end. BENCHMARK-PROVEN: a k6 constant-arrival measurement recorded it under load. DOCUMENTED
+          LIMITATION: the guarantee holds only within a stated scope; beyond that scope it is not proven safe.
         </RLQuickModel>
+
+        <h2 className="guide-sub-heading" id="taxonomy">Architecture Claims vs Evidence Tiers</h2>
+        <p>
+          The critical distinction: an architecture claim such as "Lua scripts prevent race conditions" follows from
+          Redis's documented execution model but is not independently measured. The corresponding verified claims —
+          "no over-admission in a 60-request concurrent burst" and "zero race-detector warnings" — are proven
+          assertions backed by test and runtime artifacts. This page documents only the latter.
+        </p>
+        <RLCallout variant="info" title="Reading the matrix">
+          In the matrix below, <strong style={{ color: "#ff5cad" }}>Y</strong> means the claim was proven at that
+          tier. <strong style={{ color: "#52525b" }}>—</strong> means the claim was not exercised at that tier — this
+          is not a failure; it means a higher tier supersedes or the scenario is out of scope for that method. The
+          Limitation column states what the claim does not cover.
+        </RLCallout>
 
         <h2 className="guide-sub-heading" id="categories">Evidence Categories</h2>
         <div style={{ overflowX: "auto", margin: "20px 0" }}>
@@ -86,161 +125,538 @@ export const verificationPages = {
             <thead>
               <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
                 <th style={{ padding: "12px 8px" }}>Badge</th>
-                <th style={{ padding: "12px 8px" }}>Meaning</th>
-                <th style={{ padding: "12px 8px" }}>Example</th>
+                <th style={{ padding: "12px 8px" }}>What It Means</th>
+                <th style={{ padding: "12px 8px" }}>Strongest Example on This Platform</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px" }}><RLEvidenceBadge type="SOURCE-PROVEN" /></td>
-                <td style={{ padding: "12px 8px" }}>Behaviour enforced in production code paths</td>
-                <td style={{ padding: "12px 8px" }}>Lua atomicity, fail-closed defaults, denial-only cache</td>
+                <td style={{ padding: "12px 8px" }}>The production code path structurally prevents violation — the property holds by construction, not by test.</td>
+                <td style={{ padding: "12px 8px" }}>Denial-only cache invariant: allowed entries are stored but ignored on hit; denial branch is the only cache exit to the client.</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px" }}><RLEvidenceBadge type="TEST-PROVEN" /></td>
-                <td style={{ padding: "12px 8px" }}>Automated Go test with deterministic assertion</td>
-                <td style={{ padding: "12px 8px" }}><code>TestSidecar_SingleflightCollapse</code>, <code>TestClaimSingleWinnerUnderConcurrency</code></td>
+                <td style={{ padding: "12px 8px" }}>An automated Go test with a deterministic assertion exercises the property under controlled conditions.</td>
+                <td style={{ padding: "12px 8px" }}><code>TestHalfOpenConcurrentProbeBound</code>: concurrency higher than <code>CB_HALF_OPEN_MAX_PROBES</code> — exactly 3 admitted, remainder denied.</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px" }}><RLEvidenceBadge type="RUNTIME-PROVEN" /></td>
-                <td style={{ padding: "12px 8px" }}>Multi-replica or containerized integration run</td>
-                <td style={{ padding: "12px 8px" }}>60 requests → 10 allowed / 50 denied across 2 sidecars</td>
+                <td style={{ padding: "12px 8px" }}>A multi-container or live integration run confirms distributed coordination — not just unit behaviour in a single process.</td>
+                <td style={{ padding: "12px 8px" }}>60 concurrent requests across 2 sidecars + 2 limiters against capacity=10: exactly 10 allowed, 50 denied, 0 over-admission.</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
                 <td style={{ padding: "12px 8px" }}><RLEvidenceBadge type="BENCHMARK-PROVEN" /></td>
-                <td style={{ padding: "12px 8px" }}>k6 or scripted measurement under sustained load</td>
-                <td style={{ padding: "12px 8px" }}>15-minute soak at 300 RPS, failure latency bounds</td>
+                <td style={{ padding: "12px 8px" }}>A k6 or scripted measurement under sustained load provides a quantitative bound, not just a pass/fail assertion.</td>
+                <td style={{ padding: "12px 8px" }}>15-minute soak at 300 RPS target: 299.2 actual RPS, 269,269 requests, p99 10.01 ms, 0% non-429 errors.</td>
               </tr>
               <tr>
                 <td style={{ padding: "12px 8px" }}><RLEvidenceBadge type="DOCUMENTED LIMITATION" /></td>
-                <td style={{ padding: "12px 8px" }}>Known boundary — not a bug, but not proven beyond scope</td>
-                <td style={{ padding: "12px 8px" }}>Redis Cluster CROSSSLOT, idempotency crash window</td>
+                <td style={{ padding: "12px 8px" }}>The claim holds within a stated scope. Outside that scope the guarantee is explicitly not proven — this is a boundary, not a bug.</td>
+                <td style={{ padding: "12px 8px" }}>15-minute soak validates immediate stability; multi-month production stability (memory fragmentation, connection drift) is not proven.</td>
               </tr>
             </tbody>
           </table>
         </div>
 
+        <h2 className="guide-sub-heading" id="matrix">Full Verification Matrix</h2>
+        <p>
+          Fourteen claims covering quota correctness, concurrency safety, failure latency boundaries, and operational
+          durability. Each row identifies the mechanism, the evidence tiers where proof exists, and the explicit
+          limitation on the claim's scope.
+        </p>
+
         <RLStatGrid stats={[
-          { value: "43", label: "*_test.go files across all packages", color: "#60a5fa", evidence: "TEST-PROVEN" },
-          { value: "4", label: "CI pipeline stages (vet, build, test, -race)", color: "#22c55e", evidence: "TEST-PROVEN" },
-          { value: "0", label: "Over-admission in multi-replica burst test", color: "#ff5cad", evidence: "RUNTIME-PROVEN" }
+          { value: "14", label: "Verified claims in this matrix", evidence: "TEST-PROVEN" },
+          { value: "4", label: "Evidence tiers applied (source/test/runtime/benchmark)", evidence: "SOURCE-PROVEN" },
+          { value: "0", label: "Claims without an explicit limitation statement", evidence: "SOURCE-PROVEN" }
         ]} />
 
-        <h2 className="guide-sub-heading" id="claims">Core Correctness Claims</h2>
-        <p>
-          Each architectural guarantee is linked to its strongest evidence tier. Where multiple tiers apply, the badge
-          shown is the tightest proof (test beats source; runtime beats test for distributed coordination).
-        </p>
-        <ul className="guide-bullets-list">
-          <li>
-            <strong>Lua Script Atomicity:</strong> Quota check-and-deduct runs inside Redis's single-threaded Lua
-            execution window — no interleaved read-modify-write races.{" "}
-            <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
-          </li>
-          <li>
-            <strong>Over-Admission Prevention:</strong> 60 concurrent requests split across two sidecar replicas against
-            a capacity-10 bucket yielded exactly 10 allowed and 50 denied.{" "}
-            <RLEvidenceBadge type="RUNTIME-PROVEN" />
-          </li>
-          <li>
-            <strong>Fencing Token Write-Lock:</strong> Concurrent idempotency claim tests prove exactly one winner
-            under parallel <code>claim.lua</code> calls; stale <code>complete.lua</code> writers receive{" "}
-            <code>FENCE_MISMATCH</code>.{" "}
-            <RLEvidenceBadge type="TEST-PROVEN" />
-          </li>
-          <li>
-            <strong>Singleflight Collapsing:</strong> 100 concurrent identical key checks on one sidecar collapse to
-            exactly 1 limiter network call.{" "}
-            <RLEvidenceBadge type="TEST-PROVEN" />
-          </li>
-          <li>
-            <strong>CB Half-Open Global Bounds:</strong> Concurrent probes during Half-Open state are capped at{" "}
-            <code>CB_HALF_OPEN_MAX_PROBES</code> (default 3) atomically in <code>allow.lua</code>.{" "}
-            <RLEvidenceBadge type="TEST-PROVEN" />
-          </li>
-          <li>
-            <strong>Fail-Closed on Redis Outage:</strong> <code>docker pause redis</code> during load returns{" "}
-            <code>503 Service Unavailable</code> when <code>FAIL_OPEN=false</code> (default).{" "}
-            <RLEvidenceBadge type="RUNTIME-PROVEN" />
-          </li>
-        </ul>
-
-        <h2 className="guide-sub-heading" id="matrix">Correctness Evidence Matrix</h2>
-        <p>
-          Legend: <strong>Y</strong> = proven at that tier. <strong>—</strong> = not applicable or not tested at that tier.
-        </p>
         <div style={{ overflowX: "auto", margin: "20px 0" }}>
-          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <table className="guide-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
             <thead>
-              <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left" }}>
-                <th style={{ padding: "12px 8px" }}>Guarantee Claim</th>
-                <th style={{ padding: "12px 8px" }}>SOURCE</th>
-                <th style={{ padding: "12px 8px" }}>TEST</th>
-                <th style={{ padding: "12px 8px" }}>RUNTIME</th>
-                <th style={{ padding: "12px 8px" }}>BENCHMARK</th>
-                <th style={{ padding: "12px 8px" }}>Key Proof</th>
+              <tr style={{ borderBottom: "2px solid #27272a", textAlign: "left", background: "rgba(255,92,173,0.04)" }}>
+                <th style={{ padding: "10px 8px", minWidth: 220 }}>Claim</th>
+                <th style={{ padding: "10px 8px" }}>Mechanism</th>
+                <th style={{ padding: "10px 4px", textAlign: "center" }}>SRC</th>
+                <th style={{ padding: "10px 4px", textAlign: "center" }}>TEST</th>
+                <th style={{ padding: "10px 4px", textAlign: "center" }}>RT</th>
+                <th style={{ padding: "10px 4px", textAlign: "center" }}>BENCH</th>
+                <th style={{ padding: "10px 8px", minWidth: 220 }}>Limitation</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
-                <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Redis Lua Atomic Quota</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}><code>internal/limiter/lua_test.go</code></td>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>No over-admission across limiter replicas</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>All limiters execute EVALSHA on the same Redis master; token deduction is atomic inside Lua</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Redis Cluster CROSSSLOT on hierarchical script</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
-                <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Multi-Sidecar No Over-Admission</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}><code>redis_atomic_token_bucket_test.go</code></td>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>No over-admission across sidecars</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Denial-only cache; every allowed path issues a fresh Redis round-trip</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Cross-replica denial cache not synced (extra RTTs, not over-admission)</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
-                <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Singleflight Collapsing</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}><code>TestSidecar_SingleflightCollapse</code></td>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Lua transition atomicity</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Redis single-threaded Lua; check+refill+deduct in one EVALSHA, no interleave possible</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Float drift mitigated by <code>math.max(0,…)</code> and <code>math.min(capacity,…)</code> clamps</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
-                <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Idempotency Fencing Winner</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}><code>TestClaimSingleWinnerUnderConcurrency</code></td>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Half-open probe global bound (64 concurrent → 3 admitted)</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}><code>allow.lua</code> atomically increments probe counter via <code>HINCRBY</code>; excess probes denied before returning</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Default <code>CB_HALF_OPEN_MAX_PROBES=3</code>; probe window resets automatically on transition</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
-                <td style={{ padding: "12px 8px", fontWeight: "bold" }}>CB Half-Open Global Bounds</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}><code>TestHalfOpenConcurrentProbeBound</code></td>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Duplicate suppression (40→1/39)</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}><code>singleflight.Group</code> per sidecar: N concurrent checks on the same key collapse to 1 limiter call, N−1 share the result</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Process-local only; two sidecar replicas each issue one call for the same key</td>
               </tr>
               <tr style={{ borderBottom: "1px solid #27272a" }}>
-                <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Fail-Closed on Dependency Outage</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>docker pause redis → 503</td>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Stale fencing-token rejection</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}><code>complete.lua</code> compares incoming fence token to stored token; mismatch → <code>FENCE_MISMATCH</code>, write rejected</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Crash-before-complete window allows lease expiry and re-claim; upstream may execute twice</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid #27272a" }}>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Override visibility across replicas</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Monotonic <code>config:generation</code> counter; each replica pulls overrides on generation mismatch and invalidates local cache</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Up to <code>OVERRIDE_CACHE_TTL_MS=5000ms</code> propagation lag before mismatch detected</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid #27272a" }}>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Bounded limiter failure latency (~504ms)</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Sidecar HTTP client timeout (<code>SIDECAR_LIMITER_HTTP_TIMEOUT_MS</code> default 1500ms); measured ~504ms under docker pause</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Theoretical ceiling 1500ms; measured 504ms reflects early OS TCP reset, not full timeout budget</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid #27272a" }}>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Bounded Redis failure latency (~1003ms)</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Redis pool timeout (default 1000ms) + dial/read/write (500ms each); measured 1003–1006ms under docker pause</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Post-trip circuit fast-fail reduces to ~23ms; first request after open circuit absorbs full timeout</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid #27272a" }}>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Denial cache cannot create admission</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Allowed entries stored in <code>sync.Map</code> are explicitly ignored on cache hit; only <code>Allowed=false</code> entries are served</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Cache is process-local; a denial on sidecar A is invisible to sidecar B (extra RTT, not over-admission)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid #27272a" }}>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Graceful audit-worker shutdown</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}><code>auditStore.Shutdown(ctx)</code> closes bounded queue (4096) and waits for all 4 worker goroutines within 5s context before Redis close</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>If 5s context expires before workers finish, Redis close is skipped; buffered audit events may be lost</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid #27272a" }}>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Race-test status (go test -race)</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>CI runs <code>go test -race ./...</code> on every push as a merge gate; shared mutable state uses <code>sync.Map</code> or atomics</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Go race detector covers process-local Go memory; Redis Lua quota state is outside the detector's scope</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid #27272a" }}>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>15-minute soak (299.2 RPS, 0 non-429 errors)</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>k6 constant-arrival 900s at 300 RPS target; 269,269 total requests; p99 10.01ms; all three sustainable criteria met</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="—" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>15-minute window; multi-month production stability (memory fragmentation, connection drift) unproven</td>
               </tr>
               <tr>
-                <td style={{ padding: "12px 8px", fontWeight: "bold" }}>Denial-Only Cache Invariant</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>Y</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}>—</td>
-                <td style={{ padding: "12px 8px" }}><code>cmd/sidecar/main.go</code> denial branch</td>
+                <td style={{ padding: "10px 8px", fontWeight: 600, color: "#e4e4e7" }}>Multi-replica 10/50 of 60</td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>2 sidecars × 2 limiters sharing one Redis; 60 concurrent requests against capacity=10 burst; exactly 10 allowed, 50 denied</td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 4px", textAlign: "center" }}><MatrixCell value="Y" /></td>
+                <td style={{ padding: "10px 8px", color: "#a1a1aa" }}>Test topology is capacity=10; quota correctness is algorithm-agnostic, not load-scale dependent</td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <h2 className="guide-sub-heading" id="quota-claims">Quota Correctness Claims</h2>
+        <p>
+          Quota correctness is the primary guarantee: at most <code>capacity</code> requests are admitted per window
+          regardless of how many replicas are serving traffic. The following claims are all backed by source + test +
+          runtime evidence.
+        </p>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: No Over-Admission Across Limiter Replicas{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />{" "}
+          <RLEvidenceBadge type="RUNTIME-PROVEN" /> <RLEvidenceBadge type="BENCHMARK-PROVEN" />
+        </h3>
+        <p>
+          Every limiter replica executes <code>EVALSHA</code> against the same Redis master. Redis's single-threaded
+          Lua execution serializes all concurrent token deductions — there is no window in which two replicas can both
+          read a non-zero token count and both deduct. Quota state lives entirely in Redis; the limiter process holds
+          no local token counters.
+        </p>
+        <RLSourceExcerpt
+          source="internal/limiter/redis_atomic_token_bucket_test.go (multi-replica integration)"
+          establishes="60 goroutines across 2 sidecar endpoints against capacity=10 yield allowed=10, denied=50. Redis is the sole authority."
+        >{`// 60 goroutines, 2 sidecar endpoints (:9090 / :9092), capacity = 10
+var allowed, denied int64
+var wg sync.WaitGroup
+for i := 0; i < 60; i++ {
+    wg.Add(1)
+    go func(endpoint string) {
+        defer wg.Done()
+        resp, _ := http.Get(endpoint + "/api/test")
+        if resp.StatusCode == 200 {
+            atomic.AddInt64(&allowed, 1)
+        } else {
+            atomic.AddInt64(&denied, 1)
+        }
+    }(sidecars[i%2])
+}
+wg.Wait()
+// Runtime result: allowed=10, denied=50`}</RLSourceExcerpt>
+
+        <RLCallout variant="limitation" title="Redis Cluster incompatibility">
+          Hierarchical rate limiting evaluates four keys in one Lua script. Redis Cluster distributes keys across
+          16,384 hash slots; keys in different namespaces hash to different slots, causing{" "}
+          <code>CROSSSLOT Keys in request don't hash to the same slot</code>. Standalone Redis or Sentinel is required
+          for hierarchical quotas. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
+        </RLCallout>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Lua Transition Atomicity{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </h3>
+        <p>
+          The check-refill-deduct cycle executes inside a single <code>EVALSHA</code> call. Redis's single-threaded
+          execution model guarantees no other command can interleave between reading the token count and writing the
+          new balance. Floating-point accumulation is guarded by two clamps verified in <code>lua_test.go</code>.
+        </p>
+        <RLSourceExcerpt
+          source="internal/limiter/lua/token_bucket.lua — atomic read-refill-check-write"
+          language="lua"
+          establishes="Entire quota decision in one EVALSHA. math.max and math.min clamps prevent negative balances and capacity overflow."
+        >{`local elapsed    = math.max(0, now - last_refill)
+local new_tokens = math.min(capacity, tokens + elapsed * refill_rate)
+
+if new_tokens < 1 then
+    redis.call('HMSET', key, 'tokens', new_tokens, 'last_refill', now)
+    return {0, 0}
+end
+
+new_tokens = new_tokens - 1
+redis.call('HMSET', key, 'tokens', new_tokens, 'last_refill', now)
+return {1, math.floor(new_tokens)}`}</RLSourceExcerpt>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Multi-Replica 10/50 of 60{" "}
+          <RLEvidenceBadge type="RUNTIME-PROVEN" /> <RLEvidenceBadge type="BENCHMARK-PROVEN" />
+        </h3>
+        <p>
+          The strongest runtime proof of global quota correctness. Two sidecars and two limiter replicas sharing one
+          Redis master. Capacity=10. 60 concurrent requests. Result: exactly 10 allowed (HTTP 200), 50 denied (HTTP
+          429). Zero over-admission observed across all test runs.
+        </p>
+        <RLStatGrid stats={[
+          { value: "60", label: "Total concurrent requests (2 sidecars)", evidence: "RUNTIME-PROVEN" },
+          { value: "10", label: "Allowed (HTTP 200) — equals bucket capacity", evidence: "RUNTIME-PROVEN" },
+          { value: "50", label: "Denied (HTTP 429) — remaining 83%", evidence: "RUNTIME-PROVEN" }
+        ]} />
+
+        <h2 className="guide-sub-heading" id="concurrency-claims">Concurrency Safety Claims</h2>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Half-Open Probe Global Bound (64 concurrent → 3 admitted){" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </h3>
+        <p>
+          When the circuit is in <code>Half-Open</code> state, <code>allow.lua</code> atomically increments a probe
+          counter in Redis via <code>HINCRBY</code>. Any goroutine arriving when the counter has already reached{" "}
+          <code>CB_HALF_OPEN_MAX_PROBES</code> (default 3) is fast-rejected before the network call. The bound is
+          global — it holds across all sidecar and limiter processes sharing the same Redis key.
+        </p>
+        <RLSourceExcerpt
+          source="internal/circuitbreaker/lua/allow.lua — half_open probe cap (abbreviated)"
+          language="lua"
+          establishes="Probe counter incremented atomically inside Redis. Requests beyond max_probes receive allowed=0 before returning."
+        >{`if state == 'half_open' then
+    local probe_count = tonumber(redis.call('HGET', key, 'probe_count') or '0')
+    if probe_count >= max_probes then
+        return {0, 'half_open', probe_count, tonumber(fields[4]) or 0}
+    end
+    redis.call('HINCRBY', key, 'probe_count', 1)
+    return {1, 'half_open', probe_count + 1, tonumber(fields[4]) or 0}
+end`}</RLSourceExcerpt>
+        <RLSourceExcerpt
+          source="internal/circuitbreaker — TestHalfOpenConcurrentProbeBound"
+          establishes="Concurrent Allow() calls during Half-Open state: exactly CB_HALF_OPEN_MAX_PROBES admitted, all others denied."
+        >{`// Launch CB_HALF_OPEN_MAX_PROBES + extra concurrent Allow() calls
+// while circuit state is half_open in Redis
+allowed := 0
+for _, result := range results {
+    if result.Allowed { allowed++ }
+}
+if allowed != int(cfg.HalfOpenMaxProbes) {
+    t.Fatalf("expected %d probes allowed, got %d", cfg.HalfOpenMaxProbes, allowed)
+}`}</RLSourceExcerpt>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Duplicate Suppression (40→1/39){" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </h3>
+        <p>
+          Under login-surge or retry-storm conditions, N concurrent requests for the same user key arrive at one sidecar
+          within the same millisecond. <code>singleflight.Group</code> collapses all N into one limiter HTTP call;
+          the remaining N−1 block on <code>limitFlight.Do()</code> and receive the shared result. The mechanism is
+          proven: N concurrent callers produce exactly 1 network call regardless of N.
+        </p>
+        <RLSourceExcerpt
+          source="cmd/sidecar — TestSidecar_SingleflightCollapse"
+          establishes="N concurrent identical key checks collapse to exactly 1 limiter HTTP call. Remaining N−1 receive shared=true from singleflight."
+        >{`// N goroutines call checkRateLimit for the same cacheKey simultaneously
+var callCount int64
+// mock limiter increments callCount on each HTTP call
+// ...
+if callCount != 1 {
+    t.Fatalf("expected 1 network call, got %d", callCount)
+}
+// N requests served; N-1 received shared=true from singleflight`}</RLSourceExcerpt>
+        <RLCallout variant="limitation" title="Process-local scope">
+          Singleflight collapse is per sidecar instance. Two replicas routing the same user key each issue one limiter
+          call — for N replicas the collapse ratio is N×1 real calls, not 1. Redis is still authoritative; quota
+          correctness is unaffected. <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
+        </RLCallout>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Stale Fencing-Token Rejection{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </h3>
+        <p>
+          When a sidecar acquires an idempotency lease via <code>claim.lua</code>, it receives a monotonically
+          incrementing fence token. <code>complete.lua</code> compares the incoming token against the stored token; if
+          they differ (stale writer attempting a write), it returns <code>FENCE_MISMATCH</code> and the write is
+          rejected. Only the current lease holder can complete the operation.
+        </p>
+        <RLSourceExcerpt
+          source="internal/sidecar/idempotency/store_test.go — TestClaimSingleWinnerUnderConcurrency"
+          establishes="N goroutines calling claim.lua for the same key concurrently produce exactly 1 NEW lease. All others get CONFLICT or FENCE_MISMATCH."
+        >{`// N goroutines call store.Claim(ctx, sameKey, fingerprint) concurrently
+var newCount, conflictCount int64
+// ...
+if newCount != 1 {
+    t.Fatalf("expected exactly 1 NEW claim, got %d", newCount)
+}
+if newCount+conflictCount != int64(N) {
+    t.Fatalf("claim results do not account for all goroutines")
+}`}</RLSourceExcerpt>
+        <RLCallout variant="limitation" title="Crash-before-complete window">
+          Fencing prevents stale concurrent writes. It does not prevent a crash that occurs after the upstream
+          backend executed but before <code>complete.lua</code> was called. The lease expires after{" "}
+          <code>IDEMPOTENCY_LOCK_TTL_MS</code> (60 s), and a retry may execute the backend action again.{" "}
+          <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
+        </RLCallout>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Denial Cache Cannot Create Admission{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </h3>
+        <p>
+          The sidecar stores both allowed and denied results in its <code>sync.Map</code> cache, but the lookup logic
+          only acts on <code>Allowed=false</code> entries. When an allowed entry is found in cache, it is discarded
+          and a fresh limiter check is issued. This prevents a "quota freeze" attack where a cached allowed response
+          continues to serve traffic after the quota has been exhausted.
+        </p>
+        <RLSourceExcerpt
+          source="cmd/sidecar/main.go — serveNormal denial-only cache invariant"
+          establishes="Allowed cache entries are explicitly ignored. Only denied entries short-circuit to writeDenial."
+        >{`if val, ok := s.cache.Load(cacheKey); ok {
+    entry := val.(CacheEntry)
+    if time.Now().Before(entry.ExpiresAt) {
+        if !entry.Allowed {
+            metrics.RecordCacheHit()
+            s.writeDenial(w, entry.Limit, entry.Remaining, entry.RetryAfter)
+            return
+        }
+        // Allowed entry in cache: fall through to fresh limiter check.
+    } else {
+        s.cache.Delete(cacheKey)
+    }
+}
+metrics.RecordCacheMiss()`}</RLSourceExcerpt>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Override Visibility Across Replicas{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" />
+        </h3>
+        <p>
+          Configuration overrides are committed to Redis with an incremented <code>config:generation</code> counter.
+          Each limiter replica reads <code>config:generation</code> before every quota check; on mismatch it clears
+          its local override cache and reloads from Redis. An offline replica that reconnects self-heals within one
+          check cycle — it cannot serve stale overrides indefinitely.
+        </p>
+        <RLSourceExcerpt
+          source="internal/override/store.go — RefreshGeneration"
+          establishes="Pull-based invalidation: offline replica self-heals on next GET after reconnect. No Pub/Sub required."
+        >{`func (s *Store) RefreshGeneration(ctx context.Context) error {
+    remote, err := s.rdb.Get(ctx, "config:generation").Int64()
+    if err != nil {
+        return err  // caller falls back to cached overrides
+    }
+    if remote != s.localGeneration {
+        s.cache.Clear()
+        s.localGeneration = remote
+    }
+    return nil
+}`}</RLSourceExcerpt>
+        <RLCallout variant="limitation" title="Propagation lag up to OVERRIDE_CACHE_TTL_MS">
+          Replicas check the generation counter at cache-miss time or on a background interval. Stale overrides may
+          persist for up to <code>OVERRIDE_CACHE_TTL_MS</code> (default 5000ms) before the mismatch is detected.
+          Cross-replica override lag is a known design trade-off versus Pub/Sub — it is safe under network partitions
+          (Pub/Sub would miss the message; generation check does not).{" "}
+          <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
+        </RLCallout>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Race-Test Status (go test -race){" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </h3>
+        <p>
+          The CI pipeline runs <code>go test -race ./...</code> on every push as a merge gate. All 43{" "}
+          <code>*_test.go</code> files pass the race detector with zero warnings. Shared mutable state — denial cache
+          (<code>sync.Map</code>), override generation snapshots (atomics), singleflight group — is protected by Go
+          synchronization primitives. Redis Lua handles all quota state atomicity outside Go's memory model entirely.
+        </p>
+        <RLStatGrid stats={[
+          { value: "PASS", label: "go test -race ./... (CI merge gate)", evidence: "TEST-PROVEN" },
+          { value: "43", label: "*_test.go files exercised under -race", evidence: "TEST-PROVEN" },
+          { value: "0", label: "Data-race warnings across all packages", evidence: "TEST-PROVEN" }
+        ]} />
+        <RLCallout variant="limitation" title="Race detector scope boundary">
+          Go's race detector instruments Go-level heap and stack memory accesses. Redis Lua atomicity — which prevents
+          the quota TOCTOU race — is entirely outside the detector's scope. The detector proves correctness of
+          process-local caches and handler bookkeeping; Redis proves quota correctness.{" "}
+          <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
+        </RLCallout>
+
+        <h2 className="guide-sub-heading" id="failure-claims">Failure Boundary Claims</h2>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Bounded Limiter Failure Latency (~504ms){" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="BENCHMARK-PROVEN" />
+        </h3>
+        <p>
+          The sidecar HTTP client is configured with <code>SIDECAR_LIMITER_HTTP_TIMEOUT_MS</code> (default 1500ms).
+          Under a container-pause outage simulation (docker pause limiter), the measured time to receive 503 was
+          approximately 504ms — faster than the theoretical budget because the OS TCP stack detects the connection
+          reset before the application-level timeout fires.
+        </p>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Bounded Redis Failure Latency (~1003ms){" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="BENCHMARK-PROVEN" />
+        </h3>
+        <p>
+          The Redis client pool timeout is set to 1000ms (<code>REDIS_POOL_TIMEOUT_MS</code>). Individual dial, read,
+          and write operations each default to 500ms. Under docker-pause of the Redis container during active k6 load,
+          the measured failure latency was 1003–1006ms — consistent with pool-wait exhaustion rather than individual
+          operation timeout.
+        </p>
+        <RLStatGrid stats={[
+          { value: "~504ms", label: "Limiter outage: measured 503 latency (container-pause)", evidence: "BENCHMARK-PROVEN" },
+          { value: "~1003ms", label: "Redis outage: measured 503 latency (container-pause)", evidence: "BENCHMARK-PROVEN" },
+          { value: "~23ms", label: "Circuit fast-fail after breaker trips open", evidence: "BENCHMARK-PROVEN" }
+        ]} />
+        <RLCallout variant="info" title="Circuit fast-fail reduces post-trip latency by 40x">
+          Once the circuit breaker opens after sufficient failures, subsequent requests are rejected in ~23ms via
+          <code>allow.lua</code> fast-return — without waiting for a network timeout. This is a 40× improvement over
+          the 1003ms Redis outage path and preserves server capacity for healthy endpoints during dependency recovery.
+        </RLCallout>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e4e4e7", margin: "16px 0 8px" }}>
+          Claim: Graceful Audit-Worker Shutdown{" "}
+          <RLEvidenceBadge type="SOURCE-PROVEN" /> <RLEvidenceBadge type="TEST-PROVEN" />
+        </h3>
+        <p>
+          On <code>SIGINT</code> or <code>SIGTERM</code>, the limiter shuts down in order: admin server, then main
+          server, then <code>auditStore.Shutdown(ctx)</code>. This closes the bounded audit queue (4096) and waits for
+          all 4 worker goroutines to finish. Redis is closed only after <code>auditStore.RedisCloseSafe()</code>
+          returns true — preventing use-after-close panics if workers are still writing.
+        </p>
+        <RLSourceExcerpt
+          source="cmd/limiter/main.go — graceful shutdown order"
+          establishes="Verified shutdown sequence: admin → main HTTP → audit drain → OTEL flush → Redis close. 5*time.Second context."
+        >{`ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+if adminSrv != nil {
+    if err := adminSrv.Shutdown(ctx); err != nil { /* log */ }
+}
+if err := srv.Shutdown(ctx); err != nil {
+    logging.Fatal("Server forced to shutdown", "error", err)
+}
+if auditStore != nil && auditCfg.Enabled && auditCfg.Async {
+    if err := auditStore.Shutdown(ctx); err != nil { /* log */ }
+}
+if err := otelShutdown(ctx); err != nil { /* log */ }
+if auditStore != nil && !auditStore.RedisCloseSafe() {
+    logging.Warn(ctx, "Skipping Redis close while audit workers are still active", ...)
+} else if err := redisclient.Close(rdb); err != nil { /* log */ }`}</RLSourceExcerpt>
+
+        <h2 className="guide-sub-heading" id="operational">Operational Durability</h2>
+        <p>
+          The 15-minute soak test is the only evidence tier for long-run stability. It confirms immediate memory
+          stability, zero error accumulation, and stable tail latency under sustained moderate load. It does not
+          constitute multi-month production validation.
+        </p>
+        <RLStatGrid stats={[
+          { value: "299.2 RPS", label: "Actual throughput (300 target, 0.3% deviation)", evidence: "BENCHMARK-PROVEN" },
+          { value: "269,269", label: "Total requests over 15 minutes", evidence: "BENCHMARK-PROVEN" },
+          { value: "10.01ms", label: "p99 latency (stream-derived, under 100ms threshold)", evidence: "BENCHMARK-PROVEN" }
+        ]} />
+        <RLCallout variant="limitation" title="Soak scope boundary">
+          The 15-minute window validates immediate stability: no memory growth, no socket leak accumulation, no
+          cumulative latency drift. Long-horizon concerns — Redis AOF growth, connection pool drift, Go heap
+          fragmentation over days of traffic — are outside the verified window.{" "}
+          <RLEvidenceBadge type="DOCUMENTED LIMITATION" />
+        </RLCallout>
 
         <h2 className="guide-sub-heading" id="state-validation">State Validation Assertions</h2>
         <p>
@@ -251,24 +667,37 @@ export const verificationPages = {
         </p>
         <ul className="guide-bullets-list">
           <li>
-            <strong>Token Bucket:</strong> After a concurrent burst with no refill window, remaining tokens in the HASH
-            plus allowed request count equals bucket capacity.
+            <strong>Token Bucket post-burst:</strong> After a concurrent burst with no refill window, remaining
+            tokens in the HASH plus allowed request count equals bucket capacity. Deduction math is verified at the
+            key level, not just inferred from HTTP responses.
           </li>
           <li>
-            <strong>Sliding Window:</strong> ZSET cardinality matches the number of allowed request records in the
-            active window.
+            <strong>Sliding Window:</strong> ZSET cardinality matches the number of allowed request records in
+            the active window. Expired entries are pruned before each new check; cardinality never exceeds capacity.
           </li>
           <li>
-            <strong>Hierarchical All-or-Nothing:</strong> On denial, no tier HASH shows a token deduction — only refill
-            state updates. Verified via <code>TestHierarchicalLuaScript_SpeculativeRead</code> and hierarchical
-            integration suites.
+            <strong>Hierarchical All-or-Nothing:</strong> On denial, no tier HASH shows a token deduction — only
+            refill state updates. Verified via <code>TestHierarchicalLuaScript_SpeculativeRead</code>: a deny at
+            any tier leaves all tier token balances unchanged.
           </li>
         </ul>
 
+        <RLCallout variant="warning" title="What is not proven on this page">
+          <ul style={{ margin: "8px 0 0", paddingLeft: 20, lineHeight: 1.7, fontSize: 13 }}>
+            <li>Exactly-once upstream side effects — crash-before-complete may cause duplicate backend execution.</li>
+            <li>Redis Cluster compatibility for hierarchical scripts (CROSSSLOT limitation).</li>
+            <li>Multi-month memory and connection stability beyond the 15-minute soak window.</li>
+            <li>Cross-replica denial cache synchronisation — denied keys on sidecar A are invisible to sidecar B.</li>
+            <li>Override lag below <code>OVERRIDE_CACHE_TTL_MS</code> (default 5s propagation window).</li>
+          </ul>
+          <span style={{ display: "block", marginTop: 8 }}><RLEvidenceBadge type="DOCUMENTED LIMITATION" /></span>
+        </RLCallout>
+
         <RLRelatedPages pages={[
-          { section: "correctness-and-verification", slug: "test-strategy", title: "Test Strategy", note: "43 test files and CI pipeline" },
-          { section: "architecture", slug: "system-invariants", title: "System Invariants", note: "formal invariant definitions" },
-          { section: "correctness-and-verification", slug: "known-limitations", title: "Known Limitations", note: "what is NOT proven" }
+          { section: "correctness-and-verification", slug: "test-strategy", title: "Test Strategy", note: "43 test files and CI pipeline detail" },
+          { section: "correctness-and-verification", slug: "concurrency-and-race-safety", title: "Concurrency & Race Safety", note: "race detector results and singleflight proof" },
+          { section: "correctness-and-verification", slug: "multi-replica-verification", title: "Multi-Replica Verification", note: "10/50 of 60 topology and test file" },
+          { section: "correctness-and-verification", slug: "known-limitations", title: "Known Limitations", note: "full scope boundaries and operational implications" }
         ]} />
       </div>
     )
@@ -301,9 +730,9 @@ export const verificationPages = {
 
         <h2 className="guide-sub-heading" id="inventory">Test Inventory</h2>
         <RLStatGrid stats={[
-          { value: "43", label: "*_test.go files across packages", color: "#60a5fa", evidence: "TEST-PROVEN" },
-          { value: "6+", label: "Package directories with test coverage", color: "#c084fc" },
-          { value: "0", label: "Race detector warnings (CI gate)", color: "#22c55e", evidence: "TEST-PROVEN" }
+          { value: "43", label: "*_test.go files across packages", evidence: "TEST-PROVEN" },
+          { value: "6+", label: "Package directories with test coverage", evidence: "TEST-PROVEN" },
+          { value: "0", label: "Race detector warnings (CI gate)", evidence: "TEST-PROVEN" }
         ]} />
         <p>
           Test files are distributed across the packages that own production behaviour — not concentrated in a single
@@ -491,9 +920,9 @@ go test -race -run TestClaimSingleWinnerUnderConcurrency ./internal/sidecar/idem
           <RLEvidenceBadge type="TEST-PROVEN" />
         </p>
         <RLStatGrid stats={[
-          { value: "PASS", label: "go test -race ./... (CI gate)", color: "#22c55e", evidence: "TEST-PROVEN" },
-          { value: "43", label: "Test files exercised under -race", color: "#60a5fa" },
-          { value: "0", label: "Documented data races", color: "#ff5cad" }
+          { value: "PASS", label: "go test -race ./... (CI gate)", evidence: "TEST-PROVEN" },
+          { value: "43", label: "Test files exercised under -race", evidence: "TEST-PROVEN" },
+          { value: "0", label: "Documented data races", evidence: "TEST-PROVEN" }
         ]} />
 
         <h2 className="guide-sub-heading" id="singleflight">Singleflight Collapsing Proof</h2>
@@ -598,9 +1027,9 @@ go test -race -v -count=5 ./cmd/sidecar/...`}
         </p>
         <DocsMermaid chart={chaosFailClosedSequence} />
         <RLStatGrid stats={[
-          { value: "503", label: "HTTP response during docker pause redis", color: "#ef4444", evidence: "RUNTIME-PROVEN" },
-          { value: "~1003ms", label: "Limiter Redis timeout bound", color: "#fbbf24", evidence: "BENCHMARK-PROVEN" },
-          { value: "0", label: "Over-admitted requests during outage", color: "#22c55e", evidence: "RUNTIME-PROVEN" }
+          { value: "503", label: "HTTP response during docker pause redis", evidence: "RUNTIME-PROVEN" },
+          { value: "~1003ms", label: "Limiter Redis timeout bound", evidence: "BENCHMARK-PROVEN" },
+          { value: "0", label: "Over-admitted requests during outage", evidence: "RUNTIME-PROVEN" }
         ]} />
         <RLCallout variant="warning" title="FAIL_OPEN breaks this guarantee">
           Setting <code>FAIL_OPEN=true</code> causes the sidecar to forward traffic upstream when the limiter is
@@ -754,9 +1183,9 @@ docker compose -f docker-compose.ha.yml unpause redis-master`}
           capacity 10 and no refill during the burst window. <RLEvidenceBadge type="RUNTIME-PROVEN" />
         </p>
         <RLStatGrid stats={[
-          { value: "60", label: "Total concurrent requests", color: "#ff5cad", evidence: "RUNTIME-PROVEN" },
-          { value: "10", label: "Allowed (200 OK)", color: "#22c55e", evidence: "RUNTIME-PROVEN" },
-          { value: "50", label: "Denied (429 Too Many Requests)", color: "#ef4444", evidence: "RUNTIME-PROVEN" }
+          { value: "60", label: "Total concurrent requests", evidence: "RUNTIME-PROVEN" },
+          { value: "10", label: "Allowed (200 OK)", evidence: "RUNTIME-PROVEN" },
+          { value: "50", label: "Denied (429 Too Many Requests)", evidence: "RUNTIME-PROVEN" }
         ]} />
         <RLCallout variant="info" title="Correctness invariant">
           Allowed + denied = total requests. Allowed = bucket capacity (no refill during burst). Zero over-admission
@@ -886,9 +1315,9 @@ wg.Wait()
           <RLEvidenceBadge type="DOCUMENTED LIMITATION" /> for beyond.
         </p>
         <RLStatGrid stats={[
-          { value: "15 min", label: "Longest verified soak duration", color: "#fbbf24", evidence: "BENCHMARK-PROVEN" },
-          { value: "299.2 RPS", label: "Actual throughput (300 target)", color: "#22c55e", evidence: "BENCHMARK-PROVEN" },
-          { value: "unproven", label: "Multi-month production stability", color: "#ef4444", evidence: "DOCUMENTED LIMITATION" }
+          { value: "15 min", label: "Longest verified soak duration", evidence: "BENCHMARK-PROVEN" },
+          { value: "299.2 RPS", label: "Actual throughput (300 target)", evidence: "BENCHMARK-PROVEN" },
+          { value: "unproven", label: "Multi-month production stability", evidence: "DOCUMENTED LIMITATION" }
         ]} />
 
         <h2 className="guide-sub-heading" id="denial-cache">Cross-Replica Denial Cache Not Synced</h2>
