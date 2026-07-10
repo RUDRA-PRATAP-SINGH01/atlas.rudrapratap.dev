@@ -1,8 +1,13 @@
-# ATLAS
+<p align="center">
+  <img src="public/images/atlas-logo.png" alt="ATLAS" width="480" />
+</p>
 
-**The Interactive Atlas of Modern Software Engineering**
-
-[rps-atlas.netlify.app](https://rps-atlas.netlify.app/)
+<p align="center">
+  <strong>The Interactive Atlas of Modern Software Engineering</strong><br />
+  <a href="https://rps-atlas.netlify.app/">rps-atlas.netlify.app</a>
+  ·
+  <a href="https://atlas.rudrapratap.dev/">atlas.rudrapratap.dev</a>
+</p>
 
 ---
 
@@ -14,6 +19,7 @@ I do not write beginner tutorials or framework walkthroughs. I start with questi
 
 - Distributed Systems
 - Databases and Storage Engines
+- Rate Limiting and Edge Proxies
 - AI Infrastructure and ML Systems
 - Networking and Operating Systems
 - System Design and Cloud Architecture
@@ -24,195 +30,192 @@ I do not write beginner tutorials or framework walkthroughs. I start with questi
 I design every publication to connect theory with practice. A typical ATLAS piece may combine:
 
 - Long-form technical writing
-- Architecture diagrams and animated walkthroughs
+- Architecture diagrams and Mermaid walkthroughs
 - Step-by-step execution visualizations
 - Production case studies and implementation notes
-- Code snippets, references, and links to primary sources
-- Interactive simulations for exploring systems visually
+- Source-backed code excerpts and evidence labels
+- Interactive exploration where it earns its keep
 
 My focus is always on **why** a system is shaped the way it is, **what** it costs you in trade-offs, and **when** it belongs—or does not belong—in production.
 
-## What I built in this repo
+## What this repository is
 
-This repository is the full ATLAS web application—designed, implemented, and documented by me. It includes:
+This repository is the full ATLAS web application—designed, implemented, and documented by me. It ships as a static React SPA with route-level code splitting, a shared docs component system, and Netlify-ready deploy config.
 
-- The marketing landing page with scroll-driven animations
-- The project documentation hub
-- The complete PebbleDB technical guide (50+ pages: architecture, internals, implementation, testing, debugging, and reference)
-- Global documentation search, sidebar navigation, Mermaid diagrams, and Go code blocks
+### Featured technical guides
 
-[PebbleDB](https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB) is my high-performance LSM-tree storage engine written in Go. The docs in this site are the companion to that implementation—I wrote both the engine and the documentation that explains how it works.
+| Guide | What it is | Live entry |
+| ----- | ---------- | ---------- |
+| **PebbleDB** | Companion docs for my Go LSM-tree storage engine (50+ pages: architecture, internals, implementation, testing, debugging, reference) | [`/project-docs/guide`](https://rps-atlas.netlify.app/project-docs/guide) |
+| **Distributed Rate Limiter** | 54-page source-backed case study of a Go sidecar + Redis/Lua rate limiting platform (architecture, engine, resilience, routing, observability, performance lab, production, verification, journal) | [`/docs/distributed-rate-limiter/introduction/start-here`](https://rps-atlas.netlify.app/docs/distributed-rate-limiter/introduction/start-here) |
 
-The app is a static React SPA that I structured for code splitting, fast initial load, and incremental doc page delivery.
+- [PebbleDB](https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB) — high-performance LSM-tree storage engine in Go
+- [Distributed Rate Limiter](https://github.com/RUDRA-PRATAP-SINGH01/Distributed-rate-limiter) — implementation this Atlas guide documents (source of truth for claims)
 
-### Stack
+Also included: marketing landing page (GSAP + Locomotive Scroll), project docs hub, Ctrl+K search, sidebar + on-this-page navigation, Mermaid diagrams, and syntax-highlighted code blocks.
+
+## Stack
 
 | Layer | Technology |
 | ----- | ---------- |
 | UI | React 19 |
 | Build | Vite 8 |
-| Routing | React Router 7 |
-| Styling | Tailwind CSS 4, custom CSS (`src/styles/index.css`) |
-| Animation | GSAP, ScrollTrigger, Locomotive Scroll (landing only) |
-| Diagrams | Mermaid 11 (lazy-loaded per doc page) |
+| Routing | React Router 7 (`BrowserRouter`) |
+| Styling | Tailwind CSS 4 + `src/core/styles/index.css` |
+| Docs UI | Shared component system under `src/features/docs/components/system/` |
+| Animation | GSAP, Locomotive Scroll (landing only) |
+| Diagrams | Mermaid 11 (lazy-loaded, viewport-gated, cached) |
 | Lint | Oxlint |
+| Hosting | Netlify (static SPA) |
+| Node | 22 (see `.nvmrc`; `engines.node >= 20`) |
 
-### Architecture overview
+## Architecture overview
 
 ```
 Browser
-  └── main.jsx                 # Entry point
-        └── app/App.jsx        # Router + Suspense boundary
-              └── routes/AppRoutes.jsx
-                    └── lazy page chunks (per route)
+  └── src/main.jsx
+        └── src/app/App.jsx              # BrowserRouter + Suspense
+              └── src/core/routing/AppRoutes.jsx
+                    └── lazy pages (src/core/routing/lazyPages.js)
+                          ├── features/landing/
+                          ├── features/blog/
+                          └── features/docs/
+                                ├── PebbleDB guide pages
+                                └── rate-limiter/ (shell + lazy section registry)
 ```
 
-- **Route-level code splitting**: I lazy-load every page via `src/routes/lazyPages.js`.
-- **Path alias**: `@/` maps to `src/` (configured in Vite and jsconfig).
-- **URL-driven docs**: the folder structure under `src/pages/docs/` mirrors public routes under `/project-docs/`.
-- **Shared doc shell**: `DocsNavbar`, `DocsSidebar`, `DocsMermaid`, and `GoCodeBlock` live in `src/components/docs/`.
-- **Search index**: `src/data/docsIndex.js` powers Ctrl+K search across all guide pages.
+- **Route-level code splitting** — pages load via `React.lazy` in `src/core/routing/lazyPages.js`
+- **Path alias** — `@/` → `src/` (Vite + `jsconfig.json`)
+- **Rate Limiter docs** — light nav metadata in `registry/nav.js`; page bodies lazy-load per section (`rl-section-*` chunks)
+- **Docs component system** — callouts, evidence badges, tables, metrics, Mermaid shell, code blocks, decision/limitation primitives
+- **Search** — `src/features/docs/engine/docsIndex.js` powers Ctrl+K across PebbleDB + Rate Limiter routes
+- **Mermaid** — isolated vendor chunk; runtime loads only when a diagram is near the viewport
 
-### Project structure
+## Project structure
 
 ```
 atlas.rudrapratap.dev/
 ├── public/
-│   ├── _redirects              # SPA fallback (Netlify)
-│   ├── fonts/                  # Poppins, Manrope (woff2)
-│   └── images/                 # Static assets (hero, docs, project cards)
-├── scripts/
-│   └── restructure.mjs         # One-time migration helper (optional)
+│   ├── _redirects                 # SPA fallback + legacy RL redirects
+│   ├── fonts/                     # Poppins, Manrope (woff2)
+│   └── images/                    # Logo, hero, project cards
 ├── src/
-│   ├── app/
-│   │   └── App.jsx             # Root app shell (BrowserRouter + Suspense)
-│   ├── components/
-│   │   ├── common/
-│   │   │   └── RouteFallback.jsx
-│   │   ├── docs/
-│   │   │   ├── DocsNavbar.jsx
-│   │   │   ├── DocsSidebar.jsx
-│   │   │   ├── DocsMermaid.jsx
-│   │   │   └── GoCodeBlock.jsx
-│   │   ├── layout/
-│   │   │   └── Navbar.jsx
-│   │   └── ui/
-│   │       └── PillButton.jsx
-│   ├── data/
-│   │   ├── docsIndex.js        # Search index for all doc routes
-│   │   └── pebbledbReferences.js
-│   ├── hooks/
-│   │   └── useLocomotiveScroll.js
-│   ├── pages/
-│   │   ├── landing/
-│   │   │   └── LandingPage.jsx
-│   │   ├── docs/
-│   │   │   ├── hub/
-│   │   │   │   └── ProjectDocsPage.jsx
-│   │   │   ├── reference/
-│   │   │   │   └── ReferenceDocsPage.jsx
-│   │   │   └── guide/
-│   │   │       ├── IntroDocsPage.jsx
-│   │   │       ├── SetupDocsPage.jsx
-│   │   │       ├── LsmFundamentalsDocsPage.jsx
-│   │   │       ├── pebbledb/
-│   │   │       ├── architecture/
-│   │   │       ├── core-components/
-│   │   │       ├── internals/
-│   │   │       ├── implementation/
-│   │   │       ├── design/
-│   │   │       ├── performance/
-│   │   │       ├── testing/
-│   │   │       ├── debugging/
-│   │   │       └── reference/
-│   │   ├── BlogPage.jsx
-│   │   └── NotFoundPage.jsx
-│   ├── routes/
-│   │   ├── lazyPages.js        # All lazy import definitions
-│   │   └── AppRoutes.jsx       # Route table
-│   ├── styles/
-│   │   └── index.css           # Global styles and design tokens
-│   └── main.jsx
+│   ├── main.jsx
+│   ├── app/App.jsx
+│   ├── core/
+│   │   ├── components/            # RouteFallback, shared UI
+│   │   ├── hooks/
+│   │   ├── routing/               # AppRoutes, lazyPages
+│   │   └── styles/index.css       # Global styles + docs tokens import
+│   └── features/
+│       ├── landing/               # Marketing landing
+│       ├── blog/
+│       └── docs/
+│           ├── components/        # DocsNavbar, DocsSidebar, DocsMermaid, GoCodeBlock
+│           │   └── system/        # Reusable docs primitives (A–H families)
+│           ├── engine/            # docsIndex, references
+│           └── pages/
+│               ├── ProjectDocsPage.jsx, IntroDocsPage.jsx, …
+│               ├── architecture/, core-components/, internals/, …
+│               └── rate-limiter/
+│                   ├── RateLimiterDocPage.jsx
+│                   ├── components/RLDocBlocks.jsx
+│                   └── registry/  # nav.js + section modules (54 pages)
 ├── index.html
-├── jsconfig.json               # @ path alias for editor tooling
-├── netlify.toml                # Netlify build, SPA redirects, cache headers
-├── .nvmrc                      # Node 22 for local + Netlify
-├── package.json
+├── netlify.toml                   # Build, redirects, cache, security headers
 ├── vite.config.js
+├── package.json
+├── .nvmrc
 └── README.md
 ```
 
-### Route map (documentation)
+## Route map
 
-| URL prefix | Source folder |
-| ---------- | ------------- |
-| `/` | `pages/landing/` |
-| `/blog` | `pages/BlogPage.jsx` |
-| `/project-docs` | `pages/docs/hub/` |
-| `/project-docs/reference` | `pages/docs/reference/` |
-| `/project-docs/guide` | `pages/docs/guide/` |
-| `/project-docs/guide/architecture/*` | `pages/docs/guide/architecture/` |
-| `/project-docs/guide/core-components/*` | `pages/docs/guide/core-components/` |
-| `/project-docs/guide/internals/*` | `pages/docs/guide/internals/` |
-| `/project-docs/guide/implementation/*` | `pages/docs/guide/implementation/` |
-| `/project-docs/guide/design-*` | `pages/docs/guide/design/` |
-| `/project-docs/guide/performance/*` | `pages/docs/guide/performance/` |
-| `/project-docs/guide/testing/*` | `pages/docs/guide/testing/` |
-| `/project-docs/guide/debugging/*` | `pages/docs/guide/debugging/` |
-| `/project-docs/guide/reference/*` | `pages/docs/guide/reference/` |
+| URL prefix | Feature |
+| ---------- | ------- |
+| `/` | Landing |
+| `/blog` | Blog |
+| `/project-docs` | Docs hub |
+| `/project-docs/reference` | Reference overview |
+| `/project-docs/guide/**` | PebbleDB technical guide |
+| `/docs/distributed-rate-limiter/:section/:slug` | Rate Limiter guide (54 pages) |
+| `/project-docs/guide/rate-limiter/*` | Legacy → 301 to new Rate Limiter entry |
 
-### Adding a new documentation page
+### Rate Limiter sections
 
-When I add a new doc page, I follow this flow:
+Introduction · Architecture · Rate Limiting Engine · Resilience · Request Routing · Observability · Performance Lab · Production Engineering · Correctness & Verification · Engineering Journal
 
-1. Create the page component under the matching folder in `src/pages/docs/guide/`.
-2. Add a lazy import in `src/routes/lazyPages.js`.
-3. Register the route in `src/routes/AppRoutes.jsx`.
-4. Add an entry to `src/data/docsIndex.js` for search.
-5. Link the page from `src/components/docs/DocsSidebar.jsx` if it should appear in navigation.
+## Docs component system
 
-Shared imports use the `@/` alias:
+Repeated doc patterns live in `src/features/docs/components/system/`:
+
+| Family | Examples |
+| ------ | -------- |
+| Structure | `DocsHeader`, `DocsSection`, `DocsGrid`, `RelatedPages`, `PageNavigation`, `OnThisPage` |
+| Callouts | `TechnicalCallout` |
+| Evidence | `EvidenceBadge`, `EvidencePanel` |
+| Metrics | `MetricCard`, `MetricGrid`, `LatencySummary`, `BenchmarkTable` |
+| Diagrams | `MermaidDiagram`, `RequestFlow`, `FlowStep`, `Timeline` |
+| Code | `CodeBlock`, `CopyButton`, `SourceExcerpt`, `CodeTabs` |
+| Tables | `DocsTable`, `ComparisonTable`, `FailureMatrix`, `GuaranteeMatrix` |
+| Decisions | `DecisionRecord`, `Invariant`, `Guarantee`, `Limitation`, `TradeoffPanel` |
+
+Rate Limiter pages import via `RLDocBlocks.jsx` (compatibility aliases) or directly from the system module.
+
+### Adding a PebbleDB doc page
+
+1. Create the page under `src/features/docs/pages/…`
+2. Add a lazy import in `src/core/routing/lazyPages.js`
+3. Register the route in `src/core/routing/AppRoutes.jsx`
+4. Add a search entry in `src/features/docs/engine/docsIndex.js`
+5. Link it from `src/features/docs/components/DocsSidebar.jsx` if it belongs in the nav
+
+### Adding a Rate Limiter doc page
+
+1. Add the page object to the matching section file under `src/features/docs/pages/rate-limiter/registry/`
+2. Register slug + section in `registry/nav.js` (`canonicalNavigationOrder` + `pageTitles`)
+3. Add a search entry in `docsIndex.js`
+4. Link from `DocsSidebar.jsx`
 
 ```jsx
-import DocsNavbar from "@/components/docs/DocsNavbar";
-import DocsSidebar from "@/components/docs/DocsSidebar";
-import DocsMermaid from "@/components/docs/DocsMermaid";
+import { TechnicalCallout, MermaidDiagram, SourceExcerpt } from "@/features/docs/components/system";
 ```
 
-### Getting started
+## Getting started
+
+Requirements: **Node.js 20+** (22 recommended).
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173).
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173).
 
 ### Scripts
 
 | Command | Description |
 | ------- | ----------- |
-| `npm run dev` | Start Vite development server |
-| `npm run build` | Production build to `dist/` |
+| `npm run dev` | Vite development server |
+| `npm run build` | Production build → `dist/` |
 | `npm run preview` | Serve the production build locally |
-| `npm run lint` | Run Oxlint |
+| `npm run lint` | Oxlint |
+| `npm run netlify:build` | `npm ci && npm run build` (CI-style) |
 
-### Deploy on Netlify
+## Deploy on Netlify
 
-This project is ready to deploy on Netlify as a static SPA. Configured in-repo:
+Configured in-repo—no environment variables required:
 
-- `netlify.toml` — `npm ci && npm run build`, publish `dist`, Node 22, SPA fallback, legacy redirects, cache/security headers
+- `netlify.toml` — `npm ci && npm run build`, publish `dist`, Node 22, SPA fallback, legacy redirects, cache + security headers
 - `public/_redirects` — same SPA + legacy redirects (copied into `dist/` on build)
-- `.nvmrc` — Node 22 (matches Netlify)
-
-No environment variables are required.
+- `.nvmrc` — Node 22
 
 **Option A: Connect Git (recommended)**
 
-1. Push this repo to GitHub.
-2. In [Netlify](https://app.netlify.com/), **Add new site** → **Import an existing project**.
-3. Select the repository. Netlify reads `netlify.toml` automatically — leave Build command / Publish directory blank so the file wins.
-4. Deploy. Then add custom domain `atlas.rudrapratap.dev` under Domain settings if needed.
+1. Push this repo to GitHub
+2. Netlify → **Add new site** → **Import an existing project**
+3. Leave Build command / Publish directory blank so `netlify.toml` wins
+4. Deploy, then attach `atlas.rudrapratap.dev` under Domain settings if needed
 
 **Option B: Netlify CLI**
 
@@ -233,10 +236,10 @@ Upload `dist/` at [Netlify Drop](https://app.netlify.com/drop).
 **Verify after deploy**
 
 - `/` loads the landing page
-- Refresh on `/project-docs/guide/architecture/write-path` still works (SPA fallback)
+- Refresh on a deep PebbleDB URL still works (SPA fallback)
 - `/docs/distributed-rate-limiter/introduction/start-here` loads
-- `/project-docs/guide/rate-limiter/introduction` 301s to the new rate-limiter docs
-- `Ctrl+K` search works on docs pages
+- `/project-docs/guide/rate-limiter/introduction` 301s to the new Rate Limiter docs
+- Ctrl+K search works on docs pages
 
 **Local production preview**
 
@@ -251,15 +254,17 @@ npm run preview
 npm run build
 ```
 
-Deploy the `dist/` directory to Vercel, Cloudflare Pages, GitHub Pages, or any static host. Configure SPA fallback so all routes serve `index.html`.
+Deploy `dist/` to Vercel, Cloudflare Pages, GitHub Pages, or any static host. Configure SPA fallback so all routes serve `index.html`.
 
-### Performance decisions I made
+## Performance decisions
 
-- The initial JS bundle excludes all doc pages and Mermaid; they load on navigation.
-- Locomotive Scroll CSS and logic load only on the landing page (`useLocomotiveScroll`).
-- Mermaid diagrams are cached in memory by chart content (`DocsMermaid`).
-- Below-the-fold images on the landing page use `loading="lazy"` with explicit dimensions.
+- Initial JS excludes doc page bodies and Mermaid; they load on navigation
+- Rate Limiter sections split into separate Vite chunks (`rl-section-*`)
+- Mermaid is a dedicated vendor chunk and only initializes near the viewport
+- Copy-to-clipboard is an isolated interactive island; code highlighting stays lightweight/custom
+- Locomotive Scroll loads only on the landing page
+- Fingerprinted `/assets/*` and fonts get long-cache headers; `index.html` is always revalidated
 
-### License
+## License
 
 Private repository. All rights reserved unless otherwise noted.
