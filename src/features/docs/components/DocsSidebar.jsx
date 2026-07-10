@@ -11,12 +11,18 @@ export default function DocsSidebar() {
   }, [location.pathname]);
 
   const [expanded, setExpanded] = useState({
-    pebbleDb: !location.pathname.startsWith("/project-docs/guide/rate-limiter"),
-    rateLimit: location.pathname.startsWith("/project-docs/guide/rate-limiter"),
-    rlArchitecture: location.pathname.startsWith("/project-docs/guide/rate-limiter/architecture") || location.pathname.startsWith("/project-docs/guide/rate-limiter/request-lifecycle") || location.pathname.startsWith("/project-docs/guide/rate-limiter/design-decisions") || location.pathname.startsWith("/project-docs/guide/rate-limiter/system-invariants") || location.pathname.startsWith("/project-docs/guide/rate-limiter/engineering-tradeoffs"),
-    rlCore: location.pathname.startsWith("/project-docs/guide/rate-limiter/lua-scripts") || location.pathname.startsWith("/project-docs/guide/rate-limiter/hierarchical") || location.pathname.startsWith("/project-docs/guide/rate-limiter/circuit-breaker") || location.pathname.startsWith("/project-docs/guide/rate-limiter/idempotency"),
-    rlInfra: location.pathname.startsWith("/project-docs/guide/rate-limiter/redis-ha") || location.pathname.startsWith("/project-docs/guide/rate-limiter/routing"),
-    rlOps: location.pathname.startsWith("/project-docs/guide/rate-limiter/configuration") || location.pathname.startsWith("/project-docs/guide/rate-limiter/observability") || location.pathname.startsWith("/project-docs/guide/rate-limiter/benchmarks") || location.pathname.startsWith("/project-docs/guide/rate-limiter/runbooks") || location.pathname.startsWith("/project-docs/guide/rate-limiter/chaos"),
+    pebbleDb: location.pathname.startsWith("/project-docs") && !location.pathname.startsWith("/project-docs/guide/rate-limiter"),
+    rateLimit: location.pathname.startsWith("/docs/distributed-rate-limiter") || location.pathname.startsWith("/project-docs/guide/rate-limiter"),
+    rlIntro: location.pathname.startsWith("/docs/distributed-rate-limiter/introduction"),
+    rlArch: location.pathname.startsWith("/docs/distributed-rate-limiter/architecture"),
+    rlEngine: location.pathname.startsWith("/docs/distributed-rate-limiter/rate-limiting-engine"),
+    rlResilience: location.pathname.startsWith("/docs/distributed-rate-limiter/resilience"),
+    rlRouting: location.pathname.startsWith("/docs/distributed-rate-limiter/request-routing"),
+    rlObs: location.pathname.startsWith("/docs/distributed-rate-limiter/observability"),
+    rlPerformance: location.pathname.startsWith("/docs/distributed-rate-limiter/performance-lab"),
+    rlProduction: location.pathname.startsWith("/docs/distributed-rate-limiter/production-engineering"),
+    rlVerification: location.pathname.startsWith("/docs/distributed-rate-limiter/correctness-and-verification"),
+    rlJournal: location.pathname.startsWith("/docs/distributed-rate-limiter/engineering-journal"),
     architecture: location.pathname.startsWith("/project-docs/guide/architecture"),
     coreComponents: location.pathname.startsWith("/project-docs/guide/core-components"),
     internals: location.pathname.startsWith("/project-docs/guide/internals"),
@@ -653,154 +659,283 @@ export default function DocsSidebar() {
           {expanded.rateLimit && (
             <div style={{ marginLeft: 8, borderLeft: "1px solid rgba(255,92,173,0.1)", paddingLeft: 8 }}>
 
-              {/* Top-level intro */}
-              <ul className="guide-sidebar-group-list" style={{ marginTop: 6, marginBottom: 12 }}>
-                <li className="guide-sidebar-group-item">
-                  <Link to="/project-docs/guide/rate-limiter/introduction" className={getLinkClass("/project-docs/guide/rate-limiter/introduction")}>
-                    Introduction
-                  </Link>
-                </li>
-              </ul>
-
-              {/* Architecture sub-section */}
+              {/* 1. INTRODUCTION */}
               <div className="guide-sidebar-group">
-                <button
-                  onClick={() => toggleSection("rlArchitecture")}
-                  className="guide-sidebar-dropdown-toggle"
-                  aria-expanded={expanded.rlArchitecture}
-                >
-                  <span>Architecture</span>
-                  {renderChevron(expanded.rlArchitecture)}
+                <button onClick={() => toggleSection("rlIntro")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlIntro}>
+                  <span>1. Introduction</span>
+                  {renderChevron(expanded.rlIntro)}
                 </button>
-                {expanded.rlArchitecture && (
+                {expanded.rlIntro && (
                   <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/architecture" className={getLinkClass("/project-docs/guide/rate-limiter/architecture")}>
-                        System Architecture
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/introduction/start-here" className={getLinkClass("/docs/distributed-rate-limiter/introduction/start-here")}>Start Here</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/request-lifecycle" className={getLinkClass("/project-docs/guide/rate-limiter/request-lifecycle")}>
-                        Request Lifecycle
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/introduction/the-problem" className={getLinkClass("/docs/distributed-rate-limiter/introduction/the-problem")}>The Problem</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/design-decisions" className={getLinkClass("/project-docs/guide/rate-limiter/design-decisions")}>
-                        Design Decisions
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/introduction/guarantees-and-limitations" className={getLinkClass("/docs/distributed-rate-limiter/introduction/guarantees-and-limitations")}>Guarantees &amp; Limitations</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/system-invariants" className={getLinkClass("/project-docs/guide/rate-limiter/system-invariants")}>
-                        System Invariants
-                      </Link>
-                    </li>
-                    <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/engineering-tradeoffs" className={getLinkClass("/project-docs/guide/rate-limiter/engineering-tradeoffs")}>
-                        Engineering Trade-offs
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/introduction/five-minute-technical-tour" className={getLinkClass("/docs/distributed-rate-limiter/introduction/five-minute-technical-tour")}>5-Minute Technical Tour</Link>
                     </li>
                   </ul>
                 )}
               </div>
 
-              {/* Core Engine sub-section */}
+              {/* 2. ARCHITECTURE */}
               <div className="guide-sidebar-group">
-                <button
-                  onClick={() => toggleSection("rlCore")}
-                  className="guide-sidebar-dropdown-toggle"
-                  aria-expanded={expanded.rlCore}
-                >
-                  <span>Core Engine</span>
-                  {renderChevron(expanded.rlCore)}
+                <button onClick={() => toggleSection("rlArch")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlArch}>
+                  <span>2. Architecture</span>
+                  {renderChevron(expanded.rlArch)}
                 </button>
-                {expanded.rlCore && (
+                {expanded.rlArch && (
                   <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/lua-scripts" className={getLinkClass("/project-docs/guide/rate-limiter/lua-scripts")}>
-                        Algorithms &amp; Lua Scripts
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/architecture/system-at-a-glance" className={getLinkClass("/docs/distributed-rate-limiter/architecture/system-at-a-glance")}>System at a Glance</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/hierarchical" className={getLinkClass("/project-docs/guide/rate-limiter/hierarchical")}>
-                        Hierarchical Quotas
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/architecture/anatomy-of-a-request" className={getLinkClass("/docs/distributed-rate-limiter/architecture/anatomy-of-a-request")}>Anatomy of a Request</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/circuit-breaker" className={getLinkClass("/project-docs/guide/rate-limiter/circuit-breaker")}>
-                        Circuit Breaker
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/architecture/why-this-architecture" className={getLinkClass("/docs/distributed-rate-limiter/architecture/why-this-architecture")}>Why This Architecture?</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/idempotency" className={getLinkClass("/project-docs/guide/rate-limiter/idempotency")}>
-                        Idempotency Layer
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/architecture/distributed-state-model" className={getLinkClass("/docs/distributed-rate-limiter/architecture/distributed-state-model")}>Distributed State Model</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/architecture/system-invariants" className={getLinkClass("/docs/distributed-rate-limiter/architecture/system-invariants")}>System Invariants</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/architecture/engineering-trade-offs" className={getLinkClass("/docs/distributed-rate-limiter/architecture/engineering-trade-offs")}>Engineering Trade-offs</Link>
                     </li>
                   </ul>
                 )}
               </div>
 
-              {/* Infrastructure sub-section */}
+              {/* 3. RATE LIMITING ENGINE */}
               <div className="guide-sidebar-group">
-                <button
-                  onClick={() => toggleSection("rlInfra")}
-                  className="guide-sidebar-dropdown-toggle"
-                  aria-expanded={expanded.rlInfra}
-                >
-                  <span>Infrastructure</span>
-                  {renderChevron(expanded.rlInfra)}
+                <button onClick={() => toggleSection("rlEngine")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlEngine}>
+                  <span>3. Rate Limiting Engine</span>
+                  {renderChevron(expanded.rlEngine)}
                 </button>
-                {expanded.rlInfra && (
+                {expanded.rlEngine && (
                   <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/redis-ha" className={getLinkClass("/project-docs/guide/rate-limiter/redis-ha")}>
-                        Redis &amp; Sentinel HA
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/rate-limiting-engine/algorithm-explorer" className={getLinkClass("/docs/distributed-rate-limiter/rate-limiting-engine/algorithm-explorer")}>Algorithm Explorer</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/routing" className={getLinkClass("/project-docs/guide/rate-limiter/routing")}>
-                        Intelligent Routing
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/rate-limiting-engine/redis-lua-atomicity" className={getLinkClass("/docs/distributed-rate-limiter/rate-limiting-engine/redis-lua-atomicity")}>Redis + Lua Atomicity</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/rate-limiting-engine/hierarchical-quotas" className={getLinkClass("/docs/distributed-rate-limiter/rate-limiting-engine/hierarchical-quotas")}>Hierarchical Quotas</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/rate-limiting-engine/multi-replica-correctness" className={getLinkClass("/docs/distributed-rate-limiter/rate-limiting-engine/multi-replica-correctness")}>Multi-Replica Correctness</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/rate-limiting-engine/configuration-overrides" className={getLinkClass("/docs/distributed-rate-limiter/rate-limiting-engine/configuration-overrides")}>Configuration Overrides</Link>
                     </li>
                   </ul>
                 )}
               </div>
 
-              {/* Operations sub-section */}
+              {/* 4. RESILIENCE */}
               <div className="guide-sidebar-group">
-                <button
-                  onClick={() => toggleSection("rlOps")}
-                  className="guide-sidebar-dropdown-toggle"
-                  aria-expanded={expanded.rlOps}
-                >
-                  <span>Operations</span>
-                  {renderChevron(expanded.rlOps)}
+                <button onClick={() => toggleSection("rlResilience")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlResilience}>
+                  <span>4. Resilience</span>
+                  {renderChevron(expanded.rlResilience)}
                 </button>
-                {expanded.rlOps && (
+                {expanded.rlResilience && (
                   <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/configuration" className={getLinkClass("/project-docs/guide/rate-limiter/configuration")}>
-                        Configuration Reference
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/resilience/failure-model" className={getLinkClass("/docs/distributed-rate-limiter/resilience/failure-model")}>Failure Model</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/observability" className={getLinkClass("/project-docs/guide/rate-limiter/observability")}>
-                        Observability
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/resilience/circuit-breaker" className={getLinkClass("/docs/distributed-rate-limiter/resilience/circuit-breaker")}>Circuit Breaker</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/benchmarks" className={getLinkClass("/project-docs/guide/rate-limiter/benchmarks")}>
-                        Benchmarks &amp; Performance
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/resilience/idempotency" className={getLinkClass("/docs/distributed-rate-limiter/resilience/idempotency")}>Idempotency</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/runbooks" className={getLinkClass("/project-docs/guide/rate-limiter/runbooks")}>
-                        Operations &amp; Runbooks
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/resilience/denial-cache-and-singleflight" className={getLinkClass("/docs/distributed-rate-limiter/resilience/denial-cache-and-singleflight")}>Denial Cache &amp; Singleflight</Link>
                     </li>
                     <li className="guide-sidebar-group-item">
-                      <Link to="/project-docs/guide/rate-limiter/chaos" className={getLinkClass("/project-docs/guide/rate-limiter/chaos")}>
-                        Chaos Engineering &amp; Testing
-                      </Link>
+                      <Link to="/docs/distributed-rate-limiter/resilience/failure-latency-budgets" className={getLinkClass("/docs/distributed-rate-limiter/resilience/failure-latency-budgets")}>Failure Latency Budgets</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/resilience/recovery-behaviour" className={getLinkClass("/docs/distributed-rate-limiter/resilience/recovery-behaviour")}>Recovery Behaviour</Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* 5. REQUEST ROUTING */}
+              <div className="guide-sidebar-group">
+                <button onClick={() => toggleSection("rlRouting")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlRouting}>
+                  <span>5. Request Routing</span>
+                  {renderChevron(expanded.rlRouting)}
+                </button>
+                {expanded.rlRouting && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/request-routing/sidecar-architecture" className={getLinkClass("/docs/distributed-rate-limiter/request-routing/sidecar-architecture")}>Sidecar Architecture</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/request-routing/intelligent-routing" className={getLinkClass("/docs/distributed-rate-limiter/request-routing/intelligent-routing")}>Intelligent Routing</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/request-routing/gateway-health-and-failover" className={getLinkClass("/docs/distributed-rate-limiter/request-routing/gateway-health-and-failover")}>Gateway Health &amp; Failover</Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* 6. OBSERVABILITY */}
+              <div className="guide-sidebar-group">
+                <button onClick={() => toggleSection("rlObs")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlObs}>
+                  <span>6. Observability</span>
+                  {renderChevron(expanded.rlObs)}
+                </button>
+                {expanded.rlObs && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/observability/overview" className={getLinkClass("/docs/distributed-rate-limiter/observability/overview")}>Overview</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/observability/distributed-tracing" className={getLinkClass("/docs/distributed-rate-limiter/observability/distributed-tracing")}>Distributed Tracing</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/observability/structured-logging" className={getLinkClass("/docs/distributed-rate-limiter/observability/structured-logging")}>Structured Logging</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/observability/metrics-and-prometheus" className={getLinkClass("/docs/distributed-rate-limiter/observability/metrics-and-prometheus")}>Metrics &amp; Prometheus</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/observability/grafana-dashboard" className={getLinkClass("/docs/distributed-rate-limiter/observability/grafana-dashboard")}>Grafana Dashboard</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/observability/incident-correlation" className={getLinkClass("/docs/distributed-rate-limiter/observability/incident-correlation")}>Incident Correlation</Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* 7. PERFORMANCE LAB */}
+              <div className="guide-sidebar-group">
+                <button onClick={() => toggleSection("rlPerformance")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlPerformance}>
+                  <span>7. Performance Lab</span>
+                  {renderChevron(expanded.rlPerformance)}
+                </button>
+                {expanded.rlPerformance && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/performance-lab/benchmark-overview" className={getLinkClass("/docs/distributed-rate-limiter/performance-lab/benchmark-overview")}>Benchmark Overview</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/performance-lab/throughput-and-saturation" className={getLinkClass("/docs/distributed-rate-limiter/performance-lab/throughput-and-saturation")}>Throughput &amp; Saturation</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/performance-lab/latency-analysis" className={getLinkClass("/docs/distributed-rate-limiter/performance-lab/latency-analysis")}>Latency Analysis</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/performance-lab/failure-benchmarks" className={getLinkClass("/docs/distributed-rate-limiter/performance-lab/failure-benchmarks")}>Failure Benchmarks</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/performance-lab/concurrency-experiments" className={getLinkClass("/docs/distributed-rate-limiter/performance-lab/concurrency-experiments")}>Concurrency Experiments</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/performance-lab/fifteen-minute-soak-test" className={getLinkClass("/docs/distributed-rate-limiter/performance-lab/fifteen-minute-soak-test")}>15-Minute Soak Test</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/performance-lab/reproduce-the-results" className={getLinkClass("/docs/distributed-rate-limiter/performance-lab/reproduce-the-results")}>Reproduce the Results</Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* 8. PRODUCTION ENGINEERING */}
+              <div className="guide-sidebar-group">
+                <button onClick={() => toggleSection("rlProduction")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlProduction}>
+                  <span>8. Production Engineering</span>
+                  {renderChevron(expanded.rlProduction)}
+                </button>
+                {expanded.rlProduction && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/production-engineering/deployment-topology" className={getLinkClass("/docs/distributed-rate-limiter/production-engineering/deployment-topology")}>Deployment Topology</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/production-engineering/redis-and-sentinel-ha" className={getLinkClass("/docs/distributed-rate-limiter/production-engineering/redis-and-sentinel-ha")}>Redis &amp; Sentinel HA</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/production-engineering/configuration-reference" className={getLinkClass("/docs/distributed-rate-limiter/production-engineering/configuration-reference")}>Configuration Reference</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/production-engineering/health-and-readiness" className={getLinkClass("/docs/distributed-rate-limiter/production-engineering/health-and-readiness")}>Health &amp; Readiness</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/production-engineering/graceful-shutdown" className={getLinkClass("/docs/distributed-rate-limiter/production-engineering/graceful-shutdown")}>Graceful Shutdown</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/production-engineering/security-model" className={getLinkClass("/docs/distributed-rate-limiter/production-engineering/security-model")}>Security Model</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/production-engineering/operations-and-runbooks" className={getLinkClass("/docs/distributed-rate-limiter/production-engineering/operations-and-runbooks")}>Operations &amp; Runbooks</Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* 9. CORRECTNESS & VERIFICATION */}
+              <div className="guide-sidebar-group">
+                <button onClick={() => toggleSection("rlVerification")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlVerification}>
+                  <span>9. Correctness &amp; Verification</span>
+                  {renderChevron(expanded.rlVerification)}
+                </button>
+                {expanded.rlVerification && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/correctness-and-verification/what-has-been-proven" className={getLinkClass("/docs/distributed-rate-limiter/correctness-and-verification/what-has-been-proven")}>What Has Been Proven?</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/correctness-and-verification/test-strategy" className={getLinkClass("/docs/distributed-rate-limiter/correctness-and-verification/test-strategy")}>Test Strategy</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/correctness-and-verification/concurrency-and-race-safety" className={getLinkClass("/docs/distributed-rate-limiter/correctness-and-verification/concurrency-and-race-safety")}>Concurrency &amp; Race Safety</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/correctness-and-verification/chaos-engineering" className={getLinkClass("/docs/distributed-rate-limiter/correctness-and-verification/chaos-engineering")}>Chaos Engineering</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/correctness-and-verification/multi-replica-verification" className={getLinkClass("/docs/distributed-rate-limiter/correctness-and-verification/multi-replica-verification")}>Multi-Replica Verification</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/correctness-and-verification/known-limitations" className={getLinkClass("/docs/distributed-rate-limiter/correctness-and-verification/known-limitations")}>Known Limitations</Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              {/* 10. ENGINEERING JOURNAL */}
+              <div className="guide-sidebar-group">
+                <button onClick={() => toggleSection("rlJournal")} className="guide-sidebar-dropdown-toggle" aria-expanded={expanded.rlJournal}>
+                  <span>10. Engineering Journal</span>
+                  {renderChevron(expanded.rlJournal)}
+                </button>
+                {expanded.rlJournal && (
+                  <ul className="guide-sidebar-group-list" style={{ marginTop: 6, paddingLeft: 8 }}>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/engineering-journal/major-design-decisions" className={getLinkClass("/docs/distributed-rate-limiter/engineering-journal/major-design-decisions")}>Major Design Decisions</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/engineering-journal/bugs-found-through-audits" className={getLinkClass("/docs/distributed-rate-limiter/engineering-journal/bugs-found-through-audits")}>Bugs Found Through Audits</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/engineering-journal/performance-evolution" className={getLinkClass("/docs/distributed-rate-limiter/engineering-journal/performance-evolution")}>Performance Evolution</Link>
+                    </li>
+                    <li className="guide-sidebar-group-item">
+                      <Link to="/docs/distributed-rate-limiter/engineering-journal/what-i-would-change-at-10x-scale" className={getLinkClass("/docs/distributed-rate-limiter/engineering-journal/what-i-would-change-at-10x-scale")}>What I Would Change at 10× Scale</Link>
                     </li>
                   </ul>
                 )}

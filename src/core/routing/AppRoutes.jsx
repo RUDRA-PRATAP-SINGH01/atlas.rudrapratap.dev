@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import * as Pages from "@/core/routing/lazyPages";
 
 export default function AppRoutes() {
@@ -67,23 +67,12 @@ export default function AppRoutes() {
       <Route path="/project-docs/guide/improvements/required-features" element={<Pages.RequiredFeaturesPage />} />
       <Route path="/project-docs/guide/improvements/proposed-fixes" element={<Pages.ProposedFixesPage />} />
       {/* Distributed Rate Limiter Routes */}
-      <Route path="/project-docs/guide/rate-limiter/introduction" element={<Pages.RLIntroductionPage />} />
-      <Route path="/project-docs/guide/rate-limiter/architecture" element={<Pages.RLArchitecturePage />} />
-      <Route path="/project-docs/guide/rate-limiter/request-lifecycle" element={<Pages.RLRequestLifecyclePage />} />
-      <Route path="/project-docs/guide/rate-limiter/lua-scripts" element={<Pages.RLLuaScriptsPage />} />
-      <Route path="/project-docs/guide/rate-limiter/hierarchical" element={<Pages.RLHierarchicalPage />} />
-      <Route path="/project-docs/guide/rate-limiter/circuit-breaker" element={<Pages.RLCircuitBreakerPage />} />
-      <Route path="/project-docs/guide/rate-limiter/idempotency" element={<Pages.RLIdempotencyPage />} />
-      <Route path="/project-docs/guide/rate-limiter/redis-ha" element={<Pages.RLRedisHaPage />} />
-      <Route path="/project-docs/guide/rate-limiter/routing" element={<Pages.RLRoutingPage />} />
-      <Route path="/project-docs/guide/rate-limiter/configuration" element={<Pages.RLConfigurationPage />} />
-      <Route path="/project-docs/guide/rate-limiter/observability" element={<Pages.RLObservabilityPage />} />
-      <Route path="/project-docs/guide/rate-limiter/benchmarks" element={<Pages.RLBenchmarksPage />} />
-      <Route path="/project-docs/guide/rate-limiter/design-decisions" element={<Pages.RLDesignDecisionsPage />} />
-      <Route path="/project-docs/guide/rate-limiter/system-invariants" element={<Pages.RLSystemInvariantsPage />} />
-      <Route path="/project-docs/guide/rate-limiter/engineering-tradeoffs" element={<Pages.RLEngineeringTradeoffsPage />} />
-      <Route path="/project-docs/guide/rate-limiter/runbooks" element={<Pages.RLOperationsRunbooksPage />} />
-      <Route path="/project-docs/guide/rate-limiter/chaos" element={<Pages.RLChaosTestingPage />} />
+      <Route path="/docs/distributed-rate-limiter" element={<Navigate to="/docs/distributed-rate-limiter/introduction/start-here" replace />} />
+      <Route path="/docs/distributed-rate-limiter/:section" element={<Navigate to="/docs/distributed-rate-limiter/introduction/start-here" replace />} />
+      <Route path="/docs/distributed-rate-limiter/:section/:slug" element={<Pages.RateLimiterDocPage />} />
+      
+      {/* Redirect legacy rate-limiter routes */}
+      <Route path="/project-docs/guide/rate-limiter/*" element={<Navigate to="/docs/distributed-rate-limiter/introduction/start-here" replace />} />
       <Route path="*" element={<Pages.NotFoundPage />} />
     </Routes>
   );

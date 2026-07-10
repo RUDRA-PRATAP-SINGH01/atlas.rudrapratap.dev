@@ -73,20 +73,4 @@ export const ProposedFixesPage         = lazy(() => import(/* webpackChunkName: 
 // ── Distributed Rate Limiter guide pages ─────────────────────────────────────
 // Separate chunk — users who enter through the landing page or PebbleDB docs
 // never download this code until they navigate to a rate-limiter route.
-export const RLIntroductionPage        = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLIntroductionPage"));
-export const RLArchitecturePage        = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLArchitecturePage"));
-export const RLRequestLifecyclePage    = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLRequestLifecyclePage"));
-export const RLLuaScriptsPage          = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLLuaScriptsPage"));
-export const RLCircuitBreakerPage      = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLCircuitBreakerPage"));
-export const RLConfigurationPage       = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLConfigurationPage"));
-export const RLHierarchicalPage        = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLHierarchicalPage"));
-export const RLIdempotencyPage         = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLIdempotencyPage"));
-export const RLRedisHaPage             = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLRedisHaPage"));
-export const RLRoutingPage             = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLRoutingPage"));
-export const RLObservabilityPage       = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLObservabilityPage"));
-export const RLBenchmarksPage          = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLBenchmarksPage"));
-export const RLDesignDecisionsPage     = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLDesignDecisionsPage"));
-export const RLSystemInvariantsPage    = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLSystemInvariantsPage"));
-export const RLEngineeringTradeoffsPage = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLEngineeringTradeoffsPage"));
-export const RLOperationsRunbooksPage  = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLOperationsRunbooksPage"));
-export const RLChaosTestingPage        = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RLChaosTestingPage"));
+export const RateLimiterDocPage = lazy(() => import(/* webpackChunkName: "rate-limiter-guide" */ "@/features/docs/pages/rate-limiter/RateLimiterDocPage"));
