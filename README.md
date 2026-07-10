@@ -199,27 +199,26 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ### Deploy on Netlify
 
-This project is ready to deploy on Netlify as a static SPA. I configured:
+This project is ready to deploy on Netlify as a static SPA. Configured in-repo:
 
-- `netlify.toml` — build command, publish directory, Node version, SPA redirects, cache headers
-- `public/_redirects` — backup SPA fallback copied into `dist/` on build
-- `.nvmrc` — Node 22 (matches Netlify build environment)
+- `netlify.toml` — `npm ci && npm run build`, publish `dist`, Node 22, SPA fallback, legacy redirects, cache/security headers
+- `public/_redirects` — same SPA + legacy redirects (copied into `dist/` on build)
+- `.nvmrc` — Node 22 (matches Netlify)
+
+No environment variables are required.
 
 **Option A: Connect Git (recommended)**
 
 1. Push this repo to GitHub.
-2. In [Netlify](https://app.netlify.com/), click **Add new site** → **Import an existing project**.
-3. Select the repository. Netlify reads `netlify.toml` automatically:
-   - **Build command:** `npm run build`
-   - **Publish directory:** `dist`
-4. Click **Deploy site**. No environment variables are required.
-5. After deploy, open **Domain settings** and add `atlas.rudrapratap.dev` (or your custom domain). Point DNS to Netlify as instructed.
+2. In [Netlify](https://app.netlify.com/), **Add new site** → **Import an existing project**.
+3. Select the repository. Netlify reads `netlify.toml` automatically — leave Build command / Publish directory blank so the file wins.
+4. Deploy. Then add custom domain `atlas.rudrapratap.dev` under Domain settings if needed.
 
 **Option B: Netlify CLI**
 
 ```bash
 npm install -g netlify-cli
-npm run build
+npm run netlify:build
 netlify deploy --prod --dir=dist
 ```
 
@@ -229,13 +228,14 @@ netlify deploy --prod --dir=dist
 npm run build
 ```
 
-Upload the `dist/` folder at [Netlify Drop](https://app.netlify.com/drop). Re-upload after each change (Git deploy is easier long term).
+Upload `dist/` at [Netlify Drop](https://app.netlify.com/drop).
 
 **Verify after deploy**
 
 - `/` loads the landing page
-- `/project-docs/guide/architecture/write-path` loads directly (no 404)
-- Refresh on any doc route still works (SPA redirect)
+- Refresh on `/project-docs/guide/architecture/write-path` still works (SPA fallback)
+- `/docs/distributed-rate-limiter/introduction/start-here` loads
+- `/project-docs/guide/rate-limiter/introduction` 301s to the new rate-limiter docs
 - `Ctrl+K` search works on docs pages
 
 **Local production preview**

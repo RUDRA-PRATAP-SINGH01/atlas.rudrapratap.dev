@@ -19,6 +19,9 @@ export default defineConfig({
     },
   },
   build: {
+    // Mermaid vendor is intentionally large and lazy-loaded; don't fail CI noise.
+    chunkSizeWarningLimit: 3500,
+    sourcemap: false,
     rollupOptions: {
       output: {
         // Route-isolated docs chunks: RL shell stays light; each registry section

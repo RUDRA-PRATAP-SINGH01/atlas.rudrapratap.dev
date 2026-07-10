@@ -34,3 +34,6 @@ Thumbs.db
 
 # OS / tooling
 .cursor
+
+# Netlify CLI local state
+.netlify

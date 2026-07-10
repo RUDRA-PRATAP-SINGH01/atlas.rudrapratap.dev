@@ -1,21 +1,82 @@
+# Netlify — static SPA (Vite + React Router)
+# https://docs.netlify.com/configure-builds/file-based-configuration/
+
 [build]
-  command = "npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
-  NPM_FLAGS = "--no-audit"
+  NPM_FLAGS = "--no-fund --no-audit"
 
-# SPA fallback for React Router (also in public/_redirects)
+# Vite already minifies/bundles — skip Netlify post-processing
+[build.processing]
+  skip_processing = true
+
+# ── Redirects (specific rules before SPA catch-all) ─────────────────────────
+
+# Canonical entry for rate-limiter docs
+[[redirects]]
+  from = "/docs/distributed-rate-limiter"
+  to = "/docs/distributed-rate-limiter/introduction/start-here"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/distributed-rate-limiter/"
+  to = "/docs/distributed-rate-limiter/introduction/start-here"
+  status = 301
+  force = true
+
+# Legacy rate-limiter guide URLs → new docs tree
+[[redirects]]
+  from = "/project-docs/guide/rate-limiter"
+  to = "/docs/distributed-rate-limiter/introduction/start-here"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/project-docs/guide/rate-limiter/*"
+  to = "/docs/distributed-rate-limiter/introduction/start-here"
+  status = 301
+  force = true
+
+# SPA fallback — existing files (assets, fonts, images) still win when force=false
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
+# ── Headers ─────────────────────────────────────────────────────────────────
+
+# Fingerprinted Vite assets — long cache
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Always revalidate HTML so deploys are visible immediately
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/*"
@@ -23,3 +84,5 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    X-XSS-Protection = "0"

@@ -1,1 +1,8 @@
+# Legacy rate-limiter paths (also declared in netlify.toml)
+/docs/distributed-rate-limiter    /docs/distributed-rate-limiter/introduction/start-here   301!
+/docs/distributed-rate-limiter/   /docs/distributed-rate-limiter/introduction/start-here   301!
+/project-docs/guide/rate-limiter  /docs/distributed-rate-limiter/introduction/start-here   301!
+/project-docs/guide/rate-limiter/*  /docs/distributed-rate-limiter/introduction/start-here  301!
+
+# SPA fallback for React Router (existing files are served first)
 /*    /index.html   200
