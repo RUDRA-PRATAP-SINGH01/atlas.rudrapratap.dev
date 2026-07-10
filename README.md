@@ -5,8 +5,6 @@
 <p align="center">
   <strong>The Interactive Atlas of Modern Software Engineering</strong><br />
   <a href="https://rps-atlas.netlify.app/">rps-atlas.netlify.app</a>
-  ·
-  <a href="https://atlas.rudrapratap.dev/">atlas.rudrapratap.dev</a>
 </p>
 
 ---
