@@ -2701,7 +2701,7 @@
 .arch-design-body {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr minmax(260px, 320px);
+  grid-template-columns: 1fr auto;
   min-height: 0;
   overflow: hidden;
 }

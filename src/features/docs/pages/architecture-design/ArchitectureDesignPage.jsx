@@ -931,57 +931,73 @@ export default function ArchitectureDesignPage() {
                       <p style={{ marginTop: 6, fontSize: 12 }}>{decision.classification.explanation}</p>
                     </div>
 
-                    <div className="arch-details-section">
-                      <h3>HLD Architectural Role</h3>
-                      <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "#e4e4e7" }}>
-                        {decision.hld.architecturalRole}
-                      </p>
-                      <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
-                        <div style={{ flex: 1 }}>
-                          <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#71717a" }}>Upstream:</h4>
-                          <div style={{ fontSize: 11, color: "#fff", display: "flex", flexWrap: "wrap", gap: 4 }}>
-                            {decision.hld.upstream.length > 0 ? decision.hld.upstream.map(id => (
-                              <button key={id} type="button" className="arch-provenance-badge" style={{ cursor: "pointer", background: "#18181b", border: "1px solid #3f3f46", color: "#fff" }} onClick={() => selectNode(id)}>
-                                {nodeMap[id]?.label || id}
-                              </button>
-                            )) : <span style={{ color: "#71717a" }}>None</span>}
+                    {decision.hld && (
+                      <div className="arch-details-section">
+                        <h3>HLD Architectural Role</h3>
+                        <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "#e4e4e7" }}>
+                          {decision.hld.architecturalRole}
+                        </p>
+                        <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+                          <div style={{ flex: 1 }}>
+                            <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#71717a" }}>Upstream:</h4>
+                            <div style={{ fontSize: 11, color: "#fff", display: "flex", flexWrap: "wrap", gap: 4 }}>
+                              {decision.hld.upstream && decision.hld.upstream.length > 0 ? decision.hld.upstream.map(id => (
+                                <button key={id} type="button" className="arch-provenance-badge" style={{ cursor: "pointer", background: "#18181b", border: "1px solid #3f3f46", color: "#fff" }} onClick={() => selectNode(id)}>
+                                  {nodeMap[id]?.label || id}
+                                </button>
+                              )) : <span style={{ color: "#71717a" }}>None</span>}
+                            </div>
                           </div>
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#71717a" }}>Downstream:</h4>
-                          <div style={{ fontSize: 11, color: "#fff", display: "flex", flexWrap: "wrap", gap: 4 }}>
-                            {decision.hld.downstream.length > 0 ? decision.hld.downstream.map(id => (
-                              <button key={id} type="button" className="arch-provenance-badge" style={{ cursor: "pointer", background: "#18181b", border: "1px solid #3f3f46", color: "#fff" }} onClick={() => selectNode(id)}>
-                                {nodeMap[id]?.label || id}
-                              </button>
-                            )) : <span style={{ color: "#71717a" }}>None</span>}
+                          <div style={{ flex: 1 }}>
+                            <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#71717a" }}>Downstream:</h4>
+                            <div style={{ fontSize: 11, color: "#fff", display: "flex", flexWrap: "wrap", gap: 4 }}>
+                              {decision.hld.downstream && decision.hld.downstream.length > 0 ? decision.hld.downstream.map(id => (
+                                <button key={id} type="button" className="arch-provenance-badge" style={{ cursor: "pointer", background: "#18181b", border: "1px solid #3f3f46", color: "#fff" }} onClick={() => selectNode(id)}>
+                                  {nodeMap[id]?.label || id}
+                                </button>
+                              )) : <span style={{ color: "#71717a" }}>None</span>}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    <div className="arch-details-section">
-                      <h3>State & Concurrency Control</h3>
-                      <div className="arch-card-nested">
-                        <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#ffb3d4", margin: "0 0 4px" }}>Data Ownership:</h4>
-                        <ul style={{ margin: "0 0 8px 0", paddingLeft: 14, fontSize: 11.5, color: "#a1a1aa" }}>
-                          {decision.hld.dataOwnership.map((d, idx) => <li key={idx}>{d}</li>)}
-                        </ul>
-                        <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#ffb3d4", margin: "0 0 4px" }}>Control & Synchronization:</h4>
-                        <ul style={{ margin: "0 0 8px 0", paddingLeft: 14, fontSize: 11.5, color: "#a1a1aa" }}>
-                          {decision.hld.controlOwnership.map((c, idx) => <li key={idx}>{c}</li>)}
-                        </ul>
-                        <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#ffb3d4", margin: "0 0 4px" }}>Persistence Boundary:</h4>
-                        <p style={{ margin: 0, fontSize: 11.5, color: "#a1a1aa" }}>{decision.hld.persistenceResponsibility}</p>
+                    {decision.hld && (
+                      <div className="arch-details-section">
+                        <h3>State & Concurrency Control</h3>
+                        <div className="arch-card-nested">
+                          {decision.hld.dataOwnership && (
+                            <>
+                              <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#ffb3d4", margin: "0 0 4px" }}>Data Ownership:</h4>
+                              <ul style={{ margin: "0 0 8px 0", paddingLeft: 14, fontSize: 11.5, color: "#a1a1aa" }}>
+                                {decision.hld.dataOwnership.map((d, idx) => <li key={idx}>{d}</li>)}
+                              </ul>
+                            </>
+                          )}
+                          {decision.hld.controlOwnership && (
+                            <>
+                              <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#ffb3d4", margin: "0 0 4px" }}>Control & Synchronization:</h4>
+                              <ul style={{ margin: "0 0 8px 0", paddingLeft: 14, fontSize: 11.5, color: "#a1a1aa" }}>
+                                {decision.hld.controlOwnership.map((c, idx) => <li key={idx}>{c}</li>)}
+                              </ul>
+                            </>
+                          )}
+                          {decision.hld.persistenceResponsibility && (
+                            <>
+                              <h4 style={{ fontSize: 10, textTransform: "uppercase", color: "#ffb3d4", margin: "0 0 4px" }}>Persistence Boundary:</h4>
+                              <p style={{ margin: 0, fontSize: 11.5, color: "#a1a1aa" }}>{decision.hld.persistenceResponsibility}</p>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {decision.lld && (
                       <div className="arch-details-section">
                         <h3>Low-Level Design (LLD) Details</h3>
                         <h4 style={{ fontSize: 11, textTransform: "uppercase", color: "#71717a", margin: "8px 0 4px" }}>Implementation:</h4>
                         <ul className="arch-details-list">
-                          {decision.lld.implementation.map((impl, idx) => (
+                          {decision.lld.implementation && decision.lld.implementation.map((impl, idx) => (
                             <li key={idx}>{impl}</li>
                           ))}
                         </ul>
@@ -1224,9 +1240,9 @@ export default function ArchitectureDesignPage() {
                     </div>
                   ) : inspectorTab === "technical" ? (
                     <div>
-                      <p style={{ fontSize: 12 }}>{decision.hld.architecturalRole}</p>
+                      {decision.hld && <p style={{ fontSize: 12 }}>{decision.hld.architecturalRole}</p>}
                       <h4 style={{ fontSize: 11, textTransform: "uppercase", color: "#71717a", margin: "8px 0 4px" }}>Implementation:</h4>
-                      <ul className="arch-details-list">{decision.lld?.implementation.map((impl, idx) => <li key={idx}>{impl}</li>)}</ul>
+                      <ul className="arch-details-list">{decision.lld?.implementation?.map((impl, idx) => <li key={idx}>{impl}</li>)}</ul>
                     </div>
                   ) : inspectorTab === "evidence" ? (
                     <div>
