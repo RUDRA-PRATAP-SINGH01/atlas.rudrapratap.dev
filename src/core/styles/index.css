@@ -2538,33 +2538,48 @@
 
 .arch-design-page {
   min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
   background: #050505;
   color: #d4d4d8;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .arch-design-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  position: relative;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
-  padding: 12px 20px;
+  padding: 10px 16px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(8, 8, 8, 0.92);
+  background: rgba(8, 8, 8, 0.94);
   backdrop-filter: blur(12px);
+  flex-shrink: 0;
 }
 
 .arch-design-toolbar-left,
 .arch-design-toolbar-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   flex-wrap: wrap;
+  min-width: 0;
+}
+
+.arch-design-toolbar-left {
+  flex: 1 1 auto;
+}
+
+.arch-design-title-block {
+  min-width: 0;
 }
 
 .arch-design-back {
@@ -2572,6 +2587,8 @@
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .arch-design-back:hover {
@@ -2580,7 +2597,7 @@
 
 .arch-design-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
@@ -2592,12 +2609,17 @@
   color: #71717a;
 }
 
+.arch-design-subtitle-short {
+  display: none;
+}
+
 .arch-design-evidence {
   font-size: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #e879a9;
-  max-width: 280px;
+  max-width: 260px;
+  line-height: 1.35;
 }
 
 .arch-design-zoom {
@@ -2611,6 +2633,37 @@
   text-align: center;
   font-size: 12px;
   color: #a1a1aa;
+  font-variant-numeric: tabular-nums;
+}
+
+.arch-design-desktop-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.arch-design-menu-toggle,
+.arch-canvas-fab,
+.arch-canvas-hint--mobile,
+.arch-design-panel--sheet,
+.arch-design-sheet-backdrop {
+  display: none;
+}
+
+.arch-design-mobile-menu {
+  width: 100%;
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.arch-design-mobile-evidence {
+  margin: 4px 0 0;
+  font-size: 10px;
+  color: #71717a;
+  line-height: 1.4;
 }
 
 .arch-design-icon-btn,
@@ -2619,13 +2672,17 @@
   background: rgba(255, 92, 173, 0.06);
   color: #ffb3d4;
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 8px 12px;
+  min-height: 36px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .arch-design-icon-btn:hover,
@@ -2646,14 +2703,18 @@
   display: grid;
   grid-template-columns: 1fr minmax(260px, 320px);
   min-height: 0;
+  overflow: hidden;
 }
 
 .arch-canvas-viewport {
   position: relative;
   overflow: hidden;
   cursor: grab;
-  min-height: calc(100dvh - 64px);
+  min-height: 0;
+  height: 100%;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   background:
     radial-gradient(ellipse at top, rgba(255, 92, 173, 0.05), transparent 55%),
     #050505;
@@ -2740,6 +2801,8 @@
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   transition: border-color 0.15s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
 }
 
 .arch-canvas-node:hover {
@@ -2788,6 +2851,9 @@
   font-size: 10px;
   color: #a1a1aa;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .arch-canvas-hint {
@@ -2799,13 +2865,22 @@
   color: #71717a;
   pointer-events: none;
   z-index: 2;
+  max-width: calc(100% - 120px);
+}
+
+.arch-canvas-hint--mobile {
+  display: none;
 }
 
 .arch-design-panel {
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
   background: #0b0b0b;
   padding: 20px 18px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.arch-design-panel--desktop {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .arch-design-panel-kicker {
@@ -2822,6 +2897,7 @@
   font-size: 20px;
   color: #fff;
   font-weight: 800;
+  word-break: break-word;
 }
 
 .arch-design-panel-path {
@@ -2831,6 +2907,7 @@
 .arch-design-panel-path code {
   color: #ffb3d4;
   font-size: 12px;
+  word-break: break-all;
 }
 
 .arch-design-panel-body {
@@ -2842,6 +2919,9 @@
 
 .arch-design-panel-actions {
   margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .arch-design-panel-connections h3 {
@@ -2867,9 +2947,11 @@
   border: 1px solid #27272a;
   color: #e4e4e7;
   border-radius: 6px;
-  padding: 8px 10px;
+  padding: 10px 12px;
+  min-height: 40px;
   font-size: 12px;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .arch-design-panel-connections button:hover {
@@ -2880,17 +2962,151 @@
 @media (max-width: 960px) {
   .arch-design-body {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(55dvh, 1fr) auto;
   }
 
-  .arch-design-panel {
-    border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    max-height: 40dvh;
-  }
-
-  .arch-design-evidence {
+  .arch-design-panel--desktop,
+  .arch-design-evidence,
+  .arch-design-desktop-links,
+  .arch-design-toolbar-right .arch-design-zoom,
+  .arch-canvas-hint--desktop {
     display: none;
+  }
+
+  .arch-design-menu-toggle {
+    display: inline-flex;
+  }
+
+  .arch-canvas-hint--mobile {
+    display: block;
+    left: 12px;
+    right: 12px;
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    max-width: none;
+    text-align: center;
+    font-size: 11px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .arch-canvas-fab {
+    display: flex;
+    position: absolute;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 5;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .arch-canvas-fab .arch-design-icon-btn {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 12px;
+    background: rgba(17, 17, 19, 0.92);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .arch-canvas-viewport {
+    min-height: 0;
+  }
+
+  .arch-design-sheet-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    border: 0;
+    background: rgba(0, 0, 0, 0.55);
+    cursor: pointer;
+  }
+
+  .arch-design-panel--sheet {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    max-height: min(70dvh, 560px);
+    border-left: none;
+    border-top: 1px solid rgba(255, 92, 173, 0.22);
+    border-radius: 16px 16px 0 0;
+    padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    background: #0b0b0b;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
+  }
+
+  .arch-design-sheet-handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: #3f3f46;
+    margin: 4px auto 8px;
+  }
+
+  .arch-design-sheet-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .arch-design-sheet-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    min-height: 0;
+  }
+
+  .arch-design-panel-title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .arch-design-toolbar {
+    padding: 8px 12px;
+    padding-top: max(8px, env(safe-area-inset-top));
+    gap: 8px;
+  }
+
+  .arch-design-title {
+    font-size: 14px;
+  }
+
+  .arch-design-subtitle-full {
+    display: none;
+  }
+
+  .arch-design-subtitle-short {
+    display: inline;
+  }
+
+  .arch-design-back {
+    font-size: 12px;
+  }
+
+  .arch-design-panel--sheet {
+    max-height: min(78dvh, 640px);
+  }
+
+  .arch-canvas-group-label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 400px) {
+  .arch-design-title {
+    font-size: 13px;
+  }
+
+  .arch-canvas-fab .arch-design-icon-btn {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
   }
 }
 
@@ -2899,6 +3115,4 @@
     transition: none;
   }
 }
-
-
 
