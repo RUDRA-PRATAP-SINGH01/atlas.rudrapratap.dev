@@ -3116,3 +3116,451 @@
   }
 }
 
+/* Explore PebbleDB Interactive Inspector Styles */
+.arch-design-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0b0b0b;
+}
+
+.arch-design-search-container {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: #090909;
+}
+
+.arch-design-search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.arch-design-search-input {
+  width: 100%;
+  background: #121214;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  padding: 8px 32px 8px 12px;
+  font-size: 13px;
+  color: #fff;
+  transition: border-color 0.15s ease;
+}
+
+.arch-design-search-input:focus {
+  outline: none;
+  border-color: #ff5cad;
+}
+
+.arch-design-search-clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 11px;
+}
+
+.arch-design-search-clear:hover {
+  color: #fff;
+}
+
+.arch-design-search-results {
+  max-height: 180px;
+  overflow-y: auto;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0d0d0f;
+}
+
+.arch-design-search-result-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: background 0.15s ease;
+}
+
+.arch-design-search-result-item:hover {
+  background: rgba(255, 92, 173, 0.08);
+}
+
+.arch-design-search-result-item h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.arch-design-search-result-item span {
+  font-size: 10px;
+  color: #71717a;
+}
+
+.arch-design-tab-bar {
+  display: flex;
+  background: #090909;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0 8px;
+}
+
+.arch-design-tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #71717a;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.arch-design-tab-btn:hover {
+  color: #e4e4e7;
+}
+
+.arch-design-tab-btn--active {
+  color: #ff5cad;
+  border-bottom-color: #ff5cad;
+}
+
+.arch-design-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Flows styles */
+.arch-design-flows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.arch-design-flow-select {
+  width: 100%;
+  background: #121214;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.arch-design-flow-select:focus {
+  outline: none;
+  border-color: #ff5cad;
+}
+
+.arch-design-flow-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a1a1aa;
+  margin: 0;
+}
+
+.arch-design-flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.arch-design-flow-step-card {
+  background: #111113;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.arch-design-flow-step-card:hover {
+  border-color: rgba(255, 92, 173, 0.4);
+}
+
+.arch-design-flow-step-card--active {
+  border-color: #ff5cad;
+  background: linear-gradient(180deg, rgba(255, 92, 173, 0.06), #111113);
+}
+
+.arch-design-flow-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.arch-design-flow-step-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.arch-design-flow-step-node-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ff5cad;
+  letter-spacing: 0.04em;
+}
+
+.arch-design-flow-step-body {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a1a1aa;
+  margin: 0;
+}
+
+/* Badges and tags */
+.arch-provenance-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.arch-provenance-badge--source-verified {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.arch-provenance-badge--documented {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.arch-provenance-badge--measured {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.arch-provenance-badge--derived {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.arch-provenance-badge--simulated {
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.arch-provenance-badge--theoretical {
+  background: rgba(107, 114, 128, 0.15);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.arch-provenance-badge--configured {
+  background: rgba(20, 184, 166, 0.15);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+.arch-provenance-badge--not-measured {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.arch-code-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: #ffb3d4;
+  text-decoration: none;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-top: 4px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.arch-code-link:hover {
+  background: #27272a;
+  border-color: #ff5cad;
+}
+
+.arch-code-link span {
+  font-size: 10px;
+  color: #71717a;
+}
+
+/* Metrics styles */
+.arch-evidence-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.arch-metric-card {
+  background: #121214;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.arch-metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.arch-metric-name {
+  font-size: 11px;
+  color: #a1a1aa;
+  font-weight: 500;
+}
+
+.arch-metric-value-block {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.arch-metric-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.arch-metric-unit {
+  font-size: 11px;
+  color: #71717a;
+}
+
+.arch-metric-footer {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Alternatives and failures */
+.arch-details-section {
+  margin-bottom: 20px;
+}
+
+.arch-details-section h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ff5cad;
+}
+
+.arch-details-section h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.arch-details-section p {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a1a1aa;
+}
+
+.arch-details-list {
+  padding-left: 18px;
+  margin: 0 0 12px;
+}
+
+.arch-details-list li {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a1a1aa;
+  margin-bottom: 4px;
+}
+
+.arch-card-nested {
+  background: #121214;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+/* Pulsing highlight effect for nodes */
+.arch-canvas-node.is-in-flow {
+  opacity: 0.85;
+}
+
+.arch-canvas-node.is-in-flow-active {
+  border-color: #ff5cad;
+  background: linear-gradient(180deg, rgba(255, 92, 173, 0.25), #111113);
+  box-shadow: 0 0 12px rgba(255, 92, 173, 0.4), 0 8px 24px rgba(0, 0, 0, 0.45);
+  animation: arch-node-pulse 2s infinite ease-in-out;
+  transform: scale(1.02);
+  z-index: 10;
+  opacity: 1;
+}
+
+@keyframes arch-node-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 92, 173, 0.3), 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 92, 173, 0.6), 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* Dimming effect during flow walkthrough */
+.arch-canvas-viewport--flow-active .arch-canvas-node:not(.is-in-flow) {
+  opacity: 0.18;
+}
+
+.arch-canvas-viewport--flow-active .arch-canvas-edge:not(.is-in-flow) {
+  opacity: 0.08;
+}
+
+.arch-canvas-edge.is-in-flow {
+  stroke: #ff5cad;
+  stroke-width: 1.8;
+  opacity: 0.9;
+}
+
+.arch-canvas-edge.is-in-flow-active {
+  stroke: #ff5cad;
+  stroke-width: 2.5;
+  opacity: 1;
+  stroke-dasharray: 4;
+  animation: arch-dash-offset 0.8s linear infinite;
+}
+
+@keyframes arch-dash-offset {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+
