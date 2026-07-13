@@ -12,9 +12,9 @@ const docCards = [
   {
     title: "Architecture Design",
     description:
-      "Explore how each project is designed — system boundaries, data flows, scaling choices, and the engineering trade-offs behind every decision.",
+      "Open an infinite system-design canvas of PebbleDB — layered packages, workers, memory state, and on-disk layout from the real implementation.",
     icon: "architecture",
-    href: "#featured-projects",
+    href: "/project-docs/architecture-design",
   },
   {
     title: "Reference",

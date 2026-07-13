@@ -7,6 +7,13 @@ export const docsIndex = [
     keywords: "project docs hub landing featured projects atlas documentation",
   },
   {
+    title: "Architecture Design — PebbleDB Canvas",
+    category: "Architecture",
+    description: "Infinite system-design canvas of PebbleDB: client API, memtables, workers, packages, and on-disk layout.",
+    href: "/project-docs/architecture-design",
+    keywords: "architecture design canvas infinite pebble db system overview packages wal memtable sstable manifest",
+  },
+  {
     title: "Reference Overview",
     category: "Reference",
     description: "Bibliography, algorithms, packages, environment variables, and internal doc index.",

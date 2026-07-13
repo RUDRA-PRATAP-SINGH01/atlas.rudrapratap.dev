@@ -27,6 +27,9 @@ export default defineConfig({
         // Route-isolated docs chunks: RL shell stays light; each registry section
         // and Mermaid load only when needed.
         manualChunks(id) {
+          if (id.includes("/features/docs/pages/architecture-design/")) {
+            return "architecture-design";
+          }
           if (id.includes("/features/docs/pages/rate-limiter/registry/")) {
             const match = id.match(/rate-limiter\/registry\/([^/]+)\./);
             if (match && match[1] !== "nav" && match[1] !== "index") {

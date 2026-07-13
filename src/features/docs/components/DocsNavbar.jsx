@@ -2,13 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { docsIndex } from "@/features/docs/engine/docsIndex";
 
-function resolveNavHref(href, pathname) {
-  if (href.startsWith("#")) {
-    return pathname === "/project-docs" ? href : `/project-docs${href}`;
-  }
-  return href;
-}
-
 export default function DocsNavbar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -126,7 +119,12 @@ export default function DocsNavbar() {
               >
                 Guide
               </Link>
-              <a href={resolveNavHref("#featured-projects", location.pathname)} className="docs-navbar-link">Architecture Design</a>
+              <Link
+                to="/project-docs/architecture-design"
+                className={`docs-navbar-link${location.pathname.startsWith("/project-docs/architecture-design") ? " docs-navbar-link--active" : ""}`}
+              >
+                Architecture Design
+              </Link>
               <Link
                 to="/project-docs/reference"
                 className={`docs-navbar-link${location.pathname.startsWith("/project-docs/reference") || location.pathname.startsWith("/project-docs/guide/reference") ? " docs-navbar-link--active" : ""}`}

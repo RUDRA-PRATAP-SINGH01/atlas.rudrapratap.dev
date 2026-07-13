@@ -7,6 +7,7 @@ export default function AppRoutes() {
       <Route path="/" element={<Pages.LandingPage />} />
       <Route path="/blog" element={<Pages.BlogPage />} />
       <Route path="/project-docs" element={<Pages.ProjectDocsPage />} />
+      <Route path="/project-docs/architecture-design" element={<Pages.ArchitectureDesignPage />} />
       <Route path="/project-docs/reference" element={<Pages.ReferenceDocsPage />} />
       <Route path="/project-docs/guide" element={<Pages.IntroDocsPage />} />
       <Route path="/project-docs/guide/pebbledb/introduction" element={<Pages.GuideDocsPage />} />

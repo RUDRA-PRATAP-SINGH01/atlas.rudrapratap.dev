@@ -5,6 +5,7 @@ import { lazy } from "react";
 export const LandingPage     = lazy(() => import("@/features/landing/LandingPage"));
 export const BlogPage        = lazy(() => import("@/features/blog/BlogPage"));
 export const ProjectDocsPage = lazy(() => import("@/features/docs/pages/ProjectDocsPage"));
+export const ArchitectureDesignPage = lazy(() => import(/* webpackChunkName: "architecture-design" */ "@/features/docs/pages/architecture-design/ArchitectureDesignPage"));
 export const NotFoundPage    = lazy(() => import("@/features/landing/NotFoundPage"));
 export const ReferenceDocsPage = lazy(() => import("@/features/docs/pages/ReferenceDocsPage"));
 
