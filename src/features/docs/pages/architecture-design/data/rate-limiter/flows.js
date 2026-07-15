@@ -212,6 +212,58 @@ export const flows = [
       },
     ],
   },
+
+  // ── INTELLIGENT TRAFFIC ROUTING ──────────────────────────────────────────────
+  {
+    id: "flow-intelligent-routing",
+    title: "Intelligent Traffic Routing (Gateway)",
+    description: "How requests are dynamically routed across weighted gateways with automated health probing and failover.",
+    kind: "read",
+    steps: [
+      {
+        id: "ir1",
+        label: "1. Routing Enabled Request",
+        nodeId: "sidecar",
+        description: "Client request arrives at the sidecar proxy. Under ENABLE_ROUTING=true, the request is dispatched to the gateway router.",
+        codeRef: { path: "cmd/sidecar/main.go", symbol: "ServeHTTP" },
+      },
+      {
+        id: "ir2",
+        label: "2. Load Gateway States",
+        nodeId: "redis",
+        description: "Router calls ListGateways to query candidate gateway metrics (ID, URL, health, latency, etc.) from the Redis store.",
+        codeRef: { path: "internal/routing/router.go", symbol: "Forward" },
+      },
+      {
+        id: "ir3",
+        label: "3. Pick Best Gateway",
+        nodeId: "sidecar",
+        description: "Router's selector uses PickPrimary to select the best target gateway based on active score and weights.",
+        codeRef: { path: "internal/routing/router.go", symbol: "Forward" },
+      },
+      {
+        id: "ir4",
+        label: "4. Gateway Circuit Check",
+        nodeId: "sidecar",
+        description: "Checks cb:{gateway-id} circuit breaker. If Open, it selects the next best gateway in FailoverOrder.",
+        codeRef: { path: "internal/routing/router.go", symbol: "Forward" },
+      },
+      {
+        id: "ir5",
+        label: "5. Forward & Record Outcome",
+        nodeId: "upstream",
+        description: "Forwards request to the selected gateway. Records latency and success status in the Redis routing store.",
+        codeRef: { path: "internal/routing/router.go", symbol: "Forward" },
+      },
+      {
+        id: "ir6",
+        label: "6. Background Health Probing",
+        nodeId: "sidecar",
+        description: "A background probe loop periodically queries /health on all gateways, reporting results back to Redis.",
+        codeRef: { path: "internal/routing/router.go", symbol: "StartHealthProbes" },
+      },
+    ],
+  },
 ];
 
 /** @returns {Map<string, OperationalFlow>} */
