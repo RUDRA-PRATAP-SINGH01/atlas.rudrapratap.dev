@@ -53,6 +53,8 @@ export const decisionsByNodeId = {
   quarantine: quarantineDecision,
 };
 
+import { decisionsByNodeId as rateLimiterDecisions } from "./rate-limiter/decisions.js";
+
 export {
   cliDecision,
   apiDecision,
@@ -78,7 +80,10 @@ export {
 };
 
 /** @returns {import('./schema').ArchitectureDecision | null} */
-export function getDecisionForNode(nodeId) {
+export function getDecisionForNode(nodeId, project = "pebbledb") {
+  if (project === "rate-limiter") {
+    return rateLimiterDecisions[nodeId] ?? null;
+  }
   return decisionsByNodeId[nodeId] ?? null;
 }
 

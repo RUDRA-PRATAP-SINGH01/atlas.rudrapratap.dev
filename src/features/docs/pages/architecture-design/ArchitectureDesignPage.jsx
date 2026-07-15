@@ -1,14 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  GRAPH_META,
-  edges,
-  getGraphBounds,
-  getNodeMap,
-  groups,
-  nodes,
+  GRAPH_META as pebbledbMeta,
+  edges as pebbledbEdges,
+  getGraphBounds as pebbledbBounds,
+  getNodeMap as pebbledbNodeMap,
+  groups as pebbledbGroups,
+  nodes as pebbledbNodes,
 } from "./data/graph";
-import { flows } from "./data/flows";
+import { flows as pebbledbFlows } from "./data/flows";
+
+import {
+  GRAPH_META as ratelimiterMeta,
+  edges as ratelimiterEdges,
+  getGraphBounds as ratelimiterBounds,
+  getNodeMap as ratelimiterNodeMap,
+  groups as ratelimiterGroups,
+  nodes as ratelimiterNodes,
+} from "./data/rate-limiter/graph";
+import { flows as ratelimiterFlows } from "./data/rate-limiter/flows";
 import { getDecisionForNode } from "./data/index";
 
 const MIN_SCALE = 0.22;
@@ -46,8 +56,10 @@ function useIsMobile(breakpoint = 960) {
 }
 
 // Helper to construct GitHub links for source verification
-function getGithubSourceUrl(path, codeRef) {
-  const base = "https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB/blob/main";
+function getGithubSourceUrl(path, codeRef, project) {
+  const base = project === "rate-limiter"
+    ? "https://github.com/RUDRA-PRATAP-SINGH01/Distributed-rate-limiter/blob/main"
+    : "https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB/blob/main";
   if (!path) return null;
   let url = `${base}/${path}`;
   if (codeRef && codeRef.lineStart) {
@@ -61,6 +73,7 @@ function getGithubSourceUrl(path, codeRef) {
 
 export default function ArchitectureDesignPage() {
   const viewportRef = useRef(null);
+  const [activeProject, setActiveProject] = useState("pebbledb"); // 'pebbledb' | 'rate-limiter'
   const [transform, setTransform] = useState({ x: 40, y: 24, scale: 0.55 });
   const [selectedId, setSelectedId] = useState(null);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -80,14 +93,39 @@ export default function ArchitectureDesignPage() {
   const dragRef = useRef(null);
   const pinchRef = useRef(null);
   const isMobile = useIsMobile(960);
-  const nodeMap = useMemo(() => getNodeMap(), []);
-  const bounds = useMemo(() => getGraphBounds(), []);
+
+  const projectMeta = activeProject === "rate-limiter" ? ratelimiterMeta : pebbledbMeta;
+  const nodes = activeProject === "rate-limiter" ? ratelimiterNodes : pebbledbNodes;
+  const edges = activeProject === "rate-limiter" ? ratelimiterEdges : pebbledbEdges;
+  const groups = activeProject === "rate-limiter" ? ratelimiterGroups : pebbledbGroups;
+  const flows = activeProject === "rate-limiter" ? ratelimiterFlows : pebbledbFlows;
+
+  const nodeMap = useMemo(() => {
+    return activeProject === "rate-limiter" ? ratelimiterNodeMap() : pebbledbNodeMap();
+  }, [activeProject]);
+
+  const bounds = useMemo(() => {
+    return activeProject === "rate-limiter" ? ratelimiterBounds() : pebbledbBounds();
+  }, [activeProject]);
+
   const selectedNode = selectedId ? nodeMap[selectedId] : null;
-  const decision = selectedId ? getDecisionForNode(selectedId) : null;
+  const decision = selectedId ? getDecisionForNode(selectedId, activeProject) : null;
 
   useEffect(() => {
-    document.title = "Explore PebbleDB — Interactive Architecture Inspector";
-  }, []);
+    document.title = activeProject === "rate-limiter"
+      ? "Explore Rate Limiter — Interactive Architecture Inspector"
+      : "Explore PebbleDB — Interactive Architecture Inspector";
+  }, [activeProject]);
+
+  const handleProjectChange = (proj) => {
+    setActiveProject(proj);
+    setSelectedId(null);
+    setPanelOpen(false);
+    setMenuOpen(false);
+    setActiveFlowId("");
+    setActiveStepIndex(-1);
+    setSearchQuery("");
+  };
 
   const fitToView = useCallback(() => {
     const el = viewportRef.current;
@@ -349,7 +387,7 @@ export default function ArchitectureDesignPage() {
     if (!searchQuery.trim()) return [];
     const query = searchQuery.toLowerCase();
     return nodes.filter((node) => {
-      const dec = getDecisionForNode(node.id);
+      const dec = getDecisionForNode(node.id, activeProject);
       const matchesNode =
         node.label.toLowerCase().includes(query) ||
         (node.path && node.path.toLowerCase().includes(query)) ||
@@ -364,14 +402,14 @@ export default function ArchitectureDesignPage() {
 
       return matchesNode || matchesDecision;
     });
-  }, [searchQuery]);
+  }, [searchQuery, nodes, activeProject]);
 
   // Derived flow information for layout highlight
   const flowNodeIds = useMemo(() => {
     if (!activeFlowId) return new Set();
     const flow = flows.find(f => f.id === activeFlowId);
     return new Set(flow ? flow.steps.map(s => s.nodeId) : []);
-  }, [activeFlowId]);
+  }, [activeFlowId, flows]);
 
   const flowEdges = useMemo(() => {
     if (!activeFlowId) return new Set();
@@ -392,7 +430,7 @@ export default function ArchitectureDesignPage() {
       }
     }
     return activeEdgeIds;
-  }, [activeFlowId]);
+  }, [activeFlowId, flows, edges]);
 
   const activeTransitionEdgeId = useMemo(() => {
     if (!activeFlowId || activeStepIndex <= 0) return null;
@@ -405,13 +443,23 @@ export default function ArchitectureDesignPage() {
            (e.from === toNodeId && e.to === fromNodeId)
     );
     return edge ? edge.id : null;
-  }, [activeFlowId, activeStepIndex]);
+  }, [activeFlowId, activeStepIndex, flows, edges]);
 
   const activeStepNodeId = useMemo(() => {
     if (!activeFlowId || activeStepIndex === -1) return null;
     const flow = flows.find(f => f.id === activeFlowId);
     return flow && flow.steps[activeStepIndex] ? flow.steps[activeStepIndex].nodeId : null;
-  }, [activeFlowId, activeStepIndex]);
+  }, [activeFlowId, activeStepIndex, flows]);
+
+  const projectTitle = activeProject === "rate-limiter" ? "Distributed Rate Limiter" : "PebbleDB";
+  const projectSubtitle = activeProject === "rate-limiter" ? "Rate Limiter Explorer" : "PebbleDB Explorer";
+  const projectOverviewBody = activeProject === "rate-limiter"
+    ? "Explore the complete internals of the Distributed Rate Limiter: a sidecar-based centralized rate limiting platform in Go + Redis."
+    : "Explore the complete internals of PebbleDB: a single-process embedded Key-Value engine implemented in Go.";
+  const projectKicker = activeProject === "rate-limiter" ? "Go + Redis Platform" : "Embedded LSM-Tree";
+  const projectOverviewLinkText = activeProject === "rate-limiter"
+    ? "Read Rate Limiter Introduction →"
+    : "Read PebbleDB System Overview →";
 
   return (
     <div className="arch-design-page">
@@ -420,19 +468,45 @@ export default function ArchitectureDesignPage() {
           <Link to="/project-docs" className="arch-design-back">
             ← Docs
           </Link>
+          
+          <div className="flex bg-[#18181b] border border-zinc-800 rounded-lg p-0.5 ml-3 overflow-hidden select-none">
+            <button
+              type="button"
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all duration-200 cursor-pointer ${
+                activeProject === "pebbledb"
+                  ? "bg-zinc-800 text-[#ff5cad] shadow-sm font-bold"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+              onClick={() => handleProjectChange("pebbledb")}
+            >
+              PebbleDB
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all duration-200 cursor-pointer ${
+                activeProject === "rate-limiter"
+                  ? "bg-zinc-800 text-[#ff5cad] shadow-sm font-bold"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+              onClick={() => handleProjectChange("rate-limiter")}
+            >
+              Rate Limiter
+            </button>
+          </div>
+
           <div className="arch-design-title-block">
-            <h1 className="arch-design-title">Explore PebbleDB</h1>
+            <h1 className="arch-design-title">Explore {projectTitle}</h1>
             <p className="arch-design-subtitle">
               <span className="arch-design-subtitle-full">
                 Interactive Architecture Inspector & Operational Flow Walkthroughs
               </span>
-              <span className="arch-design-subtitle-short">PebbleDB Explorer</span>
+              <span className="arch-design-subtitle-short">{projectSubtitle}</span>
             </p>
           </div>
         </div>
 
         <div className="arch-design-toolbar-right">
-          <span className="arch-design-evidence">{GRAPH_META.evidence}</span>
+          <span className="arch-design-evidence">{projectMeta.evidence}</span>
           <div className="arch-design-zoom" role="group" aria-label="Zoom controls">
             <button type="button" className="arch-design-icon-btn" onClick={() => zoomByButton(-0.12)} aria-label="Zoom out">
               −
@@ -447,10 +521,10 @@ export default function ArchitectureDesignPage() {
           </div>
 
           <div className="arch-design-desktop-links">
-            <Link to={GRAPH_META.guideEntry} className="arch-design-link-btn">
+            <Link to={projectMeta.guideEntry} className="arch-design-link-btn">
               System overview
             </Link>
-            <a href={GRAPH_META.github} target="_blank" rel="noopener noreferrer" className="arch-design-link-btn">
+            <a href={projectMeta.github} target="_blank" rel="noopener noreferrer" className="arch-design-link-btn">
               GitHub
             </a>
           </div>
@@ -468,11 +542,11 @@ export default function ArchitectureDesignPage() {
 
         {menuOpen && (
           <div id="arch-design-mobile-menu" className="arch-design-mobile-menu">
-            <Link to={GRAPH_META.guideEntry} className="arch-design-link-btn" onClick={() => setMenuOpen(false)}>
+            <Link to={projectMeta.guideEntry} className="arch-design-link-btn" onClick={() => setMenuOpen(false)}>
               System overview docs
             </Link>
             <a
-              href={GRAPH_META.github}
+              href={projectMeta.github}
               target="_blank"
               rel="noopener noreferrer"
               className="arch-design-link-btn"
@@ -480,7 +554,7 @@ export default function ArchitectureDesignPage() {
             >
               GitHub repo
             </a>
-            <p className="arch-design-mobile-evidence">{GRAPH_META.evidence}</p>
+            <p className="arch-design-mobile-evidence">{projectMeta.evidence}</p>
           </div>
         )}
       </header>
@@ -497,7 +571,7 @@ export default function ArchitectureDesignPage() {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
           role="application"
-          aria-label="PebbleDB architecture canvas. Drag to pan, pinch/wheel to zoom."
+          aria-label={`${projectTitle} architecture canvas. Drag to pan, pinch/wheel to zoom.`}
         >
           <div className="arch-canvas-grid" data-canvas-bg="1" />
           <div
@@ -786,7 +860,7 @@ export default function ArchitectureDesignPage() {
                         <p className="arch-design-flow-step-body">{step.description}</p>
                         {step.codeRef && (
                           <a
-                            href={getGithubSourceUrl(step.codeRef.path, step.codeRef)}
+                            href={getGithubSourceUrl(step.codeRef.path, step.codeRef, activeProject)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="arch-code-link"
@@ -802,10 +876,10 @@ export default function ArchitectureDesignPage() {
               ) : (
                 // Default Canvas State
                 <>
-                  <p className="arch-design-panel-kicker">Embedded LSM-Tree</p>
-                  <h2 className="arch-design-panel-title">PebbleDB Architecture</h2>
+                  <p className="arch-design-panel-kicker">{projectKicker}</p>
+                  <h2 className="arch-design-panel-title">{projectTitle} Architecture</h2>
                   <p className="arch-design-panel-body">
-                    Explore the complete internals of PebbleDB: a single-process embedded Key-Value engine implemented in Go.
+                    {projectOverviewBody}
                   </p>
                   <div style={{ marginTop: 24 }} className="arch-card-nested">
                     <h4 style={{ margin: "0 0 6px", fontSize: 12, color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em" }}>
@@ -816,8 +890,8 @@ export default function ArchitectureDesignPage() {
                       <li>Select an <strong>Operational Flow Walkthrough</strong> from the dropdown above to walk step-by-step through read, write, flush, compaction, or crash-recovery paths.</li>
                     </ul>
                   </div>
-                  <Link to={GRAPH_META.guideEntry} className="arch-design-link-btn" style={{ marginTop: 20, display: "inline-block" }}>
-                    Read PebbleDB System Overview →
+                  <Link to={projectMeta.guideEntry} className="arch-design-link-btn" style={{ marginTop: 20, display: "inline-block" }}>
+                    {projectOverviewLinkText}
                   </Link>
                 </>
               )
@@ -1051,7 +1125,7 @@ export default function ArchitectureDesignPage() {
                               {s.symbol && <span style={{ fontSize: 10, color: "#71717a", marginLeft: 6 }}>({s.symbol})</span>}
                             </div>
                             <a
-                              href={getGithubSourceUrl(s.path, s)}
+                              href={getGithubSourceUrl(s.path, s, activeProject)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="arch-provenance-badge arch-provenance-badge--source-verified"
@@ -1086,7 +1160,7 @@ export default function ArchitectureDesignPage() {
                               )}
                               {m.source && (
                                 <div className="arch-metric-footer">
-                                  <a href={getGithubSourceUrl(m.source.path, m.source)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: "#ffb3d4", textDecoration: "none" }}>
+                                  <a href={getGithubSourceUrl(m.source.path, m.source, activeProject)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: "#ffb3d4", textDecoration: "none" }}>
                                     Defined in {m.source.label}
                                   </a>
                                 </div>
@@ -1117,7 +1191,7 @@ export default function ArchitectureDesignPage() {
                               {alt.disadvantages.map((dis, i) => <li key={i}>{dis}</li>)}
                             </ul>
                             <p style={{ fontSize: 11, margin: 0, color: "#fff" }}>
-                              <strong>Fit for PebbleDB:</strong> {alt.fitForPebbleDB}
+                              <strong>Fit for {activeProject === "rate-limiter" ? "Rate Limiter" : "PebbleDB"}:</strong> {alt.fitForPebbleDB || alt.fitForLimiter}
                             </p>
                           </div>
                         ))}
@@ -1155,7 +1229,7 @@ export default function ArchitectureDesignPage() {
                             {fm.sources && fm.sources.map((s, i) => (
                               <a
                                 key={i}
-                                href={getGithubSourceUrl(s.path, s)}
+                                href={getGithubSourceUrl(s.path, s, activeProject)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="arch-code-link"
