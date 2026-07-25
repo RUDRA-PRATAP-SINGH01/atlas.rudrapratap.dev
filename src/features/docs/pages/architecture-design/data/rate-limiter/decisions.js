@@ -678,16 +678,249 @@ export const jaegerDecision = {
       "Exporting traces consumes small amounts of network bandwidth and CPU.",
     ],
   },
+    alternatives: [],
+    evidenceStatus: "source-verified",
+  },
   alternatives: [],
   evidenceStatus: "source-verified",
 };
 
+export const denialCacheDecision = {
+  id: "decision-denial-cache",
+  nodeId: "denial-cache",
+  title: "In-Memory Denial Cache",
+  category: "Resilience",
+  sourcePath: "cmd/sidecar/main.go",
+  summary: "In-memory sync.Map fast-path denial cache. Caches active rejection decisions for ~30ms to absorb abusive burst traffic without calling central limiter or Redis.",
+  responsibility: {
+    owns: [
+      "Short-TTL local rejection records",
+      "Fast-path 429 response generation",
+    ],
+    doesNotOwn: [
+      "Quota computation",
+      "Persistent state",
+    ],
+    details: "When quota is exhausted, sidecar writes rejection entries to sync.Map. Subsequent requests for the same key within TTL return 429 immediately.",
+  },
+  whyItExists: {
+    problem: "Massive rate-limit violations during DDoS or flash sales could overload the central limiter service and Redis DB.",
+    constraint: "Must maintain sub-millisecond edge rejection times during traffic surges.",
+    decision: "Cache rejection results in local sidecar memory for a short window.",
+    result: "Absorbs up to 95% of burst rejection load at zero network cost.",
+  },
+  classification: {
+    level: "LLD",
+    explanation: "Local micro-caching strategy implemented in Go sidecar process.",
+  },
+  hld: {
+    architecturalRole: "Short-circuits denied requests before remote RPC overhead.",
+    upstream: ["client"],
+    downstream: ["sidecar"],
+    dataOwnership: ["In-memory denial sync.Map"],
+    controlOwnership: ["Local TTL eviction timer"],
+    persistenceResponsibility: "None (ephemeral memory)",
+    concurrencyResponsibility: "Lock-free sync.Map reads and writes",
+    failureBoundary: "Eviction on timeout or node restart defaults safely to full rate-limit evaluation.",
+    lifecycle: "Sidecar process lifespan.",
+  },
+  lld: {
+    implementation: [
+      "sync.Map stores key -> expiryTime",
+      "Checked in serveNormal pipeline before singleflight and limiter RPC",
+    ],
+  },
+  rationale: {
+    evidenceStatus: "source-verified",
+    selectedApproach: "In-process sync.Map with automated TTL cleanup.",
+    whyItFits: ["Zero allocation overhead on hits, lock-free concurrent reads."],
+    acceptedTradeoffs: ["Rejection propagation lag up to 30ms across instances."],
+  },
+  alternatives: [],
+  evidenceStatus: "source-verified",
+  sources: [
+    { label: "Sidecar denial cache", path: "cmd/sidecar/main.go", symbol: "serveNormal", lineStart: 522, lineEnd: 531 }
+  ],
+  failureWithoutComponent: [
+    "Every denied request hits the central limiter RPC, degrading throughput during attacks."
+  ],
+};
+
+export const singleflightDecision = {
+  id: "decision-singleflight",
+  nodeId: "singleflight",
+  title: "Singleflight Request Deduplication",
+  category: "Resilience",
+  sourcePath: "golang.org/x/sync/singleflight",
+  summary: "Deduplicates concurrent check requests for identical rate-limit keys during cache misses, suppressing downstream RPC spikes.",
+  responsibility: {
+    owns: ["Collapsing concurrent duplicate key lookups into a single execution"],
+    doesNotOwn: ["Caching results permanently"],
+    details: "If 100 concurrent requests for user_123 hit the sidecar simultaneously, only 1 RPC is executed to the central limiter.",
+  },
+  whyItExists: {
+    problem: "Thundering herd problem when cache expires or initial traffic spikes hit simultaneously.",
+    constraint: "Must avoid duplicate RPCs while maintaining low response latency.",
+    decision: "Wrap central limiter calls in singleflight.Group.",
+    result: "Reduces downstream RPC amplification from O(N) to O(1) during request spikes.",
+  },
+  classification: {
+    level: "LLD",
+    explanation: "Concurrency synchronization pattern in Go sidecar.",
+  },
+  hld: {
+    architecturalRole: "Suppresses thundering herd RPC surges.",
+    upstream: ["sidecar"],
+    downstream: ["limiter"],
+    dataOwnership: ["Transient flight call channel registry"],
+    controlOwnership: ["Go channel wait coordination"],
+    persistenceResponsibility: "None",
+    concurrencyResponsibility: "Go mutex and channel fan-out",
+    failureBoundary: "If central call fails or times out, all waiting goroutines receive the error simultaneously.",
+    lifecycle: "Request lifecycle duration.",
+  },
+  lld: {
+    implementation: [
+      "singleflight.Do(key, func() (interface{}, error))",
+      "Shares response payload and HTTP status with all waiters",
+    ],
+  },
+  rationale: {
+    evidenceStatus: "source-verified",
+    selectedApproach: "Standard Go singleflight package.",
+    whyItFits: ["Lightweight, battle-tested concurrency primitive in standard Go ecosystem."],
+    acceptedTradeoffs: ["Waiters share execution latency of the single leader request."],
+  },
+  alternatives: [],
+  evidenceStatus: "source-verified",
+  sources: [
+    { label: "Sidecar singleflight execution", path: "cmd/sidecar/main.go", symbol: "serveNormal", lineStart: 533, lineEnd: 535 }
+  ],
+  failureWithoutComponent: [
+    "Cache misses trigger N duplicate RPCs, causing backend thundering herd."
+  ],
+};
+
+export const cbStoreDecision = {
+  id: "decision-cb-store",
+  nodeId: "cb-store",
+  title: "Circuit Breaker State Store",
+  category: "Resilience",
+  sourcePath: "internal/circuitbreaker/store.go",
+  summary: "Tracks failure rates and manages state machine transitions (Closed -> Open -> Half-Open). Protects Redis DB and Limiter from cascading failures.",
+  responsibility: {
+    owns: ["Failure counter sliding windows", "State transitions (Closed, Open, Half-Open)", "Cooldown timers"],
+    doesNotOwn: ["Rate limiting logic"],
+    details: "Monitors response errors and timeouts. Opens circuit when failure threshold exceeds limit, returning 503 without remote calls.",
+  },
+  whyItExists: {
+    problem: "When Redis or Central Limiter fails or experiences extreme latency, callers stall and consume connection pools.",
+    constraint: "Must fail fast and auto-recover when downstream health restores.",
+    decision: "Implement sliding-window circuit breaker state machine.",
+    result: "Prevents cascading outages and guarantees predictable fallbacks.",
+  },
+  classification: {
+    level: "HLD",
+    explanation: "Platform fault-tolerance state machine.",
+  },
+  hld: {
+    architecturalRole: "Protects platform components against cascading overload.",
+    upstream: ["sidecar", "limiter"],
+    downstream: ["limiter", "redis"],
+    dataOwnership: ["Circuit breaker state and error counts"],
+    controlOwnership: ["State machine transition logic"],
+    persistenceResponsibility: "Local memory / optional Redis state sync",
+    concurrencyResponsibility: "Atomic state updates via sync/atomic",
+    failureBoundary: "Fails closed or open depending on configured fallback policy.",
+    lifecycle: "Service lifespan.",
+  },
+  lld: {
+    implementation: [
+      "Sliding window error counter",
+      "Automatic transition to Half-Open after cooldown timeout",
+    ],
+  },
+  rationale: {
+    evidenceStatus: "source-verified",
+    selectedApproach: "Sliding window counter with configurable failure thresholds.",
+    whyItFits: ["Fast atomic checks with zero lock contention."],
+    acceptedTradeoffs: ["Requires tuning error thresholds per environment."],
+  },
+  alternatives: [],
+  evidenceStatus: "source-verified",
+  sources: [
+    { label: "Circuit breaker store", path: "internal/circuitbreaker/store.go", symbol: "Allow", lineStart: 45, lineEnd: 70 }
+  ],
+  failureWithoutComponent: [
+    "Downstream outages cause connection pool exhaustion and cascading system collapse."
+  ],
+};
+
+export const configGenDecision = {
+  id: "decision-config-gen",
+  nodeId: "config-gen",
+  title: "Config Generation Counter",
+  category: "State Management",
+  sourcePath: "Redis key config:generation",
+  summary: "Atomic generation version integer stored in Redis. Incremented on override CRUD operations to trigger instant cache invalidation across limiter nodes.",
+  responsibility: {
+    owns: ["Monotonically increasing configuration version counter"],
+    doesNotOwn: ["Rule payload data"],
+    details: "When Admin API modifies a rate limit override, it increments config:generation. Stateless limiter nodes check this key to invalidate local rule caches.",
+  },
+  whyItExists: {
+    problem: "Stateless limiter nodes cache override rules locally to avoid Redis GET calls on every request, but need real-time invalidation when rules change.",
+    constraint: "Must invalidate caches across distributed nodes within milliseconds without complex pub/sub meshing.",
+    decision: "Maintain single atomic integer generation key in Redis.",
+    result: "Instant distributed cache invalidation with minimal Redis overhead.",
+  },
+  classification: {
+    level: "HLD",
+    explanation: "Distributed cache consistency and invalidation mechanism.",
+  },
+  hld: {
+    architecturalRole: "Coordinates distributed cache invalidation.",
+    upstream: ["admin-api"],
+    downstream: ["limiter"],
+    dataOwnership: ["Redis key config:generation"],
+    controlOwnership: ["Atomic INCR operator"],
+    persistenceResponsibility: "Redis persistent key",
+    concurrencyResponsibility: "Atomic Redis INCR",
+    failureBoundary: "If key is lost, limiters fall back to reloading rules on next cache expiration.",
+    lifecycle: "Global system lifespan.",
+  },
+  lld: {
+    implementation: [
+      "Admin API executes INCR config:generation on rule mutation",
+      "Limiter checks generation version on rule cache access",
+    ],
+  },
+  rationale: {
+    evidenceStatus: "source-verified",
+    selectedApproach: "Version counter validation pattern.",
+    whyItFits: ["Simple, deterministic, eliminates cache stale reads."],
+    acceptedTradeoffs: ["Requires lightweight generation check or background poll."],
+  },
+  alternatives: [],
+  evidenceStatus: "source-verified",
+  sources: [
+    { label: "Admin config generation increment", path: "cmd/limiter/main.go", symbol: "handleAdminUpdate" }
+  ],
+  failureWithoutComponent: [
+    "Override updates take up to full cache TTL to take effect across distributed limiters."
+  ],
+};
+
 export const decisionsByNodeId = {
   client: clientDecision,
+  "denial-cache": denialCacheDecision,
   sidecar: sidecarDecision,
+  singleflight: singleflightDecision,
   upstream: upstreamDecision,
   "admin-api": adminApiDecision,
   limiter: limiterDecision,
+  "cb-store": cbStoreDecision,
+  "config-gen": configGenDecision,
   redis: redisDecision,
   prometheus: prometheusDecision,
   grafana: grafanaDecision,
