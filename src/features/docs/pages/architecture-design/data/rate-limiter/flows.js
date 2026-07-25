@@ -264,6 +264,37 @@ export const flows = [
       },
     ],
   },
+
+  // ── DENIAL CACHE FAST-PATH REJECTION ─────────────────────────────────────────
+  {
+    id: "flow-denial-cache-rejection",
+    title: "Denial Cache Fast-Path Rejection",
+    description: "Demonstrates sub-millisecond edge rejection of abusive traffic using local sidecar memory.",
+    kind: "read",
+    steps: [
+      {
+        id: "dcr1",
+        label: "1. Abusive Request Ingress",
+        nodeId: "client",
+        description: "Abusive client sends burst requests exceeding quota limits.",
+        codeRef: { path: "cmd/sidecar/main.go", symbol: "serveNormal" },
+      },
+      {
+        id: "dcr2",
+        label: "2. Denial Cache Fast-Path Hit",
+        nodeId: "denial-cache",
+        description: "Sidecar queries local sync.Map denial cache. Active rejection entry found (TTL ~30ms).",
+        codeRef: { path: "cmd/sidecar/main.go", symbol: "serveNormal", lineStart: 522, lineEnd: 531 },
+      },
+      {
+        id: "dcr3",
+        label: "3. Instant Edge 429",
+        nodeId: "sidecar",
+        description: "Sidecar returns 429 Too Many Requests immediately with Retry-After header, completely short-circuiting Central Limiter and Redis calls.",
+        codeRef: { path: "cmd/sidecar/main.go", symbol: "serveNormal" },
+      },
+    ],
+  },
 ];
 
 /** @returns {Map<string, OperationalFlow>} */
