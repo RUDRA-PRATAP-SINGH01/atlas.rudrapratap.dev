@@ -678,9 +678,6 @@ export const jaegerDecision = {
       "Exporting traces consumes small amounts of network bandwidth and CPU.",
     ],
   },
-    alternatives: [],
-    evidenceStatus: "source-verified",
-  },
   alternatives: [],
   evidenceStatus: "source-verified",
 };

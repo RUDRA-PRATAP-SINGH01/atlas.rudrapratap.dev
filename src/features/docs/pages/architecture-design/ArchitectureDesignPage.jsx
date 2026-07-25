@@ -39,6 +39,25 @@ function kindClass(kind) {
   return `arch-canvas-node arch-canvas-node--${kind}`;
 }
 
+function getNodeKindIcon(kind) {
+  switch (kind) {
+    case "client":
+      return "👤";
+    case "core":
+      return "⚡";
+    case "worker":
+      return "⚙️";
+    case "disk":
+      return "💾";
+    case "memory":
+      return "🧠";
+    case "package":
+      return "📦";
+    default:
+      return "🔷";
+  }
+}
+
 function useIsMobile(breakpoint = 960) {
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia(`(max-width: ${breakpoint}px)`).matches : false,
@@ -107,6 +126,15 @@ export default function ArchitectureDesignPage() {
   const bounds = useMemo(() => {
     return activeProject === "rate-limiter" ? ratelimiterBounds() : pebbledbBounds();
   }, [activeProject]);
+
+  const connectionCounts = useMemo(() => {
+    const counts = {};
+    for (const e of edges) {
+      counts[e.from] = (counts[e.from] || 0) + 1;
+      counts[e.to] = (counts[e.to] || 0) + 1;
+    }
+    return counts;
+  }, [edges]);
 
   const selectedNode = selectedId ? nodeMap[selectedId] : null;
   const decision = selectedId ? getDecisionForNode(selectedId, activeProject) : null;
@@ -638,6 +666,8 @@ export default function ArchitectureDesignPage() {
               const w = node.w || 160;
               const h = node.h || 56;
               const isSelected = selectedId === node.id;
+              const connCount = connectionCounts[node.id] || 0;
+              const icon = getNodeKindIcon(node.kind);
               
               // Determine flow highlight classes
               const isInFlow = flowNodeIds.has(node.id);
@@ -662,6 +692,10 @@ export default function ArchitectureDesignPage() {
                     }
                   }}
                 >
+                  <div className="arch-canvas-node-header">
+                    <span className="arch-canvas-node-kind-icon">{icon}</span>
+                    <span className="arch-canvas-node-conn-badge" title={`${connCount} connections`}>{connCount}</span>
+                  </div>
                   <span className="arch-canvas-node-label">{node.label}</span>
                   {node.path && <span className="arch-canvas-node-path">{node.path}</span>}
                 </button>
