@@ -690,7 +690,7 @@ export default function ArchitectureDesignPage() {
         </div>
 
         {/* Desktop Side Inspector Panel */}
-        <aside className="arch-design-sidebar arch-design-panel--desktop" style={{ width: 440, minWidth: 440 }} aria-label="Interactive Inspector">
+        <aside className="arch-design-sidebar arch-design-panel--desktop" style={{ width: 400, minWidth: 400 }} aria-label="Interactive Inspector">
           {/* Node Search and Filter */}
           <div className="arch-design-search-container">
             <div className="arch-design-search-input-wrapper">
