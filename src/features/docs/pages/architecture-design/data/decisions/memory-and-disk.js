@@ -568,3 +568,115 @@ export const quarantineDecision = {
   ],
   evidenceStatus: "source-verified",
 };
+
+/** @type {import('../schema').ArchitectureDecision} */
+export const pendingBatchDecision = {
+  id: "decision-pending-batch",
+  nodeId: "pending-batch",
+  title: "In-Memory pendingBatch Buffer",
+  category: "In-Memory LSM State",
+  sourcePath: "internal/db/batch.go",
+  summary: "In-memory staging slice buffering Put/Delete mutations before batchFlusher triggers WAL fsync and active memtable application.",
+  responsibility: {
+    owns: ["Buffering uncommitted mutations", "Servicing immediate Get/Scan visibility"],
+    doesNotOwn: ["WAL persistence", "Memtable SkipList storage"],
+    details: "writeRecord appends incoming Put/Delete operations to db.pendingBatch. Get and Scan operations check pendingBatch first for zero-latency visibility.",
+  },
+  whyItExists: {
+    problem: "Writing to disk on every single Put operation causes extreme I/O stall.",
+    constraint: "Must buffer incoming writes for micro-batching without losing read-your-own-writes consistency.",
+    decision: "Use an in-memory slice buffer checked prior to memtable lookups.",
+    result: "High write throughput via batched fsyncs while preserving instant read visibility.",
+  },
+  classification: {
+    level: "LLD",
+    explanation: "In-memory staging structure for write-path micro-batching.",
+  },
+  hld: {
+    architecturalRole: "Buffers incoming writes prior to WAL batch fsync.",
+    upstream: ["api"],
+    downstream: ["batch-flusher", "active-mt"],
+    dataOwnership: ["db.pendingBatch slice"],
+    controlOwnership: ["db.mu RWMutex"],
+    persistenceResponsibility: "None (ephemeral buffer)",
+    concurrencyResponsibility: "Protected by db.mu",
+    failureBoundary: "Process crash before batchFlusher fsync loses uncommitted pendingBatch entries.",
+    lifecycle: "Cleared upon batchFlusher application.",
+  },
+  lld: {
+    implementation: [
+      "db.pendingBatch = append(db.pendingBatch, record)",
+      "db.Get checks pendingBatch before active memtable",
+    ],
+  },
+  rationale: {
+    evidenceStatus: "source-verified",
+    selectedApproach: "In-memory slice with lock protection.",
+    whyItFits: ["Ultra-fast append operations with immediate read visibility."],
+    acceptedTradeoffs: ["Uncommitted writes are volatile until batchFlusher syncs WAL."],
+  },
+  alternatives: [],
+  evidenceStatus: "source-verified",
+  sources: [
+    { label: "Pending batch buffer", path: "internal/db/batch.go", symbol: "writeRecord" }
+  ],
+  failureWithoutComponent: [
+    "Every Put operation requires individual disk write and fsync, tanking IOPS."
+  ],
+};
+
+/** @type {import('../schema').ArchitectureDecision} */
+export const blockCacheDecision = {
+  id: "decision-block-cache",
+  nodeId: "block-cache",
+  title: "SSTable Block Cache",
+  category: "Engine Package",
+  sourcePath: "internal/sstable/cache.go",
+  summary: "LRU block cache storing decompressed SSTable data blocks in memory to eliminate redundant disk I/O.",
+  responsibility: {
+    owns: ["Cached decompressed data blocks", "LRU eviction queue"],
+    doesNotOwn: ["Disk SSTable files"],
+    details: "When reading SSTable blocks during point or range queries, sstable.Reader first queries the LRU block cache.",
+  },
+  whyItExists: {
+    problem: "Decompressing and reading SSTable data blocks from disk repeatedly degrades read performance.",
+    constraint: "Memory budget for caching must be bounded to avoid OOM.",
+    decision: "Implement an LRU cache for data blocks.",
+    result: "High cache hit ratios for hot key ranges with fixed memory footprint.",
+  },
+  classification: {
+    level: "LLD",
+    explanation: "Memory caching layer for SSTable block reads.",
+  },
+  hld: {
+    architecturalRole: "Caches SSTable blocks in memory to accelerate reads.",
+    upstream: ["sstable"],
+    downstream: ["sst-file"],
+    dataOwnership: ["Block cache LRU map"],
+    controlOwnership: ["Mutex protected LRU list"],
+    persistenceResponsibility: "None",
+    concurrencyResponsibility: "Thread-safe cache operations",
+    failureBoundary: "Cache miss falls back to reading block from disk.",
+    lifecycle: "Database instance lifespan.",
+  },
+  lld: {
+    implementation: [
+      "cache.Get(blockID) -> returns block or nil",
+      "cache.Set(blockID, block) evicts LRU items on capacity limit",
+    ],
+  },
+  rationale: {
+    evidenceStatus: "source-verified",
+    selectedApproach: "Fixed-size LRU cache.",
+    whyItFits: ["Eliminates redundant disk I/O and block decompression overhead."],
+    acceptedTradeoffs: ["Consumes allocated RAM for cached block buffers."],
+  },
+  alternatives: [],
+  evidenceStatus: "source-verified",
+  sources: [
+    { label: "Block cache implementation", path: "internal/sstable/cache.go", symbol: "Get" }
+  ],
+  failureWithoutComponent: [
+    "Every point read requires disk I/O and block decompression, significantly increasing read latency."
+  ],
+};

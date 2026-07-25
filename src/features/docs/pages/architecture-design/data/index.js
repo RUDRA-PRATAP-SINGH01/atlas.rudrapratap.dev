@@ -26,12 +26,15 @@ import {
   manifestFileDecision,
   sstFileDecision,
   quarantineDecision,
+  pendingBatchDecision,
+  blockCacheDecision,
 } from "./decisions/memory-and-disk.js";
 
 /** @type {Record<string, import('./schema').ArchitectureDecision>} */
 export const decisionsByNodeId = {
   cli: cliDecision,
   api: apiDecision,
+  "pending-batch": pendingBatchDecision,
   "active-mt": memtableDecision,
   "pending-flush": pendingFlushDecision,
   "sst-list": sstListDecision,
@@ -41,6 +44,7 @@ export const decisionsByNodeId = {
   wal: walDecision,
   "memtable-pkg": memtablePkgDecision,
   sstable: sstableDecision,
+  "block-cache": blockCacheDecision,
   manifest: manifestDecision,
   iterator: iteratorDecision,
   bloom: bloomDecision,
