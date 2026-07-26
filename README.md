@@ -46,6 +46,7 @@ This repository is the full ATLAS web application—designed, implemented, and d
 | ----- | ---------- | ---------- |
 | **PebbleDB** | Companion docs for my Go LSM-tree storage engine (50+ pages: architecture, internals, implementation, testing, debugging, reference) | [`/project-docs/guide`](https://rps-atlas.netlify.app/project-docs/guide) |
 | **Distributed Rate Limiter** | 54-page source-backed case study of a Go sidecar + Redis/Lua rate limiting platform (architecture, engine, resilience, routing, observability, performance lab, production, verification, journal) | [`/docs/distributed-rate-limiter/introduction/start-here`](https://rps-atlas.netlify.app/docs/distributed-rate-limiter/introduction/start-here) |
+| **Architecture Inspector** | Interactive 2D graph canvas with node search, glassmorphism inspector panel, and operational flow walkthroughs for both PebbleDB and Rate Limiter | [`/architecture-design`](https://rps-atlas.netlify.app/architecture-design) |
 
 - [PebbleDB](https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB) — high-performance LSM-tree storage engine in Go
 - [Distributed Rate Limiter](https://github.com/RUDRA-PRATAP-SINGH01/Distributed-rate-limiter) — implementation this Atlas guide documents (source of truth for claims)
