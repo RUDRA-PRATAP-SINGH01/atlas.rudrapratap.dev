@@ -1,5 +1,6 @@
 import DocsNavbar from "@/features/docs/components/DocsNavbar";
 import { Link } from "react-router-dom";
+import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
 
 const docCards = [
   {
@@ -252,7 +253,9 @@ export default function ProjectDocsPage() {
             </Link>
           </section>
 
-
+          <div style={{ marginTop: 40, marginBottom: 40 }}>
+            <ImplementedBadges showBoth={true} />
+          </div>
         </div>
       </main>
     </div>

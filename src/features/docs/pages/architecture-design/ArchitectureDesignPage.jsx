@@ -20,6 +20,7 @@ import {
 } from "./data/rate-limiter/graph";
 import { flows as ratelimiterFlows } from "./data/rate-limiter/flows";
 import { getDecisionForNode } from "./data/index";
+import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
 
 const MIN_SCALE = 0.22;
 const MAX_SCALE = 2.4;
@@ -108,6 +109,46 @@ export default function ArchitectureDesignPage() {
   // Flow Walkthrough State
   const [activeFlowId, setActiveFlowId] = useState("");
   const [activeStepIndex, setActiveStepIndex] = useState(-1);
+
+  // Horizontal Panel Resizing State
+  const [sidebarWidth, setSidebarWidth] = useState(400);
+  const [isResizing, setIsResizing] = useState(false);
+
+  const handleResizeStart = useCallback(
+    (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const startX = e.clientX;
+      const startWidth = sidebarWidth;
+      setIsResizing(true);
+
+      const onPointerMove = (moveEvent) => {
+        const deltaX = startX - moveEvent.clientX;
+        const minW = 300;
+        const maxW = Math.min(850, window.innerWidth - 320);
+        const newWidth = Math.max(minW, Math.min(maxW, startWidth + deltaX));
+        setSidebarWidth(newWidth);
+      };
+
+      const onPointerUp = () => {
+        setIsResizing(false);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerUp);
+      };
+
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", onPointerUp);
+      window.addEventListener("pointercancel", onPointerUp);
+    },
+    [sidebarWidth],
+  );
+
+  const handleResizeReset = useCallback(() => {
+    setSidebarWidth(400);
+  }, []);
 
   const dragRef = useRef(null);
   const pinchRef = useRef(null);
@@ -712,8 +753,26 @@ export default function ArchitectureDesignPage() {
           </div>
         </div>
 
-        {/* Desktop Side Inspector Panel */}
-        <aside className="arch-design-sidebar arch-design-panel--desktop" style={{ width: 400, minWidth: 400 }} aria-label="Interactive Inspector">
+        {/* Desktop Side Inspector Panel with Horizontal Resizer */}
+        <aside
+          className={`arch-design-sidebar arch-design-panel--desktop${isResizing ? " is-resizing" : ""}`}
+          style={{ width: sidebarWidth, minWidth: sidebarWidth }}
+          aria-label="Interactive Inspector"
+        >
+          {/* Horizontal Resizer Drag Handle */}
+          <div
+            className="arch-resizer-handle"
+            onPointerDown={handleResizeStart}
+            onDoubleClick={handleResizeReset}
+            title="Drag to resize panel horizontally (Double-click to reset)"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize panel width"
+          >
+            <div className="arch-resizer-line" />
+            <div className="arch-resizer-pill" />
+          </div>
+
           {/* Node Search and Filter */}
           <div className="arch-design-search-container">
             <div className="arch-design-search-input-wrapper">
@@ -904,7 +963,8 @@ export default function ArchitectureDesignPage() {
                   <p className="arch-design-panel-body">
                     {projectOverviewBody}
                   </p>
-                  <div style={{ marginTop: 24 }} className="arch-card-nested">
+                  <ImplementedBadges project={activeProject} />
+                  <div style={{ marginTop: 20 }} className="arch-card-nested">
                     <h4 style={{ margin: "0 0 6px", fontSize: 12, color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                       How to inspect:
                     </h4>
@@ -1359,7 +1419,10 @@ export default function ArchitectureDesignPage() {
                     </div>
                   )
                 ) : (
-                  <p style={{ color: "#71717a", fontSize: 12 }}>No component selected. Tap any node on the canvas to inspect.</p>
+                  <div>
+                    <ImplementedBadges project={activeProject} compact />
+                    <p style={{ color: "#71717a", fontSize: 12 }}>Tap any node on the canvas to inspect components.</p>
+                  </div>
                 )}
               </div>
             </div>

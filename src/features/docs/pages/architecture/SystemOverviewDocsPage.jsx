@@ -1,5 +1,6 @@
 import DocsNavbar from "@/features/docs/components/DocsNavbar";
 import DocsSidebar from "@/features/docs/components/DocsSidebar";
+import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
 
 const pageTopics = [
   { label: "Subsystem Architecture", href: "#subsystem-architecture" },
@@ -78,6 +79,8 @@ export default function SystemOverviewDocsPage() {
               <p>
                 PebbleDB is my embedded, single-process, Log-Structured Merge (LSM) key-value engine written in Go. This document provides a comprehensive structural specification of the storage engine, defining the state layouts, structural components, and Go interfaces.
               </p>
+
+              <ImplementedBadges project="pebbledb" />
 
               <h2 className="guide-sub-heading" id="subsystem-architecture" style={{ fontSize: 22, color: "#ffffff", marginTop: 32, marginBottom: 12 }}>1. Subsystem Architecture</h2>
               <p>

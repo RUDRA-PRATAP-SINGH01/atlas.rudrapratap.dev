@@ -1,4 +1,5 @@
 import React from "react";
+import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
 import {
   RLThesis,
   RLQuickModel,
@@ -49,6 +50,8 @@ export const architecturePages = {
           the sidecar only accelerates denial repetition (30 ms) and suppresses duplicate in-flight requests via
           singleflight. Allowed entries are never served from cache — they always re-hit the limiter.
         </RLQuickModel>
+
+        <ImplementedBadges project="rate-limiter" />
 
         <RLStatGrid stats={[
           { value: ":9090", label: "Sidecar proxy  cmd/sidecar", evidence: "SOURCE-PROVEN" },
