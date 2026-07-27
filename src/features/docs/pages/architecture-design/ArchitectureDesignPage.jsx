@@ -548,6 +548,7 @@ export default function ArchitectureDesignPage() {
               className={`arch-project-toggle-btn ${activeProject === "pebbledb" ? "is-active" : ""}`}
               onClick={() => handleProjectChange("pebbledb")}
             >
+              <span className="arch-project-toggle-dot arch-project-toggle-dot--pink" />
               PebbleDB
             </button>
             <button
@@ -555,14 +556,24 @@ export default function ArchitectureDesignPage() {
               className={`arch-project-toggle-btn ${activeProject === "rate-limiter" ? "is-active" : ""}`}
               onClick={() => handleProjectChange("rate-limiter")}
             >
+              <span className="arch-project-toggle-dot arch-project-toggle-dot--blue" />
               Rate Limiter
             </button>
           </div>
 
-          <span className="arch-toolbar-badge">Architecture Inspector</span>
+          <span className="arch-toolbar-badge">
+            <span className="arch-toolbar-pulse-dot" />
+            Live Architecture Inspector
+          </span>
         </div>
 
         <div className="arch-design-toolbar-right">
+          <div className="arch-shortcuts-pill" title="Keyboard Shortcuts: Space+Drag to Pan, Scroll to Zoom, Ctrl+0 to Fit">
+            <span className="arch-shortcut-kbd">Space</span> Pan
+            <span className="arch-shortcut-sep">·</span>
+            <span className="arch-shortcut-kbd">Ctrl+0</span> Fit
+          </div>
+
           <div className="arch-zoom-group" role="group" aria-label="Zoom controls">
             <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(-0.12)} aria-label="Zoom out">
               −
