@@ -2949,6 +2949,36 @@
   color: #ff5cad;
 }
 
+.arch-node-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #71717a;
+  display: inline-block;
+}
+
+.arch-node-status-dot--core { background: #ff5cad; box-shadow: 0 0 6px rgba(255, 92, 173, 0.8); }
+.arch-node-status-dot--memory { background: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.8); }
+.arch-node-status-dot--disk { background: #fbbf24; box-shadow: 0 0 6px rgba(251, 191, 36, 0.8); }
+.arch-node-status-dot--worker { background: #a78bfa; box-shadow: 0 0 6px rgba(167, 139, 250, 0.8); }
+.arch-node-status-dot--client { background: #34d399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.8); }
+.arch-node-status-dot--package { background: #f472b6; box-shadow: 0 0 6px rgba(244, 114, 182, 0.8); }
+
+.arch-canvas-edge-pulse {
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 8 20;
+  animation: arch-edge-pulse-flow 1.2s linear infinite;
+  opacity: 0.85;
+}
+
+@keyframes arch-edge-pulse-flow {
+  from { stroke-dashoffset: 28; }
+  to { stroke-dashoffset: 0; }
+}
+
 .arch-canvas-node {
   position: absolute;
   display: flex;

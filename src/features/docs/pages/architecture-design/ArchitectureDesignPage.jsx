@@ -678,12 +678,19 @@ export default function ArchitectureDesignPage() {
                 if (isTransition) edgeClass += " is-in-flow-active";
 
                 return (
-                  <path
-                    key={edge.id}
-                    d={d}
-                    className={edgeClass}
-                    markerEnd="url(#arch-arrow)"
-                  />
+                  <g key={edge.id}>
+                    <path
+                      d={d}
+                      className={edgeClass}
+                      markerEnd={isSelectedEdge || isTransition || isInFlow ? "url(#arch-arrow)" : "url(#arch-arrow-dim)"}
+                    />
+                    {isTransition && (
+                      <path
+                        d={d}
+                        className="arch-canvas-edge-pulse"
+                      />
+                    )}
+                  </g>
                 );
               })}
             </svg>
@@ -734,7 +741,10 @@ export default function ArchitectureDesignPage() {
                   }}
                 >
                   <div className="arch-canvas-node-header">
-                    <span className="arch-canvas-node-kind-badge">{kindLabel}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span className={`arch-node-status-dot arch-node-status-dot--${node.kind || "default"}`} />
+                      <span className="arch-canvas-node-kind-badge">{kindLabel}</span>
+                    </div>
                     <span className="arch-canvas-node-conn-badge" title={`${connCount} connections`}>{connCount}</span>
                   </div>
                   <span className="arch-canvas-node-label">{node.label}</span>
