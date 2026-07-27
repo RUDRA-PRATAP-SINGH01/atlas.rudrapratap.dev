@@ -804,10 +804,15 @@ export default function ArchitectureDesignPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              {searchQuery && (
-                <button type="button" className="arch-design-search-clear" onClick={() => setSearchQuery("")}>
-                  ✕
-                </button>
+              {searchQuery ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, position: "absolute", right: 8 }}>
+                  <span className="arch-search-match-badge">{searchResults.length} matches</span>
+                  <button type="button" className="arch-design-search-clear" onClick={() => setSearchQuery("")}>
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <span className="arch-search-kbd-hint">/</span>
               )}
             </div>
             {searchQuery && (

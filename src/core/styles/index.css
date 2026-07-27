@@ -3369,6 +3369,30 @@
   align-items: center;
 }
 
+.arch-search-match-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #ff5cad;
+  background: rgba(255, 92, 173, 0.12);
+  border: 1px solid rgba(255, 92, 173, 0.25);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.arch-search-kbd-hint {
+  position: absolute;
+  right: 10px;
+  font-size: 10px;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  color: #71717a;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 1px 5px;
+  pointer-events: none;
+}
+
 .arch-design-search-input {
   width: 100%;
   background: #141418;

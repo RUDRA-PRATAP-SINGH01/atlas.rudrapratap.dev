@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const PEBBLEDB_IMPLEMENTED_FEATURES = [
   "WAL",
@@ -38,6 +38,8 @@ export default function ImplementedBadges({
   showBoth = false,
   compact = false,
 }) {
+  const [activeBadge, setActiveBadge] = useState(null);
+
   if (showBoth) {
     return (
       <div className="arch-implemented-both-container">
@@ -72,14 +74,25 @@ export default function ImplementedBadges({
             {title || defaultTitle}
           </h4>
         </div>
-        <span className="arch-implemented-badges-count">{features.length} Components</span>
+        <span className="arch-implemented-badges-count">
+          {activeBadge ? `Selected: ${activeBadge}` : `${features.length} Subsystems`}
+        </span>
       </div>
       <div className="arch-implemented-badges-grid">
-        {features.map((feature, idx) => (
-          <span key={idx} className={`arch-implemented-badge ${badgeClass}`}>
-            {feature}
-          </span>
-        ))}
+        {features.map((feature, idx) => {
+          const isSelected = activeBadge === feature;
+          return (
+            <button
+              key={idx}
+              type="button"
+              className={`arch-implemented-badge ${badgeClass}${isSelected ? " is-active" : ""}`}
+              onClick={() => setActiveBadge(isSelected ? null : feature)}
+              title={`Click to toggle ${feature}`}
+            >
+              {feature}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
