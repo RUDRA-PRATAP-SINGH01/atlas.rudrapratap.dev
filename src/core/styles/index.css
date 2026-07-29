@@ -2570,6 +2570,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+}
+
+.arch-design-toolbar-right {
+  flex-shrink: 1;
+  overflow: hidden;
 }
 
 .arch-design-back {
@@ -2674,6 +2680,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   padding: 2px;
+  flex-shrink: 0;
 }
 
 .arch-zoom-btn {
@@ -2690,6 +2697,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .arch-zoom-btn:hover {
@@ -2702,6 +2710,7 @@
   padding: 0 8px;
   font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .arch-zoom-label {
@@ -2713,10 +2722,35 @@
   font-variant-numeric: tabular-nums;
 }
 
+.arch-autolayout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 92, 173, 0.35);
+  background: rgba(255, 92, 173, 0.08);
+  color: #ff8ec8;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.arch-autolayout-btn:hover {
+  background: rgba(255, 92, 173, 0.16);
+  border-color: rgba(255, 92, 173, 0.55);
+  color: #ffb3d4;
+}
+
 .arch-action-group {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .arch-nav-action-btn {
@@ -2914,51 +2948,6 @@
   will-change: transform;
 }
 
-.arch-canvas-edges {
-  position: absolute;
-  left: 0;
-  top: 0;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.arch-canvas-edge {
-  fill: none;
-  stroke: #ff5cad;
-  stroke-width: 1.6;
-  stroke-dasharray: 6 4;
-  animation: arch-dash-offset 1.2s linear infinite;
-  opacity: 0.8;
-}
-
-.arch-canvas-edge--active {
-  stroke: #ff5cad;
-  stroke-width: 2.4;
-  stroke-dasharray: 6 4;
-  animation: arch-dash-offset 0.6s linear infinite;
-  opacity: 1;
-  filter: drop-shadow(0 0 6px rgba(255, 92, 173, 0.6));
-}
-
-.arch-canvas-group {
-  position: absolute;
-  border: 1px solid rgba(255, 92, 173, 0.18);
-  border-radius: 14px;
-  background: rgba(17, 17, 19, 0.45);
-  pointer-events: none;
-}
-
-.arch-canvas-group-label {
-  position: absolute;
-  top: 10px;
-  left: 14px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #ff5cad;
-}
-
 .arch-node-status-dot {
   width: 5px;
   height: 5px;
@@ -2974,23 +2963,9 @@
 .arch-node-status-dot--client { background: #34d399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.8); }
 .arch-node-status-dot--package { background: #f472b6; box-shadow: 0 0 6px rgba(244, 114, 182, 0.8); }
 
-.arch-canvas-edge-pulse {
-  stroke: #ffffff;
-  stroke-width: 3;
-  stroke-linecap: round;
-  fill: none;
-  stroke-dasharray: 8 20;
-  animation: arch-edge-pulse-flow 1.2s linear infinite;
-  opacity: 0.85;
-}
-
-@keyframes arch-edge-pulse-flow {
-  from { stroke-dashoffset: 28; }
-  to { stroke-dashoffset: 0; }
-}
-
 .arch-canvas-node {
   position: absolute;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -3225,6 +3200,27 @@
   color: #fff;
 }
 
+@media (max-width: 1180px) {
+  .arch-shortcuts-pill {
+    display: none;
+  }
+
+  .arch-toolbar-badge {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .arch-autolayout-btn {
+    padding: 0 8px;
+    font-size: 10px;
+  }
+
+  .arch-action-group .arch-nav-action-btn:not(.arch-menu-toggle-btn) {
+    display: none;
+  }
+}
+
 @media (max-width: 960px) {
   .arch-design-body {
     grid-template-columns: 1fr;
@@ -3238,7 +3234,7 @@
     display: none;
   }
 
-  .arch-design-menu-toggle {
+  .arch-menu-toggle-btn {
     display: inline-flex;
   }
 
@@ -3892,33 +3888,49 @@
   left: 0;
   pointer-events: none;
   overflow: visible;
-  z-index: 3 !important;
+  z-index: 4;
 }
 
 .arch-canvas-group {
   position: absolute;
-  z-index: 1 !important;
+  z-index: 1;
+  border: 1px solid rgba(255, 92, 173, 0.35);
+  border-radius: 14px;
+  background: rgba(17, 17, 19, 0.28);
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(255, 92, 173, 0.08), inset 0 0 24px rgba(255, 92, 173, 0.04);
 }
 
-.arch-canvas-node {
+.arch-canvas-group-label {
   position: absolute;
-  z-index: 5 !important;
+  top: 10px;
+  left: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ff5cad;
 }
 
 .arch-canvas-edge {
   fill: none !important;
-  stroke: rgba(255, 92, 173, 0.55) !important;
+  stroke: #ff5cad !important;
   stroke-width: 1.8px !important;
-  stroke-dasharray: 6 6 !important;
-  animation: arch-dash-offset 1.2s linear infinite !important;
-  transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
+  stroke-dasharray: 7 7 !important;
+  stroke-linecap: round !important;
+  stroke-opacity: 0.55 !important;
+  opacity: 1 !important;
+  animation: arch-dash-offset 1.4s linear infinite !important;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease, stroke-opacity 0.2s ease;
 }
 
 .arch-canvas-edge--active {
-  stroke: #ff5cad !important;
-  stroke-width: 2.5px !important;
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 6px rgba(255, 92, 173, 0.8));
+  fill: none !important;
+  stroke: #ff8ec8 !important;
+  stroke-width: 2.6px !important;
+  stroke-dasharray: 8 6 !important;
+  animation: arch-dash-offset 0.9s linear infinite !important;
+  filter: drop-shadow(0 0 4px rgba(255, 92, 173, 0.45));
 }
 
 /* Dimming effect during flow walkthrough */
@@ -3927,41 +3939,45 @@
 }
 
 .arch-canvas-viewport--flow-active .arch-canvas-edge:not(.is-in-flow) {
-  opacity: 0.08;
+  opacity: 0 !important;
+  visibility: hidden;
 }
 
 .arch-canvas-edge.is-in-flow {
   fill: none !important;
   stroke: #ff5cad !important;
-  stroke-width: 2.2px !important;
-  stroke-dasharray: 6 4 !important;
-  animation: arch-dash-offset 0.8s linear infinite !important;
-  opacity: 0.95 !important;
+  stroke-width: 2.5px !important;
+  stroke-dasharray: 8 6 !important;
+  animation: arch-dash-offset 0.9s linear infinite !important;
+  opacity: 1 !important;
 }
 
 .arch-canvas-edge.is-in-flow-active {
   fill: none !important;
-  stroke: #00f0ff !important;
-  stroke-width: 3px !important;
+  stroke: #ff8ec8 !important;
+  stroke-width: 2.8px !important;
   opacity: 1 !important;
-  stroke-dasharray: 6 4 !important;
-  animation: arch-dash-offset 0.5s linear infinite !important;
-  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.9));
+  stroke-dasharray: 8 6 !important;
+  animation: arch-dash-offset 0.7s linear infinite !important;
+  filter: drop-shadow(0 0 5px rgba(255, 92, 173, 0.5));
 }
 
 .arch-canvas-edge-pulse {
   fill: none !important;
-  stroke: #00f0ff !important;
-  stroke-width: 4px !important;
-  opacity: 0.9 !important;
-  stroke-dasharray: 8 10 !important;
-  animation: arch-dash-offset 0.4s linear infinite !important;
-  filter: drop-shadow(0 0 10px #00f0ff);
+  stroke: #ff8ec8 !important;
+  stroke-width: 2.8px !important;
+  opacity: 0.7 !important;
+  stroke-dasharray: 10 8 !important;
+  animation: arch-dash-offset 0.55s linear infinite !important;
+  filter: drop-shadow(0 0 4px rgba(255, 142, 200, 0.4));
 }
 
 @keyframes arch-dash-offset {
+  from {
+    stroke-dashoffset: 0;
+  }
   to {
-    stroke-dashoffset: -20;
+    stroke-dashoffset: -28;
   }
 }
 
