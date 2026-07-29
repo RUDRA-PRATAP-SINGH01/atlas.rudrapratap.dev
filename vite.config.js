@@ -25,8 +25,22 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Route-isolated docs chunks: RL shell stays light; each registry section
-        // and Mermaid load only when needed.
+        // and Mermaid load only when needed. Architecture project datasets split
+        // so inactive project data is not downloaded with the explorer UI.
         manualChunks(id) {
+          if (
+            id.includes("/architecture-design/data/rate-limiter/") ||
+            id.includes("/architecture-design/data/projects/rate-limiter")
+          ) {
+            return "arch-data-rate-limiter";
+          }
+          if (
+            id.includes("/architecture-design/data/projects/pebbledb") ||
+            (id.includes("/architecture-design/data/") &&
+              !id.includes("/architecture-design/data/loadProject"))
+          ) {
+            return "arch-data-pebbledb";
+          }
           if (id.includes("/features/docs/pages/architecture-design/")) {
             return "architecture-design";
           }
@@ -56,11 +70,17 @@ export default defineConfig({
           if (id.includes("node_modules/mermaid")) {
             return "mermaid-vendor";
           }
+          if (id.includes("node_modules/gsap")) {
+            return "vendor-gsap";
+          }
+          if (
+            id.includes("node_modules/locomotive-scroll") ||
+            id.includes("node_modules/lenis")
+          ) {
+            return "vendor-scroll";
+          }
           if (id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/react-router")) {
             return "vendor-react";
-          }
-          if (id.includes("node_modules/lucide-react")) {
-            return "vendor-icons";
           }
           if (id.includes("node_modules/")) {
             return "vendor";
