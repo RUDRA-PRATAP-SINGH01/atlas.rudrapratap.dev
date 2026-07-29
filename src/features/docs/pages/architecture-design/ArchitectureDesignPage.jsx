@@ -111,9 +111,10 @@ export default function ArchitectureDesignPage() {
   // Flow Walkthrough State
   const [activeFlowId, setActiveFlowId] = useState("");
   const [activeStepIndex, setActiveStepIndex] = useState(-1);
+  const [isPlayingFlow, setIsPlayingFlow] = useState(false);
 
   // Horizontal Panel Resizing State
-  const [sidebarWidth, setSidebarWidth] = useState(400);
+  const [sidebarWidth, setSidebarWidth] = useState(480);
   const [isResizing, setIsResizing] = useState(false);
 
   const handleResizeStart = useCallback(
@@ -128,7 +129,7 @@ export default function ArchitectureDesignPage() {
 
       const onPointerMove = (moveEvent) => {
         const deltaX = startX - moveEvent.clientX;
-        const minW = 300;
+        const minW = 320;
         const maxW = Math.min(850, window.innerWidth - 320);
         const newWidth = Math.max(minW, Math.min(maxW, startWidth + deltaX));
         setSidebarWidth(newWidth);
@@ -149,7 +150,7 @@ export default function ArchitectureDesignPage() {
   );
 
   const handleResizeReset = useCallback(() => {
-    setSidebarWidth(400);
+    setSidebarWidth(480);
   }, []);
 
   const dragRef = useRef(null);
@@ -195,6 +196,8 @@ export default function ArchitectureDesignPage() {
     setMenuOpen(false);
     setActiveFlowId("");
     setActiveStepIndex(-1);
+    setIsPlayingFlow(false);
+    setHoveredNodeId(null);
     setSearchQuery("");
   };
 
@@ -300,6 +303,9 @@ export default function ArchitectureDesignPage() {
     return () => el.removeEventListener("wheel", onWheel);
   }, [onWheel]);
 
+  // Node Hover Tooltip State
+  const [hoveredNodeId, setHoveredNodeId] = useState(null);
+
   // Center a specific node on the canvas with smooth zoom
   const centerNode = useCallback((nodeId) => {
     const el = viewportRef.current;
@@ -325,12 +331,12 @@ export default function ArchitectureDesignPage() {
     [centerNode],
   );
 
-  // Flow walking control helper
+  // Flow walking control helper — keeps right sidebar on Flow Walkthrough details
   const selectFlowStep = useCallback((flow, stepIdx) => {
     setActiveStepIndex(stepIdx);
+    setSelectedId(null); // Clear selected node so sidebar stays on Flow Walkthrough
     if (stepIdx >= 0 && stepIdx < flow.steps.length) {
       const step = flow.steps[stepIdx];
-      setSelectedId(step.nodeId);
       centerNode(step.nodeId);
     }
   }, [centerNode]);
@@ -468,6 +474,40 @@ export default function ArchitectureDesignPage() {
     });
   }, [searchQuery, nodes, activeProject]);
 
+  // Graph BFS helper to find shortest edge path between two nodes
+  const getEdgePathBetweenNodes = useCallback((fromId, toId) => {
+    if (!fromId || !toId || fromId === toId) return [];
+    
+    // Direct edge check
+    const direct = edges.find(
+      e => (e.from === fromId && e.to === toId) || (e.from === toId && e.to === fromId)
+    );
+    if (direct) return [direct.id];
+
+    // BFS for multi-hop connection
+    const queue = [[fromId, []]];
+    const visited = new Set([fromId]);
+
+    while (queue.length > 0) {
+      const [curr, path] = queue.shift();
+      if (curr === toId) return path;
+
+      for (const edge of edges) {
+        let next = null;
+        if (edge.from === curr) next = edge.to;
+        else if (edge.to === curr) next = edge.from;
+
+        if (next && !visited.has(next)) {
+          visited.add(next);
+          const newPath = [...path, edge.id];
+          if (next === toId) return newPath;
+          queue.push([next, newPath]);
+        }
+      }
+    }
+    return [];
+  }, [edges]);
+
   // Derived flow information for layout highlight
   const flowNodeIds = useMemo(() => {
     if (!activeFlowId) return new Set();
@@ -480,40 +520,54 @@ export default function ArchitectureDesignPage() {
     const flow = flows.find(f => f.id === activeFlowId);
     if (!flow) return new Set();
     const activeEdgeIds = new Set();
-    
-    // An edge is in the flow if it links adjacent step nodes in correct order
+
     for (let i = 0; i < flow.steps.length - 1; i++) {
       const fromNodeId = flow.steps[i].nodeId;
       const toNodeId = flow.steps[i + 1].nodeId;
-      const edge = edges.find(
-        e => (e.from === fromNodeId && e.to === toNodeId) || 
-             (e.from === toNodeId && e.to === fromNodeId)
-      );
-      if (edge) {
-        activeEdgeIds.add(edge.id);
+      const pathEdgeIds = getEdgePathBetweenNodes(fromNodeId, toNodeId);
+      for (const eid of pathEdgeIds) {
+        activeEdgeIds.add(eid);
       }
     }
     return activeEdgeIds;
-  }, [activeFlowId, flows, edges]);
+  }, [activeFlowId, flows, getEdgePathBetweenNodes]);
 
-  const activeTransitionEdgeId = useMemo(() => {
-    if (!activeFlowId || activeStepIndex <= 0) return null;
+  const activeTransitionEdgeIds = useMemo(() => {
+    if (!activeFlowId || activeStepIndex <= 0) return new Set();
     const flow = flows.find(f => f.id === activeFlowId);
-    if (!flow) return null;
+    if (!flow || !flow.steps[activeStepIndex - 1] || !flow.steps[activeStepIndex]) return new Set();
+
     const fromNodeId = flow.steps[activeStepIndex - 1].nodeId;
     const toNodeId = flow.steps[activeStepIndex].nodeId;
-    const edge = edges.find(
-      e => (e.from === fromNodeId && e.to === toNodeId) || 
-           (e.from === toNodeId && e.to === fromNodeId)
-    );
-    return edge ? edge.id : null;
-  }, [activeFlowId, activeStepIndex, flows, edges]);
+    const pathEdgeIds = getEdgePathBetweenNodes(fromNodeId, toNodeId);
+    return new Set(pathEdgeIds);
+  }, [activeFlowId, activeStepIndex, flows, getEdgePathBetweenNodes]);
 
   const activeStepNodeId = useMemo(() => {
     if (!activeFlowId || activeStepIndex === -1) return null;
     const flow = flows.find(f => f.id === activeFlowId);
     return flow && flow.steps[activeStepIndex] ? flow.steps[activeStepIndex].nodeId : null;
   }, [activeFlowId, activeStepIndex, flows]);
+
+  // Auto-play timer for operational flow walkthroughs
+  useEffect(() => {
+    if (!activeFlowId || !isPlayingFlow) return;
+    const flow = flows.find((f) => f.id === activeFlowId);
+    if (!flow || flow.steps.length === 0) return;
+
+    const timer = setInterval(() => {
+      setActiveStepIndex((prev) => {
+        const next = (prev + 1) % flow.steps.length;
+        const step = flow.steps[next];
+        if (step) {
+          centerNode(step.nodeId);
+        }
+        return next;
+      });
+    }, 2400);
+
+    return () => clearInterval(timer);
+  }, [activeFlowId, isPlayingFlow, flows, centerNode]);
 
   const projectTitle = activeProject === "rate-limiter" ? "Distributed Rate Limiter" : "PebbleDB";
   const projectOverviewBody = activeProject === "rate-limiter"
@@ -667,7 +721,7 @@ export default function ArchitectureDesignPage() {
                 // Determine flow highlight classes
                 const isSelectedEdge = selectedId && (edge.from === selectedId || edge.to === selectedId);
                 const isInFlow = flowEdges.has(edge.id);
-                const isTransition = edge.id === activeTransitionEdgeId;
+                const isTransition = activeTransitionEdgeIds.has(edge.id);
                 
                 let edgeClass = "arch-canvas-edge";
                 if (isSelectedEdge) edgeClass += " arch-canvas-edge--active";
@@ -730,6 +784,8 @@ export default function ArchitectureDesignPage() {
                   data-node-id={node.id}
                   className={nodeClasses}
                   style={{ left: node.x, top: node.y, width: w, height: h }}
+                  onMouseEnter={() => setHoveredNodeId(node.id)}
+                  onMouseLeave={() => setHoveredNodeId(null)}
                   onClick={(ev) => {
                     if (!isMobile) {
                       ev.stopPropagation();
@@ -749,6 +805,27 @@ export default function ArchitectureDesignPage() {
                 </button>
               );
             })}
+
+            {/* Hover Node Tooltip Card */}
+            {hoveredNodeId && nodeMap[hoveredNodeId] && (
+              <div
+                className="arch-canvas-node-tooltip"
+                style={{
+                  left: nodeMap[hoveredNodeId].x + (nodeMap[hoveredNodeId].w || 160) / 2,
+                  top: nodeMap[hoveredNodeId].y - 8,
+                }}
+              >
+                <div className="arch-canvas-node-tooltip-header">
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span className={`arch-node-status-dot arch-node-status-dot--${nodeMap[hoveredNodeId].kind || "default"}`} />
+                    <span className="arch-canvas-node-tooltip-title">{nodeMap[hoveredNodeId].label}</span>
+                  </div>
+                  <span className="arch-canvas-node-kind-badge">{getNodeKindBadgeLabel(nodeMap[hoveredNodeId].kind)}</span>
+                </div>
+                {nodeMap[hoveredNodeId].path && <div className="arch-canvas-node-tooltip-path">{nodeMap[hoveredNodeId].path}</div>}
+                <p className="arch-canvas-node-tooltip-summary">{nodeMap[hoveredNodeId].summary}</p>
+              </div>
+            )}
           </div>
           </div>{/* end arch-canvas-viewport */}
 
@@ -842,6 +919,8 @@ export default function ArchitectureDesignPage() {
                     onClick={() => {
                       setActiveFlowId("");
                       setActiveStepIndex(-1);
+                      setIsPlayingFlow(false);
+                      setSelectedId(null);
                     }}
                   >
                     Clear Walkthrough
@@ -854,11 +933,16 @@ export default function ArchitectureDesignPage() {
                 onChange={(e) => {
                   const flowId = e.target.value;
                   setActiveFlowId(flowId);
+                  setSelectedId(null);
                   if (flowId) {
-                    const flow = flows.find(f => f.id === flowId);
-                    selectFlowStep(flow, 0);
+                    const flow = flows.find((f) => f.id === flowId);
+                    if (flow) {
+                      selectFlowStep(flow, 0);
+                      setIsPlayingFlow(true);
+                    }
                   } else {
                     setActiveStepIndex(-1);
+                    setIsPlayingFlow(false);
                   }
                 }}
               >
@@ -874,22 +958,44 @@ export default function ArchitectureDesignPage() {
               )}
             </div>
             {activeFlowId && (
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
                 <button
                   type="button"
                   className="arch-design-link-btn"
-                  style={{ flex: 1, textAlign: "center", fontSize: 11, padding: "6px 8px" }}
+                  style={{ flex: 1, textAlign: "center", fontSize: 11, padding: "6px 4px" }}
                   disabled={activeStepIndex <= 0}
-                  onClick={() => selectFlowStep(flows.find(f => f.id === activeFlowId), activeStepIndex - 1)}
+                  onClick={() => {
+                    setIsPlayingFlow(false);
+                    selectFlowStep(flows.find((f) => f.id === activeFlowId), activeStepIndex - 1);
+                  }}
                 >
-                  ◀ Previous
+                  ◀ Prev
                 </button>
                 <button
                   type="button"
                   className="arch-design-link-btn"
-                  style={{ flex: 1, textAlign: "center", fontSize: 11, padding: "6px 8px" }}
-                  disabled={activeStepIndex >= flows.find(f => f.id === activeFlowId).steps.length - 1}
-                  onClick={() => selectFlowStep(flows.find(f => f.id === activeFlowId), activeStepIndex + 1)}
+                  style={{
+                    flex: 1.3,
+                    textAlign: "center",
+                    fontSize: 11,
+                    padding: "6px 4px",
+                    background: isPlayingFlow ? "rgba(255, 92, 173, 0.2)" : undefined,
+                    borderColor: isPlayingFlow ? "#ff5cad" : undefined,
+                    color: isPlayingFlow ? "#ff5cad" : "#fff",
+                  }}
+                  onClick={() => setIsPlayingFlow((p) => !p)}
+                >
+                  {isPlayingFlow ? "⏸ Pause" : "▶ Play Walkthrough"}
+                </button>
+                <button
+                  type="button"
+                  className="arch-design-link-btn"
+                  style={{ flex: 1, textAlign: "center", fontSize: 11, padding: "6px 4px" }}
+                  disabled={activeStepIndex >= flows.find((f) => f.id === activeFlowId).steps.length - 1}
+                  onClick={() => {
+                    setIsPlayingFlow(false);
+                    selectFlowStep(flows.find((f) => f.id === activeFlowId), activeStepIndex + 1);
+                  }}
                 >
                   Next ▶
                 </button>

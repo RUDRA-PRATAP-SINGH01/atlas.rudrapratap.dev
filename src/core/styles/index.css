@@ -3914,6 +3914,61 @@
   }
 }
 
+/* Floating node preview tooltip on canvas hover */
+.arch-canvas-node-tooltip {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+  background: rgba(17, 17, 19, 0.95);
+  border: 1px solid rgba(255, 92, 173, 0.45);
+  border-radius: 10px;
+  padding: 10px 14px;
+  width: 260px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  transform: translate(-50%, -100%);
+  animation: arch-tooltip-fade-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes arch-tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -92%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+  }
+}
+
+.arch-canvas-node-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.arch-canvas-node-tooltip-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.arch-canvas-node-tooltip-path {
+  font-size: 10px;
+  color: #ff5cad;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  margin-bottom: 6px;
+}
+
+.arch-canvas-node-tooltip-summary {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #d4d4d8;
+  margin: 0;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    ARCHITECTURE IMPLEMENTED FEATURE BADGES
    ═══════════════════════════════════════════════════════════════════════ */
