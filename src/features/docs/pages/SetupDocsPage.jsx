@@ -12,7 +12,7 @@ const pageTopics = [
 
 export default function SetupDocsPage() {
   return (
-    <div className="guide-page min-h-[100dvh] bg-[#0b0b0b] text-[#d4d4d8]">
+    <div className="guide-page">
       <DocsNavbar />
       <div className="guide-layout-wrapper">
         {/* Left Sidebar */}

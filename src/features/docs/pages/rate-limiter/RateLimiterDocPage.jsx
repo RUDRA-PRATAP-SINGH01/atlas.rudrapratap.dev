@@ -86,7 +86,7 @@ export default function RateLimiterDocPage() {
   const title = pageData?.title || pageTitles[activeSlug] || "Distributed Rate Limiter";
 
   return (
-    <div className="guide-page min-h-[100dvh] bg-[#0b0b0b] text-[#d4d4d8]">
+    <div className="guide-page">
       <DocsNavbar />
       <div className="guide-layout-wrapper">
         <DocsSidebar />

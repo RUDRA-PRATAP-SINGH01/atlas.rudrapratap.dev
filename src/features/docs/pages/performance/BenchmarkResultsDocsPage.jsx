@@ -74,7 +74,7 @@ const tdBoldStyle = { padding: "10px 16px", fontWeight: 500, color: "#ffffff" };
 
 export default function BenchmarkResultsDocsPage() {
   return (
-    <div className="guide-page min-h-[100dvh] bg-[#0b0b0b] text-[#d4d4d8]">
+    <div className="guide-page">
       <DocsNavbar />
       <div className="guide-layout-wrapper">
         <DocsSidebar />
