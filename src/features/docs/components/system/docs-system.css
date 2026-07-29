@@ -1,21 +1,51 @@
 /* Atlas docs component system — semantic tokens (pink accent, dark engineering aesthetic) */
 :root {
+  /* Color — surfaces */
   --docs-bg: #0b0b0b;
   --docs-surface: #111113;
   --docs-surface-2: #18181b;
   --docs-border: #27272a;
-  --docs-border-soft: rgba(255, 255, 255, 0.06);
+
+  /* Color — text */
   --docs-text: #e4e4e7;
+  --docs-text-secondary: #d4d4d8;
+  --docs-text-bright: #ffffff;
   --docs-text-muted: #a1a1aa;
   --docs-text-faint: #71717a;
+
+  /* Color — accent */
   --docs-accent: #ff5cad;
-  --docs-accent-soft: rgba(255, 92, 173, 0.08);
-  --docs-accent-border: rgba(255, 92, 173, 0.25);
   --docs-accent-text: #ffb3d4;
   --docs-accent-muted: #e879a9;
   --docs-accent-strong: #db4577;
+
+  /* Color — white alpha (borders / fills) */
+  --docs-border-soft: rgba(255, 255, 255, 0.06);
+  --docs-hairline: rgba(255, 255, 255, 0.08);
+  --docs-hairline-strong: rgba(255, 255, 255, 0.12);
+  --docs-fill-subtle: rgba(255, 255, 255, 0.03);
+  --docs-fill-muted: rgba(255, 255, 255, 0.05);
+  --docs-fill-hover: rgba(255, 255, 255, 0.1);
+
+  /* Color — accent alpha ladder (exact production values) */
+  --docs-accent-wash: rgba(255, 92, 173, 0.05);
+  --docs-accent-soft: rgba(255, 92, 173, 0.08);
+  --docs-accent-tint: rgba(255, 92, 173, 0.12);
+  --docs-accent-mid: rgba(255, 92, 173, 0.2);
+  --docs-accent-border: rgba(255, 92, 173, 0.25);
+  --docs-accent-border-strong: rgba(255, 92, 173, 0.35);
+  --docs-accent-glow: rgba(255, 92, 173, 0.15);
+  --docs-accent-hot: rgba(255, 92, 173, 0.55);
+
+  /* Radius */
+  --docs-radius-xs: 4px;
+  --docs-radius-sm: 6px;
   --docs-radius: 8px;
   --docs-radius-lg: 10px;
+  --docs-radius-xl: 12px;
+  --docs-radius-pill: 999px;
+
+  /* Spacing */
   --docs-space-1: 6px;
   --docs-space-2: 8px;
   --docs-space-3: 12px;
@@ -23,11 +53,30 @@
   --docs-space-5: 20px;
   --docs-space-6: 24px;
   --docs-space-7: 32px;
+
+  /* Typography */
   --docs-font-xs: 10px;
+  --docs-font-2xs: 11px;
   --docs-font-sm: 12px;
   --docs-font-md: 13px;
   --docs-font-lg: 15px;
   --docs-line: 1.65;
+
+  /* Motion */
+  --docs-ease: ease;
+  --docs-duration-fast: 0.15s;
+  --docs-duration: 0.2s;
+  --docs-duration-med: 220ms;
+  --docs-duration-slow: 0.35s;
+
+  /* Z-index */
+  --docs-z-base: 1;
+  --docs-z-raised: 10;
+  --docs-z-sticky: 40;
+  --docs-z-dropdown: 50;
+  --docs-z-overlay: 100;
+  --docs-z-modal: 1000;
+  --docs-z-tour: 12000;
 }
 
 /* Evidence */
@@ -46,7 +95,7 @@
 .docs-evidence-badge--runtime { background: rgba(219, 69, 119, 0.14); color: var(--docs-accent-strong); }
 .docs-evidence-badge--benchmark { background: rgba(255, 143, 191, 0.14); color: #ff8fbf; }
 .docs-evidence-badge--limitation,
-.docs-evidence-badge--documented { background: rgba(255, 92, 173, 0.08); color: var(--docs-accent-muted); }
+.docs-evidence-badge--documented { background: var(--docs-accent-soft); color: var(--docs-accent-muted); }
 .docs-evidence-badge--partial,
 .docs-evidence-badge--future,
 .docs-evidence-badge--valid { background: rgba(255, 92, 173, 0.06); color: #c45a8a; }
@@ -84,7 +133,7 @@
   padding: 14px 18px;
   margin: var(--docs-space-4) 0;
   border: 1px solid var(--docs-accent-border);
-  background: rgba(255, 92, 173, 0.05);
+  background: var(--docs-accent-wash);
 }
 .docs-callout__title {
   font-weight: 700;
@@ -97,15 +146,15 @@
   line-height: var(--docs-line);
   color: var(--docs-accent-text);
 }
-.docs-callout--info { background: rgba(255, 92, 173, 0.05); border-color: rgba(255, 92, 173, 0.22); }
+.docs-callout--info { background: var(--docs-accent-wash); border-color: rgba(255, 92, 173, 0.22); }
 .docs-callout--note { background: rgba(255, 92, 173, 0.04); border-color: rgba(255, 92, 173, 0.18); }
 .docs-callout--success { background: rgba(255, 92, 173, 0.06); border-color: rgba(255, 92, 173, 0.28); }
 .docs-callout--warning {
-  background: rgba(255, 92, 173, 0.08);
-  border-color: rgba(255, 92, 173, 0.35);
+  background: var(--docs-accent-soft);
+  border-color: var(--docs-accent-border-strong);
 }
 .docs-callout--warning .docs-callout__title { color: #ff7ebd; }
-.docs-callout--warning .docs-callout__body { color: #ffb3d4; }
+.docs-callout--warning .docs-callout__body { color: var(--docs-accent-text); }
 .docs-callout--danger,
 .docs-callout--limitation {
   background: rgba(219, 69, 119, 0.08);
@@ -140,7 +189,7 @@
 }
 .docs-quick-model {
   background: rgba(39, 39, 42, 0.35);
-  border: 1px solid rgba(255, 92, 173, 0.12);
+  border: 1px solid var(--docs-accent-tint);
   border-radius: var(--docs-radius);
   padding: 14px 18px;
   margin-bottom: var(--docs-space-6);
@@ -429,7 +478,7 @@
   color: var(--docs-text-muted);
   border-radius: 6px;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--docs-font-sm);
   cursor: pointer;
 }
 .docs-code-tabs__tab[aria-selected="true"] {
@@ -493,14 +542,14 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 12px;
+  font-size: var(--docs-font-sm);
   font-weight: 700;
   color: var(--docs-accent);
   border: 1px solid var(--docs-accent-border);
   background: var(--docs-accent-soft);
 }
 .docs-flow-step__title {
-  font-size: 13px;
+  font-size: var(--docs-font-md);
   font-weight: 700;
   color: #fff;
   margin: 0 0 4px;
@@ -519,7 +568,7 @@
   gap: 14px;
 }
 .docs-timeline__item-title {
-  font-size: 13px;
+  font-size: var(--docs-font-md);
   font-weight: 700;
   color: #fff;
 }
