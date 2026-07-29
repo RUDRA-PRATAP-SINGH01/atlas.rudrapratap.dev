@@ -345,6 +345,7 @@ export default function LandingPage() {
     }
 
     let marqueeTween = null;
+    const marqueeEl = track.closest(".hero-marquee");
 
     const setupMarquee = () => {
       const segment = track.querySelector(".hero-marquee-content");
@@ -352,6 +353,7 @@ export default function LandingPage() {
       if (loopWidth <= 0 || marqueePixelsPerSecond <= 0) return;
 
       const duration = loopWidth / marqueePixelsPerSecond;
+      const wasPaused = marqueeTween?.paused?.() ?? false;
 
       marqueeTween?.kill();
       gsap.set(track, { x: -loopWidth });
@@ -361,6 +363,27 @@ export default function LandingPage() {
         ease: "none",
         repeat: -1,
       });
+
+      if (wasPaused || document.hidden) {
+        marqueeTween.pause();
+      }
+    };
+
+    const syncMarqueePlayback = () => {
+      if (!marqueeTween) return;
+      const offscreen =
+        marqueeEl &&
+        typeof marqueeEl.getBoundingClientRect === "function" &&
+        (() => {
+          const r = marqueeEl.getBoundingClientRect();
+          return r.bottom < 0 || r.top > window.innerHeight;
+        })();
+
+      if (document.hidden || offscreen) {
+        marqueeTween.pause();
+      } else {
+        marqueeTween.resume();
+      }
     };
 
     let cancelled = false;
@@ -377,11 +400,13 @@ export default function LandingPage() {
       if (cancelled) return;
 
       setupMarquee();
+      syncMarqueePlayback();
     };
 
     initMarquee();
 
     window.addEventListener("resize", setupMarquee);
+    document.addEventListener("visibilitychange", syncMarqueePlayback);
 
     const handleViewportChange = () => {
       setupMarquee();
@@ -389,10 +414,23 @@ export default function LandingPage() {
 
     window.visualViewport?.addEventListener("resize", handleViewportChange);
 
+    let io = null;
+    if (marqueeEl && typeof IntersectionObserver !== "undefined") {
+      io = new IntersectionObserver(
+        () => {
+          syncMarqueePlayback();
+        },
+        { threshold: 0 },
+      );
+      io.observe(marqueeEl);
+    }
+
     return () => {
       cancelled = true;
       window.removeEventListener("resize", setupMarquee);
+      document.removeEventListener("visibilitychange", syncMarqueePlayback);
       window.visualViewport?.removeEventListener("resize", handleViewportChange);
+      io?.disconnect();
       marqueeTween?.kill();
       if (track.isConnected) {
         gsap.set(track, { clearProps: "transform" });

@@ -84,7 +84,25 @@ export function useLocomotiveScroll() {
       document.removeEventListener("click", handleAnchorClick);
       ScrollTrigger.clearScrollMemory();
       ScrollTrigger.defaults({ scroller: undefined });
+      // Restore native document scrolling proxy before destroying Lenis
+      ScrollTrigger.scrollerProxy(root, {
+        scrollTop(value) {
+          if (arguments.length) {
+            root.scrollTop = value;
+          }
+          return root.scrollTop || window.scrollY || 0;
+        },
+        getBoundingClientRect() {
+          return {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight,
+          };
+        },
+      });
       locomotiveScroll.destroy();
+      ScrollTrigger.refresh();
     };
   }, []);
 }
