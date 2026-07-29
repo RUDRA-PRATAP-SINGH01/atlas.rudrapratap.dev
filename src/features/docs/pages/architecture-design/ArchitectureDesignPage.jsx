@@ -916,7 +916,7 @@ export default function ArchitectureDesignPage() {
               transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
             }}
           >
-            <svg className="arch-canvas-edges" width={bounds.maxX + 200} height={bounds.maxY + 200} aria-hidden="true">
+            <svg className="arch-canvas-edges" width={Math.max(3000, (bounds.maxX || 1200) + 800)} height={Math.max(2400, (bounds.maxY || 1000) + 800)} aria-hidden="true">
               <defs>
                 <marker id="arch-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto">
                   <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff5cad" />

@@ -3892,19 +3892,33 @@
   left: 0;
   pointer-events: none;
   overflow: visible;
+  z-index: 3 !important;
+}
+
+.arch-canvas-group {
+  position: absolute;
+  z-index: 1 !important;
+}
+
+.arch-canvas-node {
+  position: absolute;
+  z-index: 5 !important;
 }
 
 .arch-canvas-edge {
   fill: none !important;
-  stroke: rgba(255, 255, 255, 0.28);
-  stroke-width: 1.5px;
+  stroke: rgba(255, 92, 173, 0.55) !important;
+  stroke-width: 1.8px !important;
+  stroke-dasharray: 6 6 !important;
+  animation: arch-dash-offset 1.2s linear infinite !important;
   transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
 }
 
 .arch-canvas-edge--active {
   stroke: #ff5cad !important;
-  stroke-width: 2.2px !important;
+  stroke-width: 2.5px !important;
   opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(255, 92, 173, 0.8));
 }
 
 /* Dimming effect during flow walkthrough */
@@ -3919,28 +3933,30 @@
 .arch-canvas-edge.is-in-flow {
   fill: none !important;
   stroke: #ff5cad !important;
-  stroke-width: 2px !important;
-  opacity: 0.9 !important;
+  stroke-width: 2.2px !important;
+  stroke-dasharray: 6 4 !important;
+  animation: arch-dash-offset 0.8s linear infinite !important;
+  opacity: 0.95 !important;
 }
 
 .arch-canvas-edge.is-in-flow-active {
   fill: none !important;
   stroke: #00f0ff !important;
-  stroke-width: 2.8px !important;
+  stroke-width: 3px !important;
   opacity: 1 !important;
   stroke-dasharray: 6 4 !important;
-  animation: arch-dash-offset 0.6s linear infinite !important;
-  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.7));
+  animation: arch-dash-offset 0.5s linear infinite !important;
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.9));
 }
 
 .arch-canvas-edge-pulse {
   fill: none !important;
   stroke: #00f0ff !important;
-  stroke-width: 3.5px !important;
-  opacity: 0.8 !important;
-  stroke-dasharray: 8 12 !important;
-  animation: arch-dash-offset 0.5s linear infinite !important;
-  filter: drop-shadow(0 0 8px #00f0ff);
+  stroke-width: 4px !important;
+  opacity: 0.9 !important;
+  stroke-dasharray: 8 10 !important;
+  animation: arch-dash-offset 0.4s linear infinite !important;
+  filter: drop-shadow(0 0 10px #00f0ff);
 }
 
 @keyframes arch-dash-offset {
