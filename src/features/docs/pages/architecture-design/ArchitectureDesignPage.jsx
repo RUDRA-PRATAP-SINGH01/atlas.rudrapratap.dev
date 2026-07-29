@@ -22,12 +22,19 @@ import { flows as ratelimiterFlows } from "./data/rate-limiter/flows";
 import { getDecisionForNode } from "./data/index";
 import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
 import { computeDagLayout } from "./utils/dagLayout";
+import {
+  animateSignalAlongCurve,
+  buildEdgeCurve,
+  sleep,
+} from "./utils/runtimeSignal";
 
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 2.4;
 const DEFAULT_SCALE = 0.80;
 const ZOOM_STEP = 0.15;
 const PAN_THRESHOLD = 8;
+const SIGNAL_DURATION_MS = 780;
+const NODE_DWELL_MS = 1600;
 
 function clamp(n, min, max) {
   return Math.min(max, Math.max(min, n));
@@ -247,6 +254,22 @@ export default function ArchitectureDesignPage() {
   const [activeFlowId, setActiveFlowId] = useState(initialFlow);
   const [activeStepIndex, setActiveStepIndex] = useState(initialStep);
   const [isPlayingFlow, setIsPlayingFlow] = useState(false);
+  /** Edge ids currently carrying the runtime signal */
+  const [executingEdgeIds, setExecutingEdgeIds] = useState(() => new Set());
+  /** edgeId → { from, to } travel orientation while the message is moving / just landed */
+  const [edgeTravelDir, setEdgeTravelDir] = useState(() => new Map());
+  /** Node that just received the signal (soft activation flash) */
+  const [signalFocusNodeId, setSignalFocusNodeId] = useState(null);
+
+  const signalRef = useRef(null);
+  const signalArrowRef = useRef(null);
+  const signalAbortRef = useRef({ current: false });
+  const isPlayingFlowRef = useRef(false);
+  const activeStepIndexRef = useRef(activeStepIndex);
+  const activeFlowIdRef = useRef(activeFlowId);
+  const transitionLockRef = useRef(false);
+  const stepCardRefs = useRef(new Map());
+  const panelContentRef = useRef(null);
 
   // Sync state changes to URL search parameters (replace: true)
   useEffect(() => {
@@ -524,16 +547,6 @@ export default function ArchitectureDesignPage() {
     [centerNode],
   );
 
-  // Flow walking control helper — keeps right sidebar on Flow Walkthrough details
-  const selectFlowStep = useCallback((flow, stepIdx) => {
-    setActiveStepIndex(stepIdx);
-    setSelectedId(null); // Clear selected node so sidebar stays on Flow Walkthrough
-    if (stepIdx >= 0 && stepIdx < flow.steps.length) {
-      const step = flow.steps[stepIdx];
-      centerNode(step.nodeId);
-    }
-  }, [centerNode]);
-
   const onPointerDown = (e) => {
     if (e.button !== 0 && e.button !== 1) return;
 
@@ -743,24 +756,15 @@ export default function ArchitectureDesignPage() {
   }, [activeFlowId, flows, getEdgePathBetweenNodes]);
 
   const activeTransitionEdgeIds = useMemo(() => {
-    if (!activeFlowId || activeStepIndex < 0) return new Set();
+    // Residual highlight only on the hop that landed us on the current step
+    if (!activeFlowId || activeStepIndex <= 0) return new Set();
     const flow = flows.find(f => f.id === activeFlowId);
     if (!flow || !flow.steps[activeStepIndex]) return new Set();
 
-    if (activeStepIndex === 0) {
-      const firstNodeId = flow.steps[0].nodeId;
-      const nextNodeId = flow.steps[1]?.nodeId;
-      if (nextNodeId) {
-        return new Set(getEdgePathBetweenNodes(firstNodeId, nextNodeId));
-      }
-      return new Set(edges.filter(e => e.from === firstNodeId || e.to === firstNodeId).map(e => e.id));
-    }
-
     const fromNodeId = flow.steps[activeStepIndex - 1].nodeId;
     const toNodeId = flow.steps[activeStepIndex].nodeId;
-    const pathEdgeIds = getEdgePathBetweenNodes(fromNodeId, toNodeId);
-    return new Set(pathEdgeIds);
-  }, [activeFlowId, activeStepIndex, flows, edges, getEdgePathBetweenNodes]);
+    return new Set(getEdgePathBetweenNodes(fromNodeId, toNodeId));
+  }, [activeFlowId, activeStepIndex, flows, getEdgePathBetweenNodes]);
 
   const activeStepNodeId = useMemo(() => {
     if (!activeFlowId || activeStepIndex === -1) return null;
@@ -768,25 +772,153 @@ export default function ArchitectureDesignPage() {
     return flow && flow.steps[activeStepIndex] ? flow.steps[activeStepIndex].nodeId : null;
   }, [activeFlowId, activeStepIndex, flows]);
 
-  // Auto-play timer for operational flow walkthroughs
+  // Keep refs in sync for the autoplay / signal loop (avoids stale closures)
   useEffect(() => {
-    if (!activeFlowId || !isPlayingFlow) return;
-    const flow = flows.find((f) => f.id === activeFlowId);
-    if (!flow || flow.steps.length === 0) return;
+    isPlayingFlowRef.current = isPlayingFlow;
+  }, [isPlayingFlow]);
 
-    const timer = setInterval(() => {
-      setActiveStepIndex((prev) => {
-        const next = (prev + 1) % flow.steps.length;
-        const step = flow.steps[next];
-        if (step) {
-          centerNode(step.nodeId);
+  useEffect(() => {
+    activeStepIndexRef.current = activeStepIndex;
+  }, [activeStepIndex]);
+
+  useEffect(() => {
+    activeFlowIdRef.current = activeFlowId;
+  }, [activeFlowId]);
+
+  const scrollStepCardIntoView = useCallback((stepIdx) => {
+    const el = stepCardRefs.current.get(stepIdx);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, []);
+
+  /**
+   * Travel the runtime signal along graph edges from the current step to targetIdx,
+   * then commit the step change. Physical motion — no teleports.
+   */
+  const transitionToFlowStep = useCallback(
+    async (flow, targetIdx, { animate = true } = {}) => {
+      if (!flow || targetIdx < 0 || targetIdx >= flow.steps.length) return;
+      if (transitionLockRef.current) return;
+
+      const fromIdx = activeStepIndexRef.current;
+      const toNodeId = flow.steps[targetIdx].nodeId;
+      const fromNodeId =
+        fromIdx >= 0 && fromIdx < flow.steps.length ? flow.steps[fromIdx].nodeId : null;
+
+      setSelectedId(null);
+      transitionLockRef.current = true;
+      signalAbortRef.current.current = false;
+
+      try {
+        if (animate && fromNodeId && fromNodeId !== toNodeId) {
+          const edgeIds = getEdgePathBetweenNodes(fromNodeId, toNodeId);
+          const orderedIds =
+            edgeIds.length > 0
+              ? edgeIds
+              : edges
+                  .filter(
+                    (e) =>
+                      (e.from === fromNodeId && e.to === toNodeId) ||
+                      (e.to === fromNodeId && e.from === toNodeId),
+                  )
+                  .map((e) => e.id);
+
+          // Walk each hop in path order — arrows reorient to travel direction
+          let cursorId = fromNodeId;
+          for (const edgeId of orderedIds) {
+            if (signalAbortRef.current.current) break;
+            const edge = edges.find((e) => e.id === edgeId);
+            if (!edge) continue;
+
+            const nextId = edge.from === cursorId ? edge.to : edge.from;
+            const fromNode = nodeMap[cursorId];
+            const toNode = nodeMap[nextId];
+            if (!fromNode || !toNode) continue;
+
+            setEdgeTravelDir((prev) => {
+              const next = new Map(prev);
+              next.set(edgeId, { from: cursorId, to: nextId });
+              return next;
+            });
+            setExecutingEdgeIds(new Set([edgeId]));
+
+            const curve = buildEdgeCurve(fromNode, toNode);
+            await animateSignalAlongCurve(
+              signalRef.current,
+              curve,
+              SIGNAL_DURATION_MS,
+              signalAbortRef.current,
+              signalArrowRef.current,
+            );
+            cursorId = nextId;
+          }
+
+          setExecutingEdgeIds(new Set());
         }
-        return next;
-      });
-    }, 2400);
 
-    return () => clearInterval(timer);
-  }, [activeFlowId, isPlayingFlow, flows, centerNode]);
+        // Arrive — commit step + soft node focus
+        setActiveStepIndex(targetIdx);
+        setSignalFocusNodeId(toNodeId);
+        centerNode(toNodeId);
+        // Allow paint then scroll panel into sync
+        requestAnimationFrame(() => scrollStepCardIntoView(targetIdx));
+
+        window.setTimeout(() => {
+          setSignalFocusNodeId((curr) => (curr === toNodeId ? null : curr));
+        }, 220);
+      } finally {
+        transitionLockRef.current = false;
+        setExecutingEdgeIds(new Set());
+      }
+    },
+    [centerNode, edges, getEdgePathBetweenNodes, nodeMap, scrollStepCardIntoView],
+  );
+
+  // Alias used by existing call sites
+  const selectFlowStep = useCallback(
+    (flow, stepIdx) => {
+      void transitionToFlowStep(flow, stepIdx, { animate: true });
+    },
+    [transitionToFlowStep],
+  );
+
+  // Auto-play: advance only after the signal finishes travelling
+  useEffect(() => {
+    if (!activeFlowId || !isPlayingFlow) return undefined;
+    const flow = flows.find((f) => f.id === activeFlowId);
+    if (!flow || flow.steps.length === 0) return undefined;
+
+    let cancelled = false;
+    signalAbortRef.current.current = false;
+
+    const run = async () => {
+      // Dwell on the current step before the first hop
+      await sleep(NODE_DWELL_MS, signalAbortRef.current);
+      if (cancelled || !isPlayingFlowRef.current) return;
+
+      while (!cancelled && isPlayingFlowRef.current) {
+        const flowNow = flows.find((f) => f.id === activeFlowIdRef.current);
+        if (!flowNow) break;
+
+        const prev = activeStepIndexRef.current;
+        const next = prev < 0 ? 0 : (prev + 1) % flowNow.steps.length;
+
+        await transitionToFlowStep(flowNow, next, { animate: true });
+        if (cancelled || !isPlayingFlowRef.current) break;
+
+        await sleep(NODE_DWELL_MS, signalAbortRef.current);
+      }
+    };
+
+    void run();
+
+    return () => {
+      cancelled = true;
+      signalAbortRef.current.current = true;
+      signalAbortRef.current.cancel?.();
+      signalAbortRef.current.cancelSleep?.();
+    };
+  }, [activeFlowId, isPlayingFlow, flows, transitionToFlowStep]);
 
   const projectTitle = activeProject === "rate-limiter" ? "Distributed Rate Limiter" : "PebbleDB";
   const projectOverviewBody = activeProject === "rate-limiter"
@@ -956,57 +1088,55 @@ export default function ArchitectureDesignPage() {
                 if (!fromNode || !toNode) return null;
 
                 const isInFlow = flowEdges.has(edge.id);
-                const isTransition = activeTransitionEdgeIds.has(edge.id);
-                // During an operational flow, only show edges that belong to that flow
+                const isExecuting = executingEdgeIds.has(edge.id);
+                const isTransition = activeTransitionEdgeIds.has(edge.id) || isExecuting;
                 if (activeFlowId && !isInFlow && !isTransition) return null;
 
-                const centerA = nodeCenter(fromNode);
-                const centerB = nodeCenter(toNode);
-                const a = getNodeEdgePoint(fromNode, centerB);
-                const b = getNodeEdgePoint(toNode, centerA);
-                const midY = Math.abs(a.y - b.y) < 15 ? a.y - 36 : (a.y + b.y) / 2;
-                const d = `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
+                // Reorient curve + markerEnd to follow the message travel direction
+                const travel = edgeTravelDir.get(edge.id);
+                const curve =
+                  travel && nodeMap[travel.from] && nodeMap[travel.to]
+                    ? buildEdgeCurve(nodeMap[travel.from], nodeMap[travel.to])
+                    : buildEdgeCurve(fromNode, toNode);
 
                 const isSelectedEdge = selectedId && (edge.from === selectedId || edge.to === selectedId);
-                const isSearchMatchEdge = searchQuery.trim() !== "" && (matchingNodeIds.has(edge.from) || matchingNodeIds.has(edge.to));
-                const isStrongHighlight = isTransition || isSelectedEdge || isSearchMatchEdge;
+                const isSearchMatchEdge =
+                  searchQuery.trim() !== "" &&
+                  (matchingNodeIds.has(edge.from) || matchingNodeIds.has(edge.to));
 
                 let edgeClass = "arch-canvas-edge";
                 if (isSelectedEdge) edgeClass += " arch-canvas-edge--active";
                 if (isInFlow) edgeClass += " is-in-flow";
-                if (isTransition) edgeClass += " is-in-flow-active";
+                if (isExecuting) edgeClass += " is-executing";
+                else if (isTransition) edgeClass += " is-in-flow-active";
                 if (isSearchMatchEdge) edgeClass += " is-search-match";
 
-                const markerId = isStrongHighlight
-                  ? "url(#arch-arrow-flow)"
-                  : "url(#arch-arrow)";
+                const markerId =
+                  isExecuting || isTransition || isSelectedEdge || isSearchMatchEdge
+                    ? "url(#arch-arrow-flow)"
+                    : "url(#arch-arrow)";
 
                 return (
                   <g key={edge.id}>
-                    <path
-                      d={d}
-                      className={edgeClass}
-                      fill="none"
-                      stroke={isStrongHighlight ? "#ff8ec8" : "#ff5cad"}
-                      strokeWidth={isStrongHighlight ? 2.4 : 1.8}
-                      strokeDasharray="7 7"
-                      strokeOpacity={isStrongHighlight ? 0.95 : 0.55}
-                      markerEnd={markerId}
-                    />
-                    {isTransition && (
-                      <path
-                        d={d}
-                        className="arch-canvas-edge-pulse"
-                        fill="none"
-                        stroke="#ff8ec8"
-                        strokeWidth="2.8"
-                        strokeDasharray="10 8"
-                        markerEnd="url(#arch-arrow-flow)"
-                      />
-                    )}
+                    <path d={curve.d} className={edgeClass} fill="none" markerEnd={markerId} />
                   </g>
                 );
               })}
+              {/* Runtime signal + traveling arrow tip — driven by rAF */}
+              <circle
+                ref={signalRef}
+                className="arch-runtime-signal"
+                r="2.5"
+                cx="0"
+                cy="0"
+                visibility="hidden"
+              />
+              <polygon
+                ref={signalArrowRef}
+                className="arch-runtime-signal-arrow"
+                points="5,0 -3.5,-3 -3.5,3"
+                visibility="hidden"
+              />
             </svg>
 
             {nodes.map((node) => {
@@ -1015,17 +1145,32 @@ export default function ArchitectureDesignPage() {
               const isSelected = selectedId === node.id;
               const connCount = connectionCounts[node.id] || 0;
               const kindLabel = getNodeKindBadgeLabel(node.kind);
-              
-              // Determine flow & search highlight classes
+
               const isInFlow = flowNodeIds.has(node.id);
               const isActiveStepNode = node.id === activeStepNodeId;
+              const isSignalFocus = node.id === signalFocusNodeId;
               const isSearchMatch = searchQuery.trim() !== "" && matchingNodeIds.has(node.id);
-              
+
+              // Past / current / future tiers for walkthrough opacity
+              let flowTier = "";
+              if (activeFlowId && isInFlow) {
+                const flow = flows.find((f) => f.id === activeFlowId);
+                const stepIdx = flow?.steps.findIndex((s) => s.nodeId === node.id) ?? -1;
+                if (stepIdx >= 0) {
+                  if (activeStepIndex < 0) flowTier = " is-flow-future";
+                  else if (stepIdx < activeStepIndex) flowTier = " is-flow-past";
+                  else if (stepIdx === activeStepIndex) flowTier = " is-flow-current";
+                  else flowTier = " is-flow-future";
+                }
+              }
+
               let nodeClasses = kindClass(node.kind);
               if (isSelected) nodeClasses += " is-selected";
               if (isInFlow) nodeClasses += " is-in-flow";
               if (isActiveStepNode) nodeClasses += " is-in-flow-active";
+              if (isSignalFocus) nodeClasses += " is-signal-focus";
               if (isSearchMatch) nodeClasses += " is-search-match";
+              nodeClasses += flowTier;
 
               return (
                 <button
@@ -1181,6 +1326,9 @@ export default function ArchitectureDesignPage() {
                       setActiveStepIndex(-1);
                       setIsPlayingFlow(false);
                       setSelectedId(null);
+                      setExecutingEdgeIds(new Set());
+                      setEdgeTravelDir(new Map());
+                      setSignalFocusNodeId(null);
                     }}
                   >
                     Clear Walkthrough
@@ -1194,6 +1342,9 @@ export default function ArchitectureDesignPage() {
                   const flowId = e.target.value;
                   setActiveFlowId(flowId);
                   setSelectedId(null);
+                  setExecutingEdgeIds(new Set());
+                  setEdgeTravelDir(new Map());
+                  setSignalFocusNodeId(null);
                   if (flowId) {
                     const flow = flows.find((f) => f.id === flowId);
                     if (flow) {
@@ -1298,7 +1449,7 @@ export default function ArchitectureDesignPage() {
           )}
 
           {/* Inspector Content Panel */}
-          <div className="arch-design-panel-content">
+          <div className="arch-design-panel-content" ref={panelContentRef}>
             {!selectedId ? (
               activeFlowId ? (
                 // Walkthrough steps list
@@ -1308,10 +1459,15 @@ export default function ArchitectureDesignPage() {
                   </span>
                   {flows.find(f => f.id === activeFlowId).steps.map((step, idx) => {
                     const isStepActive = idx === activeStepIndex;
+                    const isStepPast = activeStepIndex >= 0 && idx < activeStepIndex;
                     return (
                       <div
                         key={step.id}
-                        className={`arch-design-flow-step-card${isStepActive ? " arch-design-flow-step-card--active" : ""}`}
+                        ref={(el) => {
+                          if (el) stepCardRefs.current.set(idx, el);
+                          else stepCardRefs.current.delete(idx);
+                        }}
+                        className={`arch-design-flow-step-card${isStepActive ? " arch-design-flow-step-card--active" : ""}${isStepPast ? " arch-design-flow-step-card--past" : ""}`}
                         onClick={() => selectFlowStep(flows.find(f => f.id === activeFlowId), idx)}
                       >
                         <div className="arch-design-flow-step-header">

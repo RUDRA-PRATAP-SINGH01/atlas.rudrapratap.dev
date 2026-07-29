@@ -3376,6 +3376,15 @@
   .arch-canvas-node {
     transition: none;
   }
+
+  .arch-runtime-signal,
+  .arch-runtime-signal-arrow {
+    display: none !important;
+  }
+
+  .arch-canvas-edge.is-executing {
+    animation: none !important;
+  }
 }
 
 /* Explore PebbleDB Interactive Inspector Styles */
@@ -3857,19 +3866,52 @@
   margin-bottom: 8px;
 }
 
-/* Pulsing highlight effect for nodes */
+/* Pulsing highlight effect for nodes — kept minimal for walkthrough focus */
 .arch-canvas-node.is-in-flow {
   opacity: 0.85;
 }
 
 .arch-canvas-node.is-in-flow-active {
-  border-color: #ff5cad;
-  background: linear-gradient(180deg, rgba(255, 92, 173, 0.25), #111113);
-  box-shadow: 0 0 12px rgba(255, 92, 173, 0.4), 0 8px 24px rgba(0, 0, 0, 0.45);
-  animation: arch-node-pulse 2s infinite ease-in-out;
-  transform: scale(1.02);
+  border-color: rgba(255, 180, 210, 0.55);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), #111113);
+  box-shadow: 0 0 0 1px rgba(255, 92, 173, 0.12), 0 6px 18px rgba(0, 0, 0, 0.35);
+  transform: none;
   z-index: 10;
   opacity: 1;
+  animation: none;
+}
+
+.arch-canvas-node.is-signal-focus {
+  border-color: rgba(255, 200, 220, 0.65);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), #121214);
+  box-shadow: 0 0 0 1px rgba(255, 92, 173, 0.16), 0 4px 14px rgba(0, 0, 0, 0.3);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.arch-canvas-node.is-signal-focus .arch-canvas-node-label {
+  opacity: 1;
+  color: #ffffff;
+  transition: opacity 180ms ease, color 180ms ease;
+}
+
+/* Walkthrough opacity tiers */
+.arch-canvas-viewport--flow-active .arch-canvas-node.is-flow-current {
+  opacity: 1;
+}
+
+.arch-canvas-viewport--flow-active .arch-canvas-node.is-flow-past {
+  opacity: 0.55;
+}
+
+.arch-canvas-viewport--flow-active .arch-canvas-node.is-flow-future {
+  opacity: 0.15;
+}
+
+.arch-canvas-viewport--flow-active .arch-canvas-node.is-flow-future .arch-canvas-node-label {
+  opacity: 0.7;
 }
 
 @keyframes arch-node-pulse {
@@ -3935,41 +3977,73 @@
 
 /* Dimming effect during flow walkthrough */
 .arch-canvas-viewport--flow-active .arch-canvas-node:not(.is-in-flow) {
-  opacity: 0.18;
+  opacity: 0.1;
 }
 
-.arch-canvas-viewport--flow-active .arch-canvas-edge:not(.is-in-flow) {
+.arch-canvas-viewport--flow-active .arch-canvas-edge:not(.is-in-flow):not(.is-executing) {
   opacity: 0 !important;
   visibility: hidden;
 }
 
+/* Idle flow edges — quiet wire */
 .arch-canvas-edge.is-in-flow {
   fill: none !important;
-  stroke: #ff5cad !important;
-  stroke-width: 2.5px !important;
-  stroke-dasharray: 8 6 !important;
-  animation: arch-dash-offset 0.9s linear infinite !important;
+  stroke: rgba(255, 92, 173, 0.55) !important;
+  stroke-width: 1px !important;
+  stroke-dasharray: 6 8 !important;
+  stroke-opacity: 0.25 !important;
   opacity: 1 !important;
+  animation: none !important;
+  filter: none !important;
+  transition:
+    stroke-width 220ms ease,
+    stroke-opacity 220ms ease,
+    opacity 220ms ease !important;
 }
 
+/* Soft residual highlight on the last completed hop */
 .arch-canvas-edge.is-in-flow-active {
   fill: none !important;
-  stroke: #ff8ec8 !important;
-  stroke-width: 2.8px !important;
+  stroke: rgba(255, 160, 200, 0.7) !important;
+  stroke-width: 1.35px !important;
+  stroke-opacity: 0.55 !important;
+  stroke-dasharray: 6 8 !important;
   opacity: 1 !important;
-  stroke-dasharray: 8 6 !important;
-  animation: arch-dash-offset 0.7s linear infinite !important;
-  filter: drop-shadow(0 0 5px rgba(255, 92, 173, 0.5));
+  animation: none !important;
+  filter: none !important;
+}
+
+/* Currently executing hop — the only lively wire */
+.arch-canvas-edge.is-executing {
+  fill: none !important;
+  stroke: rgba(255, 200, 220, 0.95) !important;
+  stroke-width: 2px !important;
+  stroke-opacity: 0.95 !important;
+  stroke-dasharray: 5 7 !important;
+  opacity: 1 !important;
+  animation: arch-dash-offset 1.15s linear infinite !important;
+  filter: none !important;
+}
+
+/* Tiny runtime signal — almost invisible pulse of light */
+.arch-runtime-signal {
+  fill: rgba(255, 246, 250, 0.85);
+  stroke: none;
+  filter: blur(1.25px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.arch-runtime-signal-arrow {
+  fill: rgba(255, 230, 240, 0.72);
+  stroke: none;
+  filter: blur(0.6px);
+  pointer-events: none;
+  will-change: transform;
 }
 
 .arch-canvas-edge-pulse {
-  fill: none !important;
-  stroke: #ff8ec8 !important;
-  stroke-width: 2.8px !important;
-  opacity: 0.7 !important;
-  stroke-dasharray: 10 8 !important;
-  animation: arch-dash-offset 0.55s linear infinite !important;
-  filter: drop-shadow(0 0 4px rgba(255, 142, 200, 0.4));
+  display: none !important;
 }
 
 @keyframes arch-dash-offset {
@@ -3977,8 +4051,21 @@
     stroke-dashoffset: 0;
   }
   to {
-    stroke-dashoffset: -28;
+    stroke-dashoffset: -24;
   }
+}
+
+.arch-design-flow-step-card--past {
+  opacity: 0.55;
+  border-left-color: rgba(255, 92, 173, 0.25);
+}
+
+.arch-design-flow-step-card--active {
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 /* Floating node preview tooltip on canvas hover */
