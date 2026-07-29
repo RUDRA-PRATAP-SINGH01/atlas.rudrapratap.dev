@@ -39,6 +39,28 @@ function nodeCenter(node) {
   return { x: node.x + w / 2, y: node.y + h / 2 };
 }
 
+function getNodeEdgePoint(node, targetCenter) {
+  const w = node.w || 160;
+  const h = node.h || 56;
+  const cx = node.x + w / 2;
+  const cy = node.y + h / 2;
+
+  const dx = targetCenter.x - cx;
+  const dy = targetCenter.y - cy;
+
+  if (Math.abs(dy) >= Math.abs(dx)) {
+    return {
+      x: cx,
+      y: dy > 0 ? node.y + h + 2 : node.y - 2,
+    };
+  } else {
+    return {
+      x: dx > 0 ? node.x + w + 2 : node.x - 2,
+      y: cy,
+    };
+  }
+}
+
 function kindClass(kind) {
   return `arch-canvas-node arch-canvas-node--${kind}`;
 }
@@ -711,15 +733,24 @@ export default function ArchitectureDesignPage() {
   }, [activeFlowId, flows, getEdgePathBetweenNodes]);
 
   const activeTransitionEdgeIds = useMemo(() => {
-    if (!activeFlowId || activeStepIndex <= 0) return new Set();
+    if (!activeFlowId || activeStepIndex < 0) return new Set();
     const flow = flows.find(f => f.id === activeFlowId);
-    if (!flow || !flow.steps[activeStepIndex - 1] || !flow.steps[activeStepIndex]) return new Set();
+    if (!flow || !flow.steps[activeStepIndex]) return new Set();
+
+    if (activeStepIndex === 0) {
+      const firstNodeId = flow.steps[0].nodeId;
+      const nextNodeId = flow.steps[1]?.nodeId;
+      if (nextNodeId) {
+        return new Set(getEdgePathBetweenNodes(firstNodeId, nextNodeId));
+      }
+      return new Set(edges.filter(e => e.from === firstNodeId || e.to === firstNodeId).map(e => e.id));
+    }
 
     const fromNodeId = flow.steps[activeStepIndex - 1].nodeId;
     const toNodeId = flow.steps[activeStepIndex].nodeId;
     const pathEdgeIds = getEdgePathBetweenNodes(fromNodeId, toNodeId);
     return new Set(pathEdgeIds);
-  }, [activeFlowId, activeStepIndex, flows, getEdgePathBetweenNodes]);
+  }, [activeFlowId, activeStepIndex, flows, edges, getEdgePathBetweenNodes]);
 
   const activeStepNodeId = useMemo(() => {
     if (!activeFlowId || activeStepIndex === -1) return null;
@@ -887,20 +918,25 @@ export default function ArchitectureDesignPage() {
           >
             <svg className="arch-canvas-edges" width={bounds.maxX + 200} height={bounds.maxY + 200} aria-hidden="true">
               <defs>
-                <marker id="arch-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff5cad" />
+                <marker id="arch-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff5cad" />
                 </marker>
-                <marker id="arch-arrow-dim" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b" />
+                <marker id="arch-arrow-flow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+                  <path d="M 0 1 L 9 5 L 0 9 z" fill="#00f0ff" />
+                </marker>
+                <marker id="arch-arrow-dim" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                  <path d="M 0 2 L 7 5 L 0 8 z" fill="#71717a" />
                 </marker>
               </defs>
               {edges.map((edge) => {
                 const fromNode = nodeMap[edge.from];
                 const toNode = nodeMap[edge.to];
                 if (!fromNode || !toNode) return null;
-                const a = nodeCenter(fromNode);
-                const b = nodeCenter(toNode);
-                const midY = (a.y + b.y) / 2;
+                const centerA = nodeCenter(fromNode);
+                const centerB = nodeCenter(toNode);
+                const a = getNodeEdgePoint(fromNode, centerB);
+                const b = getNodeEdgePoint(toNode, centerA);
+                const midY = Math.abs(a.y - b.y) < 15 ? a.y - 36 : (a.y + b.y) / 2;
                 const d = `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
                 
                 // Determine flow and search highlight classes
@@ -915,17 +951,24 @@ export default function ArchitectureDesignPage() {
                 if (isTransition) edgeClass += " is-in-flow-active";
                 if (isSearchMatchEdge) edgeClass += " is-search-match";
 
+                const markerId = isTransition || isSearchMatchEdge
+                  ? "url(#arch-arrow-flow)"
+                  : isSelectedEdge || isInFlow
+                  ? "url(#arch-arrow)"
+                  : "url(#arch-arrow-dim)";
+
                 return (
                   <g key={edge.id}>
                     <path
                       d={d}
                       className={edgeClass}
-                      markerEnd={isSelectedEdge || isTransition || isInFlow || isSearchMatchEdge ? "url(#arch-arrow)" : "url(#arch-arrow-dim)"}
+                      markerEnd={markerId}
                     />
                     {isTransition && (
                       <path
                         d={d}
                         className="arch-canvas-edge-pulse"
+                        markerEnd="url(#arch-arrow-flow)"
                       />
                     )}
                   </g>

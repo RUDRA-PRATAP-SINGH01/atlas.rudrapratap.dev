@@ -3885,6 +3885,28 @@
   }
 }
 
+/* Canvas SVG Edges & Flow Animations */
+.arch-canvas-edges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.arch-canvas-edge {
+  fill: none !important;
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 1.5px;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
+}
+
+.arch-canvas-edge--active {
+  stroke: #ff5cad !important;
+  stroke-width: 2.2px !important;
+  opacity: 1 !important;
+}
+
 /* Dimming effect during flow walkthrough */
 .arch-canvas-viewport--flow-active .arch-canvas-node:not(.is-in-flow) {
   opacity: 0.18;
@@ -3895,17 +3917,30 @@
 }
 
 .arch-canvas-edge.is-in-flow {
-  stroke: #ff5cad;
-  stroke-width: 1.8;
-  opacity: 0.9;
+  fill: none !important;
+  stroke: #ff5cad !important;
+  stroke-width: 2px !important;
+  opacity: 0.9 !important;
 }
 
 .arch-canvas-edge.is-in-flow-active {
-  stroke: #ff5cad;
-  stroke-width: 2.5;
-  opacity: 1;
-  stroke-dasharray: 4;
-  animation: arch-dash-offset 0.8s linear infinite;
+  fill: none !important;
+  stroke: #00f0ff !important;
+  stroke-width: 2.8px !important;
+  opacity: 1 !important;
+  stroke-dasharray: 6 4 !important;
+  animation: arch-dash-offset 0.6s linear infinite !important;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.7));
+}
+
+.arch-canvas-edge-pulse {
+  fill: none !important;
+  stroke: #00f0ff !important;
+  stroke-width: 3.5px !important;
+  opacity: 0.8 !important;
+  stroke-dasharray: 8 12 !important;
+  animation: arch-dash-offset 0.5s linear infinite !important;
+  filter: drop-shadow(0 0 8px #00f0ff);
 }
 
 @keyframes arch-dash-offset {
