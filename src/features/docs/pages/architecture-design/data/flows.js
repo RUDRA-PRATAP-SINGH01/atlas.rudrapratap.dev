@@ -294,14 +294,3 @@ export const flows = [
   },
 ];
 
-/** @returns {Map<string, OperationalFlow>} */
-export function getFlowMap() {
-  return new Map(flows.map((f) => [f.id, f]));
-}
-
-/** @returns {string[]} Node IDs that participate in a given flow */
-export function getFlowNodeIds(flowId) {
-  const flow = flows.find((f) => f.id === flowId);
-  if (!flow) return [];
-  return [...new Set(flow.steps.map((s) => s.nodeId))];
-}

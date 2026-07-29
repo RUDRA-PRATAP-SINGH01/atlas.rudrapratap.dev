@@ -924,6 +924,3 @@ export const decisionsByNodeId = {
   jaeger: jaegerDecision,
 };
 
-export function getDecisionForNode(nodeId) {
-  return decisionsByNodeId[nodeId] ?? null;
-}

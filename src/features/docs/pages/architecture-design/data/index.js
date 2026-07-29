@@ -57,37 +57,8 @@ export const decisionsByNodeId = {
   quarantine: quarantineDecision,
 };
 
-import { decisionsByNodeId as rateLimiterDecisions } from "./rate-limiter/decisions.js";
-
-export {
-  cliDecision,
-  apiDecision,
-  walDecision,
-  memtableDecision,
-  memtablePkgDecision,
-  flusherDecision,
-  compactorDecision,
-  sstableDecision,
-  manifestDecision,
-  bloomDecision,
-  iteratorDecision,
-  batchFlusherDecision,
-  pendingFlushDecision,
-  sstListDecision,
-  lockDecision,
-  walLogDecision,
-  walFlushDecision,
-  currentDecision,
-  manifestFileDecision,
-  sstFileDecision,
-  quarantineDecision,
-};
-
 /** @returns {import('./schema').ArchitectureDecision | null} */
-export function getDecisionForNode(nodeId, project = "pebbledb") {
-  if (project === "rate-limiter") {
-    return rateLimiterDecisions[nodeId] ?? null;
-  }
+export function getDecisionForNode(nodeId) {
   return decisionsByNodeId[nodeId] ?? null;
 }
 
