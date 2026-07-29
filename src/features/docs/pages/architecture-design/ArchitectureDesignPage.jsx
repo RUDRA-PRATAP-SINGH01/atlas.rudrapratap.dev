@@ -21,6 +21,7 @@ import {
 import { flows as ratelimiterFlows } from "./data/rate-limiter/flows";
 import { getDecisionForNode } from "./data/index";
 import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
+import { computeDagLayout } from "./utils/dagLayout";
 
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 2.4;
@@ -227,15 +228,20 @@ export default function ArchitectureDesignPage() {
 
   // Sync state changes to URL search parameters (replace: true)
   useEffect(() => {
-    const params = {};
-    if (activeProject && activeProject !== "pebbledb") params.project = activeProject;
-    if (activeFlowId) params.flow = activeFlowId;
-    if (activeStepIndex >= 0) params.step = String(activeStepIndex);
-    if (selectedId) params.node = selectedId;
-    if (searchQuery) params.search = searchQuery;
+    const params = new URLSearchParams();
+    if (activeProject && activeProject !== "pebbledb") params.set("project", activeProject);
+    if (activeFlowId) params.set("flow", activeFlowId);
+    if (activeStepIndex >= 0) params.set("step", String(activeStepIndex));
+    if (selectedId) params.set("node", selectedId);
+    if (searchQuery) params.set("search", searchQuery);
 
-    setSearchParams(params, { replace: true });
-  }, [activeProject, activeFlowId, activeStepIndex, selectedId, searchQuery, setSearchParams]);
+    const currentString = searchParams.toString();
+    const newString = params.toString();
+
+    if (currentString !== newString) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [activeProject, activeFlowId, activeStepIndex, selectedId, searchQuery, searchParams, setSearchParams]);
 
   // Horizontal Panel Resizing State
   const [sidebarWidth, setSidebarWidth] = useState(480);
@@ -282,18 +288,43 @@ export default function ArchitectureDesignPage() {
   const isMobile = useIsMobile(960);
 
   const projectMeta = activeProject === "rate-limiter" ? ratelimiterMeta : pebbledbMeta;
-  const nodes = activeProject === "rate-limiter" ? ratelimiterNodes : pebbledbNodes;
-  const edges = activeProject === "rate-limiter" ? ratelimiterEdges : pebbledbEdges;
-  const groups = activeProject === "rate-limiter" ? ratelimiterGroups : pebbledbGroups;
+  const baseNodes = activeProject === "rate-limiter" ? ratelimiterNodes : pebbledbNodes;
+  const baseEdges = activeProject === "rate-limiter" ? ratelimiterEdges : pebbledbEdges;
+  const baseGroups = activeProject === "rate-limiter" ? ratelimiterGroups : pebbledbGroups;
+  const baseBounds = activeProject === "rate-limiter" ? ratelimiterBounds() : pebbledbBounds();
   const flows = activeProject === "rate-limiter" ? ratelimiterFlows : pebbledbFlows;
 
-  const nodeMap = useMemo(() => {
-    return activeProject === "rate-limiter" ? ratelimiterNodeMap() : pebbledbNodeMap();
-  }, [activeProject]);
+  const [customLayout, setCustomLayout] = useState(null);
 
-  const bounds = useMemo(() => {
-    return activeProject === "rate-limiter" ? ratelimiterBounds() : pebbledbBounds();
-  }, [activeProject]);
+  const nodes = customLayout ? customLayout.nodes : baseNodes;
+  const groups = customLayout ? customLayout.groups : baseGroups;
+  const bounds = customLayout ? customLayout.bounds : baseBounds;
+  const edges = baseEdges;
+
+  // Web Worker for Graph Pathfinding Offloading
+  const workerRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Worker) {
+      try {
+        workerRef.current = new Worker(
+          new URL("./workers/graphWorker.js", import.meta.url),
+          { type: "module" }
+        );
+      } catch (err) {
+        workerRef.current = null;
+      }
+    }
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
+  }, []);
+
+  const nodeMap = useMemo(() => {
+    return new Map(nodes.map((n) => [n.id, n]));
+  }, [nodes]);
 
   const connectionCounts = useMemo(() => {
     const counts = {};
@@ -581,6 +612,14 @@ export default function ArchitectureDesignPage() {
     }
   };
 
+  const runAutoLayout = useCallback(() => {
+    const layout = computeDagLayout(baseNodes, baseEdges, baseGroups);
+    setCustomLayout(layout);
+    setTimeout(() => {
+      fitToView();
+    }, 60);
+  }, [baseNodes, baseEdges, baseGroups, fitToView]);
+
   const closePanel = () => {
     setPanelOpen(false);
     setSelectedId(null);
@@ -772,6 +811,15 @@ export default function ArchitectureDesignPage() {
             </button>
             <button type="button" className="arch-zoom-btn arch-zoom-btn--fit" onClick={fitToView} aria-label="Fit to view">
               Fit
+            </button>
+            <button
+              type="button"
+              className="arch-zoom-btn arch-zoom-btn--fit"
+              style={{ color: "#00f0ff", borderColor: "rgba(0, 240, 255, 0.45)", paddingLeft: 6, paddingRight: 6 }}
+              onClick={runAutoLayout}
+              title="Run Sugiyama Layered DAG Auto-Layout Algorithm"
+            >
+              ⚡ Auto-Layout DAG
             </button>
           </div>
 
