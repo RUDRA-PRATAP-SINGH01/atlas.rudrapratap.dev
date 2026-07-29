@@ -439,7 +439,7 @@ export default function LandingPage() {
             <div ref={imageWrapRef} className="hero-logo-wrap">
               <img
                 ref={imageRef}
-                src="/images/final-a.png"
+                src="/images/final-a.webp"
                 alt=""
                 aria-hidden="true"
                 className="hero-logo will-change-transform"
@@ -467,7 +467,7 @@ export default function LandingPage() {
                   size="sm"
                 />
                 <img
-                  src="/images/decorative-cross.png"
+                  src="/images/decorative-cross.webp"
                   alt=""
                   aria-hidden="true"
                   className="hero-side-cross"
@@ -496,7 +496,7 @@ export default function LandingPage() {
                     >
                       <span className="hero-marquee-item">{item}</span>
                       <img
-                        src="/images/decorative-cross.png"
+                        src="/images/decorative-cross.webp"
                         alt=""
                         aria-hidden="true"
                         className="hero-marquee-cross"
@@ -521,7 +521,7 @@ export default function LandingPage() {
       >
         <div className="features-image-wrap" aria-hidden="true">
           <img
-            src="/images/features-page.png"
+            src="/images/features-page.webp"
             alt=""
             className="features-image"
             width={1680}

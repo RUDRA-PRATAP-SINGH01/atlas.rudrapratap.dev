@@ -230,7 +230,7 @@ export default function ProjectDocsPage() {
 
           <section className="project-docs-featured-grid">
             <Link to="/project-docs/guide/setup" className="project-docs-featured-card">
-              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/PebbleDB-img.png")' }} />
+              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/PebbleDB-img.webp")' }} />
               <div className="project-docs-featured-card-overlay" />
               <div className="project-docs-featured-card-content">
                 <h3 className="project-docs-featured-card-title">PebbleDB</h3>
@@ -241,7 +241,7 @@ export default function ProjectDocsPage() {
               </div>
             </Link>
             <Link to="/project-docs/guide/rate-limiter/introduction" className="project-docs-featured-card">
-              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/Distributed-img.png")' }} />
+              <div className="project-docs-featured-card-bg" style={{ backgroundImage: 'url("/images/Distributed-img.webp")' }} />
               <div className="project-docs-featured-card-overlay" />
               <div className="project-docs-featured-card-content">
                 <h3 className="project-docs-featured-card-title">Distributed Rate Limiter</h3>

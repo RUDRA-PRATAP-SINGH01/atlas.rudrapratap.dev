@@ -240,7 +240,7 @@ export default function Navbar() {
       <div className="navbar-container">
         <Link to="/" className="navbar-logo" aria-label="Atlas home">
           <img
-            src="/images/final-a.png"
+            src="/images/final-a.webp"
             alt=""
             className="navbar-logo-img"
             draggable={false}

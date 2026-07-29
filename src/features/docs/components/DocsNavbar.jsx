@@ -101,7 +101,7 @@ export default function DocsNavbar() {
           <div className="docs-navbar-left">
             <Link to="/project-docs" className="docs-navbar-logo" aria-label="Atlas Docs home">
               <img
-                src="/images/final-a.png"
+                src="/images/final-a.webp"
                 alt=""
                 className="docs-navbar-logo-img"
                 draggable={false}
