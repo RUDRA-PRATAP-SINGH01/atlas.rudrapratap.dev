@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   GRAPH_META as pebbledbMeta,
   edges as pebbledbEdges,
@@ -93,25 +93,149 @@ function getGithubSourceUrl(path, codeRef, project) {
   return url;
 }
 
+function CanvasMinimap({ nodes, groups, bounds, transform, setTransform, viewportRef }) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const mapW = 180;
+  const mapH = 120;
+
+  const padding = 40;
+  const totalW = (bounds.width || 1000) + padding * 2;
+  const totalH = (bounds.height || 800) + padding * 2;
+
+  const minX = (bounds.minX || 0) - padding;
+  const minY = (bounds.minY || 0) - padding;
+
+  const scale = Math.min(mapW / totalW, mapH / totalH);
+
+  const toMiniX = (x) => (x - minX) * scale;
+  const toMiniY = (y) => (y - minY) * scale;
+
+  let vpBox = { x: 0, y: 0, w: mapW, h: mapH };
+  if (viewportRef.current) {
+    const { width: vpW, height: vpH } = viewportRef.current.getBoundingClientRect();
+    const worldX1 = (0 - transform.x) / transform.scale;
+    const worldY1 = (0 - transform.y) / transform.scale;
+    const worldW = vpW / transform.scale;
+    const worldH = vpH / transform.scale;
+
+    vpBox = {
+      x: Math.max(0, toMiniX(worldX1)),
+      y: Math.max(0, toMiniY(worldY1)),
+      w: Math.min(mapW, worldW * scale),
+      h: Math.min(mapH, worldH * scale),
+    };
+  }
+
+  const handleMinimapClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const worldX = minX + clickX / scale;
+    const worldY = minY + clickY / scale;
+
+    if (viewportRef.current) {
+      const { width: vpW, height: vpH } = viewportRef.current.getBoundingClientRect();
+      setTransform((prev) => ({
+        ...prev,
+        x: vpW / 2 - worldX * prev.scale,
+        y: vpH / 2 - worldY * prev.scale,
+      }));
+    }
+  };
+
+  return (
+    <div className="arch-canvas-minimap">
+      <div className="arch-minimap-header">
+        <span className="arch-minimap-title">🗺️ Minimap</span>
+        <button
+          type="button"
+          className="arch-minimap-toggle-btn"
+          onClick={() => setCollapsed((p) => !p)}
+        >
+          {collapsed ? "Expand ▲" : "Hide ▼"}
+        </button>
+      </div>
+      {!collapsed && (
+        <div className="arch-minimap-svg-wrap" onClick={handleMinimapClick}>
+          <svg width={mapW} height={mapH} viewBox={`0 0 ${mapW} ${mapH}`}>
+            {groups.map((g) => (
+              <rect
+                key={g.id}
+                x={toMiniX(g.x)}
+                y={toMiniY(g.y)}
+                width={g.w * scale}
+                height={g.h * scale}
+                fill="none"
+                stroke="rgba(255,255,255,0.12)"
+                strokeDasharray="2 2"
+              />
+            ))}
+            {nodes.map((n) => (
+              <rect
+                key={n.id}
+                x={toMiniX(n.x)}
+                y={toMiniY(n.y)}
+                width={(n.w || 160) * scale}
+                height={(n.h || 56) * scale}
+                className="arch-minimap-rect-node"
+              />
+            ))}
+            <rect
+              x={vpBox.x}
+              y={vpBox.y}
+              width={vpBox.w}
+              height={vpBox.h}
+              className="arch-minimap-viewport-frame"
+            />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ArchitectureDesignPage() {
   const viewportRef = useRef(null);
-  const [activeProject, setActiveProject] = useState("pebbledb"); // 'pebbledb' | 'rate-limiter'
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read URL query parameters on initial mount for deep-linking
+  const initialProject = searchParams.get("project") === "rate-limiter" ? "rate-limiter" : "pebbledb";
+  const initialFlow = searchParams.get("flow") || "";
+  const initialStep = searchParams.get("step") ? parseInt(searchParams.get("step"), 10) : -1;
+  const initialNode = searchParams.get("node") || null;
+  const initialSearch = searchParams.get("search") || "";
+
+  const [activeProject, setActiveProject] = useState(initialProject);
   const [transform, setTransform] = useState({ x: 40, y: 24, scale: 0.55 });
-  const [selectedId, setSelectedId] = useState(null);
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(initialNode);
+  const [panelOpen, setPanelOpen] = useState(!!initialNode);
   const [spaceDown, setSpaceDown] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   
   // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   
   // Tab State
   const [inspectorTab, setInspectorTab] = useState("overview"); // 'overview' | 'technical' | 'evidence' | 'failures'
   
   // Flow Walkthrough State
-  const [activeFlowId, setActiveFlowId] = useState("");
-  const [activeStepIndex, setActiveStepIndex] = useState(-1);
+  const [activeFlowId, setActiveFlowId] = useState(initialFlow);
+  const [activeStepIndex, setActiveStepIndex] = useState(initialStep);
   const [isPlayingFlow, setIsPlayingFlow] = useState(false);
+
+  // Sync state changes to URL search parameters (replace: true)
+  useEffect(() => {
+    const params = {};
+    if (activeProject && activeProject !== "pebbledb") params.project = activeProject;
+    if (activeFlowId) params.flow = activeFlowId;
+    if (activeStepIndex >= 0) params.step = String(activeStepIndex);
+    if (selectedId) params.node = selectedId;
+    if (searchQuery) params.search = searchQuery;
+
+    setSearchParams(params, { replace: true });
+  }, [activeProject, activeFlowId, activeStepIndex, selectedId, searchQuery, setSearchParams]);
 
   // Horizontal Panel Resizing State
   const [sidebarWidth, setSidebarWidth] = useState(480);
@@ -465,26 +589,29 @@ export default function ArchitectureDesignPage() {
   };
 
   // Search filter logic
+  const matchingNodeIds = useMemo(() => {
+    if (!searchQuery.trim()) return new Set();
+    const query = searchQuery.toLowerCase().trim();
+    return new Set(
+      nodes
+        .filter((node) => {
+          const dec = getDecisionForNode(node.id, activeProject);
+          return (
+            node.label.toLowerCase().includes(query) ||
+            (node.path && node.path.toLowerCase().includes(query)) ||
+            (node.summary && node.summary.toLowerCase().includes(query)) ||
+            (node.kind && node.kind.toLowerCase().includes(query)) ||
+            (dec && dec.problem && dec.problem.toLowerCase().includes(query))
+          );
+        })
+        .map((n) => n.id)
+    );
+  }, [searchQuery, nodes, activeProject]);
+
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return nodes.filter((node) => {
-      const dec = getDecisionForNode(node.id, activeProject);
-      const matchesNode =
-        node.label.toLowerCase().includes(query) ||
-        (node.path && node.path.toLowerCase().includes(query)) ||
-        node.summary.toLowerCase().includes(query);
-      
-      const matchesDecision = dec
-        ? dec.title.toLowerCase().includes(query) ||
-          dec.category.toLowerCase().includes(query) ||
-          dec.whyItExists.problem.toLowerCase().includes(query) ||
-          (dec.lld && dec.lld.implementation.some(impl => impl.toLowerCase().includes(query)))
-        : false;
-
-      return matchesNode || matchesDecision;
-    });
-  }, [searchQuery, nodes, activeProject]);
+    return nodes.filter((node) => matchingNodeIds.has(node.id));
+  }, [searchQuery, nodes, matchingNodeIds]);
 
   // Graph BFS helper to find shortest edge path between two nodes
   const getEdgePathBetweenNodes = useCallback((fromId, toId) => {
@@ -695,9 +822,7 @@ export default function ArchitectureDesignPage() {
           {/* Infinite interactive canvas */}
           <div
             ref={viewportRef}
-            className={`arch-canvas-viewport${spaceDown ? " arch-canvas-viewport--pan" : ""}${
-              activeFlowId ? " arch-canvas-viewport--flow-active" : ""
-            }`}
+            className={`arch-canvas-viewport${activeFlowId ? " arch-canvas-viewport--flow-active" : ""}${searchQuery.trim() ? " arch-canvas-viewport--search-active" : ""}`}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -730,22 +855,24 @@ export default function ArchitectureDesignPage() {
                 const midY = (a.y + b.y) / 2;
                 const d = `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
                 
-                // Determine flow highlight classes
+                // Determine flow and search highlight classes
                 const isSelectedEdge = selectedId && (edge.from === selectedId || edge.to === selectedId);
                 const isInFlow = flowEdges.has(edge.id);
                 const isTransition = activeTransitionEdgeIds.has(edge.id);
+                const isSearchMatchEdge = searchQuery.trim() !== "" && (matchingNodeIds.has(edge.from) || matchingNodeIds.has(edge.to));
                 
                 let edgeClass = "arch-canvas-edge";
                 if (isSelectedEdge) edgeClass += " arch-canvas-edge--active";
                 if (isInFlow) edgeClass += " is-in-flow";
                 if (isTransition) edgeClass += " is-in-flow-active";
+                if (isSearchMatchEdge) edgeClass += " is-search-match";
 
                 return (
                   <g key={edge.id}>
                     <path
                       d={d}
                       className={edgeClass}
-                      markerEnd={isSelectedEdge || isTransition || isInFlow ? "url(#arch-arrow)" : "url(#arch-arrow-dim)"}
+                      markerEnd={isSelectedEdge || isTransition || isInFlow || isSearchMatchEdge ? "url(#arch-arrow)" : "url(#arch-arrow-dim)"}
                     />
                     {isTransition && (
                       <path
@@ -780,14 +907,16 @@ export default function ArchitectureDesignPage() {
               const connCount = connectionCounts[node.id] || 0;
               const kindLabel = getNodeKindBadgeLabel(node.kind);
               
-              // Determine flow highlight classes
+              // Determine flow & search highlight classes
               const isInFlow = flowNodeIds.has(node.id);
               const isActiveStepNode = node.id === activeStepNodeId;
+              const isSearchMatch = searchQuery.trim() !== "" && matchingNodeIds.has(node.id);
               
               let nodeClasses = kindClass(node.kind);
               if (isSelected) nodeClasses += " is-selected";
               if (isInFlow) nodeClasses += " is-in-flow";
               if (isActiveStepNode) nodeClasses += " is-in-flow-active";
+              if (isSearchMatch) nodeClasses += " is-search-match";
 
               return (
                 <button
@@ -840,6 +969,16 @@ export default function ArchitectureDesignPage() {
             )}
           </div>
           </div>{/* end arch-canvas-viewport */}
+
+          {/* Interactive Canvas Minimap Navigator Widget */}
+          <CanvasMinimap
+            nodes={nodes}
+            groups={groups}
+            bounds={bounds}
+            transform={transform}
+            setTransform={setTransform}
+            viewportRef={viewportRef}
+          />
 
           {/* Canvas hints — outside viewport so pointer events work */}
           <p className="arch-canvas-hint arch-canvas-hint--desktop">

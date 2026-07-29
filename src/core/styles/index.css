@@ -3969,6 +3969,112 @@
   margin: 0;
 }
 
+/* Search dimming and neon cyan pulse animation */
+.arch-canvas-viewport--search-active .arch-canvas-node:not(.is-search-match) {
+  opacity: 0.15 !important;
+  filter: grayscale(0.8);
+}
+
+.arch-canvas-viewport--search-active .arch-canvas-edge:not(.is-search-match) {
+  opacity: 0.08 !important;
+}
+
+.arch-canvas-node.is-search-match {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.65), 0 0 4px #00f0ff !important;
+  animation: arch-search-cyan-pulse 1.8s infinite ease-in-out !important;
+  z-index: 12 !important;
+  opacity: 1 !important;
+}
+
+@keyframes arch-search-cyan-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.5), 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(0, 240, 255, 0.9), 0 4px 24px rgba(0, 240, 255, 0.4);
+  }
+}
+
+/* Canvas Minimap Navigator Widget */
+.arch-canvas-minimap {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 40;
+  background: rgba(10, 10, 12, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.arch-minimap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.arch-minimap-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a1a1aa;
+}
+
+.arch-minimap-toggle-btn {
+  background: none;
+  border: none;
+  color: #71717a;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.arch-minimap-toggle-btn:hover {
+  color: #fff;
+}
+
+.arch-minimap-svg-wrap {
+  position: relative;
+  width: 180px;
+  height: 120px;
+  background: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.arch-minimap-rect-node {
+  fill: rgba(255, 92, 173, 0.35);
+  stroke: rgba(255, 92, 173, 0.7);
+  stroke-width: 1;
+  rx: 2;
+}
+
+.arch-minimap-rect-node.is-selected {
+  fill: rgba(0, 240, 255, 0.6);
+  stroke: #00f0ff;
+}
+
+.arch-minimap-viewport-frame {
+  fill: rgba(0, 240, 255, 0.08);
+  stroke: #00f0ff;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    ARCHITECTURE IMPLEMENTED FEATURE BADGES
    ═══════════════════════════════════════════════════════════════════════ */
