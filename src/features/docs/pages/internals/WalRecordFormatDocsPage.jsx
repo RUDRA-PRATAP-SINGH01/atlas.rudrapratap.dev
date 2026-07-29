@@ -137,7 +137,7 @@ func (l ReplayLimits) validateRecord(keyLen, valueLen uint32) error {
 
 export default function WalRecordFormatDocsPage() {
   return (
-    <div className="guide-page min-h-[100dvh] bg-[#0b0b0b] text-[#d4d4d8]">
+    <div className="guide-page">
       <DocsNavbar />
       <div className="guide-layout-wrapper">
         <DocsSidebar />
