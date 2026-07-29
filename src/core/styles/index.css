@@ -4394,6 +4394,247 @@
   will-change: width;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   ARCHITECTURE EXPLORER — PRODUCT TOUR (COACH MARKS)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.arch-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.arch-tour.is-visible {
+  opacity: 1;
+}
+
+.arch-tour-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: transparent;
+  cursor: default;
+}
+
+.arch-tour-spotlight {
+  position: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+  transition:
+    top 220ms ease,
+    left 220ms ease,
+    width 220ms ease,
+    height 220ms ease;
+  z-index: 12001;
+}
+
+.arch-tour-target-active {
+  z-index: 12002 !important;
+  border-color: rgba(255, 180, 210, 0.55) !important;
+  transform: scale(1.02);
+  transform-origin: center center;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+  pointer-events: auto !important;
+}
+
+/* Static toolbar / sidebar targets need a positioning context for z-index */
+.arch-tour-target-active:not(.arch-canvas-node):not(.arch-canvas-viewport):not(.arch-canvas-world) {
+  position: relative;
+}
+
+.arch-tour-tooltip {
+  position: fixed;
+  z-index: 12003;
+  width: min(320px, calc(100vw - 32px));
+  padding: 14px 14px 12px;
+  border-radius: 10px;
+  background: #121214;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  pointer-events: auto;
+  color: #e4e4e7;
+  animation: arch-tour-tooltip-in 220ms ease;
+}
+
+@keyframes arch-tour-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.arch-tour-tooltip-progress {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #71717a;
+  margin-bottom: 8px;
+}
+
+.arch-tour-tooltip-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.3;
+  color: #fafafa;
+}
+
+.arch-tour-tooltip-body {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #a1a1aa;
+  white-space: pre-line;
+}
+
+.arch-tour-tooltip-finish {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 560;
+  color: #ffb3d4;
+}
+
+.arch-tour-tooltip-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.arch-tour-tooltip-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.arch-tour-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d4d4d8;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.arch-tour-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.arch-tour-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: #71717a;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.arch-tour-btn--ghost:hover {
+  color: #d4d4d8;
+  background: transparent;
+}
+
+.arch-tour-btn--primary {
+  background: rgba(255, 92, 173, 0.14);
+  border-color: rgba(255, 92, 173, 0.35);
+  color: #ffb3d4;
+}
+
+.arch-tour-btn--primary:hover {
+  background: rgba(255, 92, 173, 0.22);
+  color: #fff;
+}
+
+.arch-tour-btn.is-pulse,
+.arch-zoom-btn--fit.is-tour-pulse,
+.arch-design-link-btn.is-tour-pulse,
+.arch-canvas-node.is-tour-pulse {
+  animation: arch-tour-soft-pulse 900ms ease-in-out 1;
+}
+
+@keyframes arch-tour-soft-pulse {
+  0%, 100% {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  45% {
+    border-color: rgba(255, 180, 210, 0.7);
+    box-shadow: 0 0 0 1px rgba(255, 92, 173, 0.18);
+  }
+}
+
+.arch-tour-nav-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+}
+
+.arch-tour-launch-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #a1a1aa;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.arch-tour-launch-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f4f4f5;
+}
+
+@media (max-width: 720px) {
+  .arch-tour-tooltip {
+    width: min(300px, calc(100vw - 24px));
+  }
+
+  .arch-tour-tooltip-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .arch-tour-tooltip-nav {
+    justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arch-tour,
+  .arch-tour-spotlight,
+  .arch-tour-tooltip,
+  .arch-tour-target-active {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+
 
 
 
