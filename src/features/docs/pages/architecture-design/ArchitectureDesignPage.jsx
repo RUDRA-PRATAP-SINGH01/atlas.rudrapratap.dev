@@ -22,8 +22,10 @@ import { flows as ratelimiterFlows } from "./data/rate-limiter/flows";
 import { getDecisionForNode } from "./data/index";
 import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
 
-const MIN_SCALE = 0.22;
+const MIN_SCALE = 0.3;
 const MAX_SCALE = 2.4;
+const DEFAULT_SCALE = 0.80;
+const ZOOM_STEP = 0.15;
 const PAN_THRESHOLD = 8;
 
 function clamp(n, min, max) {
@@ -200,17 +202,13 @@ export default function ArchitectureDesignPage() {
     const el = viewportRef.current;
     if (!el) return;
     const { width, height } = el.getBoundingClientRect();
-    const pad = width < 640 ? 24 : 80;
-    const maxFit = width < 640 ? 0.95 : 1.1;
-    const scale = clamp(
-      Math.min((width - pad) / bounds.width, (height - pad) / bounds.height),
-      MIN_SCALE,
-      maxFit,
-    );
+    const scale = DEFAULT_SCALE;
+    const centerX = bounds.minX + bounds.width / 2;
+    const centerY = bounds.minY + bounds.height / 2;
     setTransform({
       scale,
-      x: (width - bounds.width * scale) / 2 - bounds.minX * scale,
-      y: (height - bounds.height * scale) / 2 - bounds.minY * scale,
+      x: width / 2 - centerX * scale,
+      y: Math.max(32, height / 2 - centerY * scale),
     });
   }, [bounds]);
 
@@ -245,9 +243,6 @@ export default function ArchitectureDesignPage() {
 
   useEffect(() => {
     fitToView();
-    const onResize = () => fitToView();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
   }, [fitToView]);
 
   const zoomAt = useCallback((clientX, clientY, nextScale) => {
@@ -575,11 +570,11 @@ export default function ArchitectureDesignPage() {
           </div>
 
           <div className="arch-zoom-group" role="group" aria-label="Zoom controls">
-            <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(-0.12)} aria-label="Zoom out">
+            <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(-ZOOM_STEP)} aria-label="Zoom out">
               −
             </button>
             <span className="arch-zoom-label">{Math.round(transform.scale * 100)}%</span>
-            <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(0.12)} aria-label="Zoom in">
+            <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(ZOOM_STEP)} aria-label="Zoom in">
               +
             </button>
             <button type="button" className="arch-zoom-btn arch-zoom-btn--fit" onClick={fitToView} aria-label="Fit to view">
@@ -629,19 +624,21 @@ export default function ArchitectureDesignPage() {
       </header>
 
       <div className="arch-design-body">
-        {/* Infinite interactive canvas */}
-        <div
-          ref={viewportRef}
-          className={`arch-canvas-viewport${spaceDown ? " arch-canvas-viewport--pan" : ""}${
-            activeFlowId ? " arch-canvas-viewport--flow-active" : ""
-          }`}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          role="application"
-          aria-label={`${projectTitle} architecture canvas. Drag to pan, pinch/wheel to zoom.`}
-        >
+        {/* Canvas wrapper: viewport + overlaid hints & FAB */}
+        <div className="arch-canvas-wrapper">
+          {/* Infinite interactive canvas */}
+          <div
+            ref={viewportRef}
+            className={`arch-canvas-viewport${spaceDown ? " arch-canvas-viewport--pan" : ""}${
+              activeFlowId ? " arch-canvas-viewport--flow-active" : ""
+            }`}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            role="application"
+            aria-label={`${projectTitle} architecture canvas. Drag to pan, pinch/wheel to zoom.`}
+          >
           <div className="arch-canvas-grid" data-canvas-bg="1" />
           <div
             className="arch-canvas-world"
@@ -753,7 +750,9 @@ export default function ArchitectureDesignPage() {
               );
             })}
           </div>
+          </div>{/* end arch-canvas-viewport */}
 
+          {/* Canvas hints — outside viewport so pointer events work */}
           <p className="arch-canvas-hint arch-canvas-hint--desktop">
             Drag to pan · Scroll to zoom · Space+drag · Click a node for detailed HLD/LLD inspector
           </p>
@@ -761,18 +760,8 @@ export default function ArchitectureDesignPage() {
             Drag to pan · Pinch or +/− to zoom · Tap a node for detailed inspector
           </p>
 
-          <div className="arch-canvas-fab" aria-hidden={false}>
-            <button type="button" className="arch-design-icon-btn" onClick={() => zoomByButton(-0.12)} aria-label="Zoom out">
-              −
-            </button>
-            <button type="button" className="arch-design-icon-btn" onClick={() => zoomByButton(0.12)} aria-label="Zoom in">
-              +
-            </button>
-            <button type="button" className="arch-design-icon-btn" onClick={fitToView} aria-label="Fit to view">
-              Fit
-            </button>
-          </div>
-        </div>
+          {/* FAB removed — zoom controls live in the toolbar above */}
+        </div>{/* end arch-canvas-wrapper */}
 
         {/* Desktop Side Inspector Panel with Horizontal Resizer */}
         <aside

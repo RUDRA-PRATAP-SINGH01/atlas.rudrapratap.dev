@@ -2863,6 +2863,16 @@
   grid-template-columns: 1fr auto;
   min-height: 0;
   overflow: hidden;
+  position: relative;
+}
+
+/* Canvas wrapper: fills the first grid column and provides the anchor for hints + FAB overlay */
+.arch-canvas-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .arch-canvas-viewport {
@@ -2870,7 +2880,7 @@
   overflow: hidden;
   cursor: grab;
   min-height: 0;
-  height: 100%;
+  flex: 1;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -2984,9 +2994,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px 12px;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 7px 10px;
   border-radius: 10px;
   border: 1px solid #3f3f46;
   background: #111113;
@@ -2997,6 +3007,8 @@
   transition: border-color 0.15s ease, transform 0.15s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: none;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .arch-canvas-node:hover {
@@ -3040,7 +3052,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
 .arch-canvas-node-kind-badge {
@@ -3068,18 +3080,24 @@
 }
 
 .arch-canvas-node-label {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .arch-canvas-node-path {
-  font-size: 10px;
+  font-size: 9.5px;
   color: #a1a1aa;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  width: 100%;
+  line-height: 1.2;
 }
 
 .arch-canvas-hint {
@@ -3090,12 +3108,34 @@
   font-size: 11px;
   color: #71717a;
   pointer-events: none;
-  z-index: 2;
+  z-index: 30;
   max-width: calc(100% - 120px);
 }
 
 .arch-canvas-hint--mobile {
   display: none;
+}
+
+/* Desktop FAB — sits over the canvas, outside the viewport div so pointer events are never captured */
+.arch-canvas-fab {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  z-index: 30;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.arch-canvas-fab .arch-design-icon-btn {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .arch-design-panel {
