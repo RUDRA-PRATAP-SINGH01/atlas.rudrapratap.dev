@@ -445,7 +445,7 @@ export default function LandingPage() {
                 className="hero-logo will-change-transform"
                 width={1023}
                 height={1537}
-                fetchpriority="high"
+                fetchPriority="high"
                 decoding="async"
                 style={{ transform: "translate3d(0px, 0px, 0) rotate(-2deg)" }}
                 draggable={false}

@@ -1411,7 +1411,7 @@ export default function ArchitectureDesignPage() {
                       <h3>Consequences of Complete Failure</h3>
                       <div className="arch-card-nested" style={{ borderColor: "rgba(239, 68, 68, 0.4)", background: "rgba(239, 68, 68, 0.04)" }}>
                         <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "#fca5a5", lineHeight: 1.6 }}>
-                          {decision.failureWithoutComponent.map((f, idx) => (
+                          {(decision.failureWithoutComponent || []).map((f, idx) => (
                             <li key={idx} style={{ marginBottom: 6 }}>{f}</li>
                           ))}
                         </ul>
