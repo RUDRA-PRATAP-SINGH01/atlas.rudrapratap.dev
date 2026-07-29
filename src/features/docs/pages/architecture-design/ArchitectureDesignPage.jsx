@@ -203,15 +203,27 @@ export default function ArchitectureDesignPage() {
 
   const fitToView = useCallback(() => {
     const el = viewportRef.current;
-    if (!el) return;
+    if (!el || !bounds.width || !bounds.height) return;
     const { width, height } = el.getBoundingClientRect();
-    const scale = DEFAULT_SCALE;
+    
+    // Adequate padding around the graph bounding box
+    const paddingX = 64;
+    const paddingY = 64;
+
+    const scaleX = (width - paddingX) / bounds.width;
+    const scaleY = (height - paddingY) / bounds.height;
+
+    // Ideal scale fits both width and height inside the viewport
+    let idealScale = Math.min(scaleX, scaleY);
+    idealScale = Math.max(0.35, Math.min(0.85, idealScale));
+
     const centerX = bounds.minX + bounds.width / 2;
     const centerY = bounds.minY + bounds.height / 2;
+
     setTransform({
-      scale,
-      x: width / 2 - centerX * scale,
-      y: Math.max(32, height / 2 - centerY * scale),
+      scale: idealScale,
+      x: width / 2 - centerX * idealScale,
+      y: height / 2 - centerY * idealScale,
     });
   }, [bounds]);
 
