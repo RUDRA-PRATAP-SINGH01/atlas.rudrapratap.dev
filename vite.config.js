@@ -44,6 +44,10 @@ export default defineConfig({
             return "docs-system";
           }
           if (id.includes("/features/docs/pages/")) {
+            const match = id.match(/\/features\/docs\/pages\/([^/]+)\//);
+            if (match && match[1]) {
+              return `pdb-section-${match[1]}`;
+            }
             return "pebbledb-guide";
           }
           if (id.includes("/features/landing/")) {
@@ -51,6 +55,12 @@ export default defineConfig({
           }
           if (id.includes("node_modules/mermaid")) {
             return "mermaid-vendor";
+          }
+          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/react-router")) {
+            return "vendor-react";
+          }
+          if (id.includes("node_modules/lucide-react")) {
+            return "vendor-icons";
           }
           if (id.includes("node_modules/")) {
             return "vendor";
