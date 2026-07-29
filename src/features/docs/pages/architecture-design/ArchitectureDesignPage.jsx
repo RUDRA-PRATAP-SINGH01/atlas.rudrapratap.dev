@@ -27,6 +27,8 @@ import {
   buildEdgeCurve,
   sleep,
 } from "./utils/runtimeSignal";
+import ArchitectureTour from "./tour/ArchitectureTour";
+import { hasCompletedArchTour } from "./tour/tourSteps";
 
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 2.4;
@@ -254,6 +256,7 @@ export default function ArchitectureDesignPage() {
   const [activeFlowId, setActiveFlowId] = useState(initialFlow);
   const [activeStepIndex, setActiveStepIndex] = useState(initialStep);
   const [isPlayingFlow, setIsPlayingFlow] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
   /** Edge ids currently carrying the runtime signal */
   const [executingEdgeIds, setExecutingEdgeIds] = useState(() => new Set());
   /** edgeId → { from, to } travel orientation while the message is moving / just landed */
@@ -433,6 +436,7 @@ export default function ArchitectureDesignPage() {
 
   useEffect(() => {
     const onKeyDown = (e) => {
+      if (tourOpen) return;
       if (e.code === "Space" && !e.repeat && e.target === document.body) {
         e.preventDefault();
         setSpaceDown(true);
@@ -458,7 +462,14 @@ export default function ArchitectureDesignPage() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [fitToView]);
+  }, [fitToView, tourOpen]);
+
+  // First-visit product tour
+  useEffect(() => {
+    if (hasCompletedArchTour()) return undefined;
+    const t = window.setTimeout(() => setTourOpen(true), 700);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     fitToView();
@@ -546,6 +557,113 @@ export default function ArchitectureDesignPage() {
     },
     [centerNode],
   );
+
+  const pulseTourTarget = useCallback((selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.classList.add("is-tour-pulse");
+    window.setTimeout(() => el.classList.remove("is-tour-pulse"), 900);
+  }, []);
+
+  const onTourStepEnter = useCallback(
+    async (step) => {
+      setIsPlayingFlow(false);
+
+      if (step.action === "welcome") {
+        fitToView();
+        await sleep(220);
+        return;
+      }
+
+      if (step.action === "pulse-fit") {
+        await sleep(80);
+        pulseTourTarget(".arch-zoom-btn--fit");
+        return;
+      }
+
+      if (step.action === "pulse-node") {
+        const sampleId = activeProject === "rate-limiter" ? "sidecar" : "api";
+        if (nodeMap[sampleId]) {
+          setSelectedId(sampleId);
+          setPanelOpen(true);
+          centerNode(sampleId);
+          await sleep(280);
+          pulseTourTarget('[data-tour="sample-node"]');
+        }
+        return;
+      }
+
+      if (step.action === "open-flow-select") {
+        const select = document.querySelector('[data-tour="flow-select"]');
+        if (select) {
+          select.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          select.focus({ preventScroll: true });
+          try {
+            if (typeof select.showPicker === "function") {
+              select.showPicker();
+              await sleep(700);
+              select.blur();
+            } else {
+              select.size = Math.min(5, 1 + flows.length);
+              await sleep(700);
+              select.size = 1;
+            }
+          } catch {
+            /* showPicker may require a user gesture */
+          }
+        }
+        return;
+      }
+
+      if (step.action === "pulse-play") {
+        if (!activeFlowIdRef.current && flows[0]) {
+          setActiveFlowId(flows[0].id);
+          setActiveStepIndex(0);
+          setIsPlayingFlow(false);
+          setSelectedId(null);
+          await sleep(220);
+        } else if (activeFlowIdRef.current) {
+          setIsPlayingFlow(false);
+          await sleep(60);
+        }
+        await sleep(80);
+        pulseTourTarget('[data-tour="flow-play"]');
+      }
+    },
+    [activeProject, centerNode, fitToView, flows, nodeMap, pulseTourTarget],
+  );
+
+  const ensureTourTargetVisible = useCallback(
+    async (el, step) => {
+      if (!el) return;
+
+      if (step?.action === "welcome") {
+        fitToView();
+        await sleep(220);
+        return;
+      }
+
+      if (step?.action === "pulse-node") {
+        const sampleId = activeProject === "rate-limiter" ? "sidecar" : "api";
+        if (nodeMap[sampleId]) {
+          centerNode(sampleId);
+          await sleep(280);
+        }
+        return;
+      }
+
+      el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+      await sleep(200);
+    },
+    [activeProject, centerNode, fitToView, nodeMap],
+  );
+
+  const handleTourClose = useCallback(({ replay } = {}) => {
+    setTourOpen(false);
+    if (replay) {
+      window.setTimeout(() => setTourOpen(true), 80);
+    }
+  }, []);
 
   const onPointerDown = (e) => {
     if (e.button !== 0 && e.button !== 1) return;
@@ -942,7 +1060,7 @@ export default function ArchitectureDesignPage() {
           
           <span className="arch-toolbar-divider" />
 
-          <div className="arch-project-toggle">
+          <div className="arch-project-toggle" data-tour="project-toggle">
             <button
               type="button"
               className={`arch-project-toggle-btn ${activeProject === "pebbledb" ? "is-active" : ""}`}
@@ -968,24 +1086,37 @@ export default function ArchitectureDesignPage() {
         </div>
 
         <div className="arch-design-toolbar-right">
-          <div className="arch-shortcuts-pill" title="Keyboard Shortcuts: Space+Drag to Pan, Scroll to Zoom, Ctrl+0 to Fit">
-            <span className="arch-shortcut-kbd">Space</span> Pan
-            <span className="arch-shortcut-sep">·</span>
-            <span className="arch-shortcut-kbd">Ctrl+0</span> Fit
+          <div className="arch-tour-nav-cluster" data-tour="nav-controls">
+            <div className="arch-shortcuts-pill" title="Keyboard Shortcuts: Space+Drag to Pan, Scroll to Zoom, Ctrl+0 to Fit">
+              <span className="arch-shortcut-kbd">Space</span> Pan
+              <span className="arch-shortcut-sep">·</span>
+              <span className="arch-shortcut-kbd">Ctrl+0</span> Fit
+            </div>
+
+            <div className="arch-zoom-group" role="group" aria-label="Zoom controls">
+              <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(-ZOOM_STEP)} aria-label="Zoom out">
+                −
+              </button>
+              <span className="arch-zoom-label">{Math.round(transform.scale * 100)}%</span>
+              <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(ZOOM_STEP)} aria-label="Zoom in">
+                +
+              </button>
+              <button type="button" className="arch-zoom-btn arch-zoom-btn--fit" onClick={fitToView} aria-label="Fit to view">
+                Fit
+              </button>
+            </div>
           </div>
 
-          <div className="arch-zoom-group" role="group" aria-label="Zoom controls">
-            <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(-ZOOM_STEP)} aria-label="Zoom out">
-              −
-            </button>
-            <span className="arch-zoom-label">{Math.round(transform.scale * 100)}%</span>
-            <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(ZOOM_STEP)} aria-label="Zoom in">
-              +
-            </button>
-            <button type="button" className="arch-zoom-btn arch-zoom-btn--fit" onClick={fitToView} aria-label="Fit to view">
-              Fit
-            </button>
-          </div>
+          <button
+            type="button"
+            className="arch-tour-launch-btn"
+            onClick={() => {
+              setIsPlayingFlow(false);
+              setTourOpen(true);
+            }}
+          >
+            Take Tour
+          </button>
 
           <button
             type="button"
@@ -1044,6 +1175,7 @@ export default function ArchitectureDesignPage() {
           <div
             ref={viewportRef}
             className={`arch-canvas-viewport${activeFlowId ? " arch-canvas-viewport--flow-active" : ""}${searchQuery.trim() ? " arch-canvas-viewport--search-active" : ""}`}
+            data-tour="canvas"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -1177,6 +1309,12 @@ export default function ArchitectureDesignPage() {
                   key={node.id}
                   type="button"
                   data-node-id={node.id}
+                  data-tour={
+                    (activeProject === "pebbledb" && node.id === "api") ||
+                    (activeProject === "rate-limiter" && node.id === "sidecar")
+                      ? "sample-node"
+                      : undefined
+                  }
                   className={nodeClasses}
                   style={{ left: node.x, top: node.y, width: w, height: h }}
                   onMouseEnter={() => setHoveredNodeId(node.id)}
@@ -1337,6 +1475,7 @@ export default function ArchitectureDesignPage() {
               </div>
               <select
                 className="arch-design-flow-select"
+                data-tour="flow-select"
                 value={activeFlowId}
                 onChange={(e) => {
                   const flowId = e.target.value;
@@ -1369,7 +1508,7 @@ export default function ArchitectureDesignPage() {
               )}
             </div>
             {activeFlowId && (
-              <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 6, marginTop: 8 }} data-tour="flow-controls">
                 <button
                   type="button"
                   className="arch-design-link-btn"
@@ -1385,6 +1524,7 @@ export default function ArchitectureDesignPage() {
                 <button
                   type="button"
                   className="arch-design-link-btn"
+                  data-tour="flow-play"
                   style={{
                     flex: 1.3,
                     textAlign: "center",
@@ -1966,6 +2106,13 @@ export default function ArchitectureDesignPage() {
           </aside>
         </>
       )}
+
+      <ArchitectureTour
+        open={tourOpen}
+        onClose={handleTourClose}
+        onStepEnter={onTourStepEnter}
+        ensureTargetVisible={ensureTourTargetVisible}
+      />
     </div>
   );
 }
