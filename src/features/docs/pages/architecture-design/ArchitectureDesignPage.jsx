@@ -1,25 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  GRAPH_META as pebbledbMeta,
-  edges as pebbledbEdges,
-  getGraphBounds as pebbledbBounds,
-  getNodeMap as pebbledbNodeMap,
-  groups as pebbledbGroups,
-  nodes as pebbledbNodes,
-} from "./data/graph";
-import { flows as pebbledbFlows } from "./data/flows";
-
-import {
-  GRAPH_META as ratelimiterMeta,
-  edges as ratelimiterEdges,
-  getGraphBounds as ratelimiterBounds,
-  getNodeMap as ratelimiterNodeMap,
-  groups as ratelimiterGroups,
-  nodes as ratelimiterNodes,
-} from "./data/rate-limiter/graph";
-import { flows as ratelimiterFlows } from "./data/rate-limiter/flows";
-import { getDecisionForNode } from "./data/index";
+import RouteFallback from "@/core/components/RouteFallback";
+import { loadProjectPack, prefetchProjectPack } from "./data/loadProject";
 import ImplementedBadges from "@/features/docs/components/ImplementedBadges";
 import { computeDagLayout } from "./utils/dagLayout";
 import {
@@ -27,209 +9,19 @@ import {
   buildEdgeCurve,
   sleep,
 } from "./utils/runtimeSignal";
+import { getGithubSourceUrl } from "./utils/githubSourceUrl";
 import ArchitectureTour from "./tour/ArchitectureTour";
 import { hasCompletedArchTour } from "./tour/tourSteps";
+import ArchCanvasViewport from "./components/ArchCanvasViewport";
+import useIsMobile from "./hooks/useIsMobile";
 
-const MIN_SCALE = 0.3;
-const MAX_SCALE = 2.4;
-const DEFAULT_SCALE = 0.80;
 const ZOOM_STEP = 0.15;
-const PAN_THRESHOLD = 8;
 const SIGNAL_DURATION_MS = 780;
 const NODE_DWELL_MS = 1600;
 
-function clamp(n, min, max) {
-  return Math.min(max, Math.max(min, n));
-}
-
-function nodeCenter(node) {
-  const w = node.w || 160;
-  const h = node.h || 56;
-  return { x: node.x + w / 2, y: node.y + h / 2 };
-}
-
-function getNodeEdgePoint(node, targetCenter) {
-  const w = node.w || 160;
-  const h = node.h || 56;
-  const cx = node.x + w / 2;
-  const cy = node.y + h / 2;
-
-  const dx = targetCenter.x - cx;
-  const dy = targetCenter.y - cy;
-
-  if (Math.abs(dy) >= Math.abs(dx)) {
-    return {
-      x: cx,
-      y: dy > 0 ? node.y + h + 2 : node.y - 2,
-    };
-  } else {
-    return {
-      x: dx > 0 ? node.x + w + 2 : node.x - 2,
-      y: cy,
-    };
-  }
-}
-
-function kindClass(kind) {
-  return `arch-canvas-node arch-canvas-node--${kind}`;
-}
-
-function getNodeKindBadgeLabel(kind) {
-  switch (kind) {
-    case "client":
-      return "CLIENT";
-    case "core":
-      return "CORE";
-    case "worker":
-      return "WORKER";
-    case "disk":
-      return "DISK";
-    case "memory":
-      return "MEMORY";
-    case "package":
-      return "PKG";
-    default:
-      return kind ? kind.toUpperCase() : "NODE";
-  }
-}
-
-function useIsMobile(breakpoint = 960) {
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(`(max-width: ${breakpoint}px)`).matches : false,
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
-    const onChange = () => setIsMobile(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [breakpoint]);
-
-  return isMobile;
-}
-
-// Helper to construct GitHub links for source verification
-function getGithubSourceUrl(path, codeRef, project) {
-  const base = project === "rate-limiter"
-    ? "https://github.com/RUDRA-PRATAP-SINGH01/Distributed-rate-limiter/blob/main"
-    : "https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB/blob/main";
-  if (!path) return null;
-  let url = `${base}/${path}`;
-  if (codeRef && codeRef.lineStart) {
-    url += `#L${codeRef.lineStart}`;
-    if (codeRef.lineEnd) {
-      url += `-L${codeRef.lineEnd}`;
-    }
-  }
-  return url;
-}
-
-function CanvasMinimap({ nodes, groups, bounds, transform, setTransform, viewportRef }) {
-  const [collapsed, setCollapsed] = useState(false);
-
-  const mapW = 180;
-  const mapH = 120;
-
-  const padding = 40;
-  const totalW = (bounds.width || 1000) + padding * 2;
-  const totalH = (bounds.height || 800) + padding * 2;
-
-  const minX = (bounds.minX || 0) - padding;
-  const minY = (bounds.minY || 0) - padding;
-
-  const scale = Math.min(mapW / totalW, mapH / totalH);
-
-  const toMiniX = (x) => (x - minX) * scale;
-  const toMiniY = (y) => (y - minY) * scale;
-
-  let vpBox = { x: 0, y: 0, w: mapW, h: mapH };
-  if (viewportRef.current) {
-    const { width: vpW, height: vpH } = viewportRef.current.getBoundingClientRect();
-    const worldX1 = (0 - transform.x) / transform.scale;
-    const worldY1 = (0 - transform.y) / transform.scale;
-    const worldW = vpW / transform.scale;
-    const worldH = vpH / transform.scale;
-
-    vpBox = {
-      x: Math.max(0, toMiniX(worldX1)),
-      y: Math.max(0, toMiniY(worldY1)),
-      w: Math.min(mapW, worldW * scale),
-      h: Math.min(mapH, worldH * scale),
-    };
-  }
-
-  const handleMinimapClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-
-    const worldX = minX + clickX / scale;
-    const worldY = minY + clickY / scale;
-
-    if (viewportRef.current) {
-      const { width: vpW, height: vpH } = viewportRef.current.getBoundingClientRect();
-      setTransform((prev) => ({
-        ...prev,
-        x: vpW / 2 - worldX * prev.scale,
-        y: vpH / 2 - worldY * prev.scale,
-      }));
-    }
-  };
-
-  return (
-    <div className="arch-canvas-minimap">
-      <div className="arch-minimap-header">
-        <span className="arch-minimap-title">🗺️ Minimap</span>
-        <button
-          type="button"
-          className="arch-minimap-toggle-btn"
-          onClick={() => setCollapsed((p) => !p)}
-        >
-          {collapsed ? "Expand ▲" : "Hide ▼"}
-        </button>
-      </div>
-      {!collapsed && (
-        <div className="arch-minimap-svg-wrap" onClick={handleMinimapClick}>
-          <svg width={mapW} height={mapH} viewBox={`0 0 ${mapW} ${mapH}`}>
-            {groups.map((g) => (
-              <rect
-                key={g.id}
-                x={toMiniX(g.x)}
-                y={toMiniY(g.y)}
-                width={g.w * scale}
-                height={g.h * scale}
-                fill="none"
-                stroke="rgba(255,255,255,0.12)"
-                strokeDasharray="2 2"
-              />
-            ))}
-            {nodes.map((n) => (
-              <rect
-                key={n.id}
-                x={toMiniX(n.x)}
-                y={toMiniY(n.y)}
-                width={(n.w || 160) * scale}
-                height={(n.h || 56) * scale}
-                className="arch-minimap-rect-node"
-              />
-            ))}
-            <rect
-              x={vpBox.x}
-              y={vpBox.y}
-              width={vpBox.w}
-              height={vpBox.h}
-              className="arch-minimap-viewport-frame"
-            />
-          </svg>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function ArchitectureDesignPage() {
-  const viewportRef = useRef(null);
+  const canvasApiRef = useRef(null);
+  const zoomLabelRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read URL query parameters on initial mount for deep-linking
@@ -240,9 +32,9 @@ export default function ArchitectureDesignPage() {
   const initialSearch = searchParams.get("search") || "";
 
   const [activeProject, setActiveProject] = useState(initialProject);
-  const [transform, setTransform] = useState({ x: 40, y: 24, scale: 0.55 });
+  const [projectPack, setProjectPack] = useState(null);
   const [selectedId, setSelectedId] = useState(initialNode);
-  const [panelOpen, setPanelOpen] = useState(!!initialNode);
+  const panelOpen = Boolean(selectedId);
   const [spaceDown, setSpaceDown] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   
@@ -274,7 +66,8 @@ export default function ArchitectureDesignPage() {
   const stepCardRefs = useRef(new Map());
   const panelContentRef = useRef(null);
 
-  // Sync state changes to URL search parameters (replace: true)
+  // Sync state → URL (one-way). Avoid depending on searchParams to prevent a
+  // second effect pass after every replace.
   useEffect(() => {
     const params = new URLSearchParams();
     if (activeProject && activeProject !== "pebbledb") params.set("project", activeProject);
@@ -283,13 +76,15 @@ export default function ArchitectureDesignPage() {
     if (selectedId) params.set("node", selectedId);
     if (searchQuery) params.set("search", searchQuery);
 
-    const currentString = searchParams.toString();
     const newString = params.toString();
+    const currentString = window.location.search.startsWith("?")
+      ? window.location.search.slice(1)
+      : window.location.search;
 
     if (currentString !== newString) {
       setSearchParams(params, { replace: true });
     }
-  }, [activeProject, activeFlowId, activeStepIndex, selectedId, searchQuery, searchParams, setSearchParams]);
+  }, [activeProject, activeFlowId, activeStepIndex, selectedId, searchQuery, setSearchParams]);
 
   // Horizontal Panel Resizing State
   const [sidebarWidth, setSidebarWidth] = useState(480);
@@ -331,19 +126,45 @@ export default function ArchitectureDesignPage() {
     setSidebarWidth(480);
   }, []);
 
-  const dragRef = useRef(null);
-  const pinchRef = useRef(null);
   const isMobile = useIsMobile(960);
 
-  const projectMeta = activeProject === "rate-limiter" ? ratelimiterMeta : pebbledbMeta;
-  const baseNodes = activeProject === "rate-limiter" ? ratelimiterNodes : pebbledbNodes;
-  const baseEdges = activeProject === "rate-limiter" ? ratelimiterEdges : pebbledbEdges;
-  const baseGroups = activeProject === "rate-limiter" ? ratelimiterGroups : pebbledbGroups;
+  // Load active project pack; prefetch the other after first paint.
+  useEffect(() => {
+    let cancelled = false;
+    loadProjectPack(activeProject).then((pack) => {
+      if (!cancelled) setProjectPack(pack);
+    });
+    const other = activeProject === "rate-limiter" ? "pebbledb" : "rate-limiter";
+    const prefetch = () => prefetchProjectPack(other);
+    let idleId;
+    let timeoutId;
+    if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(prefetch, { timeout: 2500 });
+    } else {
+      timeoutId = window.setTimeout(prefetch, 1200);
+    }
+    return () => {
+      cancelled = true;
+      if (idleId != null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, [activeProject]);
+
+  const packReady = projectPack?.projectId === activeProject;
+  const projectMeta = packReady ? projectPack.GRAPH_META : null;
+  const baseNodes = packReady ? projectPack.nodes : [];
+  const baseEdges = packReady ? projectPack.edges : [];
+  const baseGroups = packReady ? projectPack.groups : [];
   const baseBounds = useMemo(
-    () => (activeProject === "rate-limiter" ? ratelimiterBounds() : pebbledbBounds()),
-    [activeProject],
+    () => (packReady ? projectPack.getGraphBounds() : { minX: 0, minY: 0, maxX: 0, maxY: 0 }),
+    [packReady, projectPack],
   );
-  const flows = activeProject === "rate-limiter" ? ratelimiterFlows : pebbledbFlows;
+  const flows = packReady ? projectPack.flows : [];
+  const getDecisionForNode = packReady
+    ? projectPack.getDecisionForNode
+    : () => null;
 
   const [customLayout, setCustomLayout] = useState(null);
 
@@ -351,27 +172,6 @@ export default function ArchitectureDesignPage() {
   const groups = customLayout ? customLayout.groups : baseGroups;
   const bounds = customLayout ? customLayout.bounds : baseBounds;
   const edges = baseEdges;
-
-  // Web Worker for Graph Pathfinding Offloading
-  const workerRef = useRef(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.Worker) {
-      try {
-        workerRef.current = new Worker(
-          new URL("./workers/graphWorker.js", import.meta.url),
-          { type: "module" }
-        );
-      } catch (err) {
-        workerRef.current = null;
-      }
-    }
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-      }
-    };
-  }, []);
 
   const nodeMap = useMemo(() => {
     return Object.fromEntries(nodes.map((n) => [n.id, n]));
@@ -387,7 +187,7 @@ export default function ArchitectureDesignPage() {
   }, [edges]);
 
   const selectedNode = selectedId ? nodeMap[selectedId] : null;
-  const decision = selectedId ? getDecisionForNode(selectedId, activeProject) : null;
+  const decision = selectedId ? getDecisionForNode(selectedId) : null;
 
   useEffect(() => {
     document.title = activeProject === "rate-limiter"
@@ -398,7 +198,6 @@ export default function ArchitectureDesignPage() {
   const handleProjectChange = (proj) => {
     setActiveProject(proj);
     setSelectedId(null);
-    setPanelOpen(false);
     setMenuOpen(false);
     setActiveFlowId("");
     setActiveStepIndex(-1);
@@ -409,30 +208,8 @@ export default function ArchitectureDesignPage() {
   };
 
   const fitToView = useCallback(() => {
-    const el = viewportRef.current;
-    if (!el || !bounds.width || !bounds.height) return;
-    const { width, height } = el.getBoundingClientRect();
-    
-    // Adequate padding around the graph bounding box
-    const paddingX = 64;
-    const paddingY = 64;
-
-    const scaleX = (width - paddingX) / bounds.width;
-    const scaleY = (height - paddingY) / bounds.height;
-
-    // Ideal scale fits both width and height inside the viewport
-    let idealScale = Math.min(scaleX, scaleY);
-    idealScale = Math.max(0.35, Math.min(0.85, idealScale));
-
-    const centerX = bounds.minX + bounds.width / 2;
-    const centerY = bounds.minY + bounds.height / 2;
-
-    setTransform({
-      scale: idealScale,
-      x: width / 2 - centerX * idealScale,
-      y: height / 2 - centerY * idealScale,
-    });
-  }, [bounds]);
+    canvasApiRef.current?.fitToView();
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -443,7 +220,6 @@ export default function ArchitectureDesignPage() {
       }
       if (e.key === "Escape") {
         setSelectedId(null);
-        setPanelOpen(false);
         setMenuOpen(false);
         setActiveFlowId("");
         setActiveStepIndex(-1);
@@ -471,92 +247,23 @@ export default function ArchitectureDesignPage() {
     return () => window.clearTimeout(t);
   }, []);
 
-  useEffect(() => {
-    fitToView();
-  }, [activeProject, customLayout, fitToView]);
-
-  const zoomAt = useCallback((clientX, clientY, nextScale) => {
-    const el = viewportRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const px = clientX - rect.left;
-    const py = clientY - rect.top;
-    setTransform((prev) => {
-      const scale = clamp(nextScale, MIN_SCALE, MAX_SCALE);
-      const worldX = (px - prev.x) / prev.scale;
-      const worldY = (py - prev.y) / prev.scale;
-      return {
-        scale,
-        x: px - worldX * scale,
-        y: py - worldY * scale,
-      };
-    });
-  }, []);
-
-  const zoomByButton = useCallback(
-    (delta) => {
-      const el = viewportRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, transform.scale + delta);
-    },
-    [transform.scale, zoomAt],
-  );
-
-  const onWheel = useCallback((e) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.08 : 0.08;
-    setTransform((prev) => {
-      const scale = clamp(prev.scale + delta, MIN_SCALE, MAX_SCALE);
-      const el = viewportRef.current;
-      if (!el) return { ...prev, scale };
-      const rect = el.getBoundingClientRect();
-      const px = e.clientX - rect.left;
-      const py = e.clientY - rect.top;
-      const worldX = (px - prev.x) / prev.scale;
-      const worldY = (py - prev.y) / prev.scale;
-      return {
-        scale,
-        x: px - worldX * scale,
-        y: py - worldY * scale,
-      };
-    });
-  }, []);
-
-  useEffect(() => {
-    const el = viewportRef.current;
-    if (!el) return undefined;
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [onWheel]);
-
-  // Node Hover Tooltip State
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
 
-  // Center a specific node on the canvas with smooth zoom
   const centerNode = useCallback((nodeId) => {
-    const el = viewportRef.current;
-    if (!el || !nodeId) return;
-    const node = nodeMap[nodeId];
-    if (!node) return;
-    const { width, height } = el.getBoundingClientRect();
-    const targetScale = 0.85; // Balanced detail scale
-    const nc = nodeCenter(node);
-    setTransform({
-      scale: targetScale,
-      x: width / 2 - nc.x * targetScale,
-      y: height / 2 - nc.y * targetScale,
-    });
-  }, [nodeMap]);
+    canvasApiRef.current?.centerNode(nodeId);
+  }, []);
 
   const selectNode = useCallback(
     (id) => {
       setSelectedId(id);
-      setPanelOpen(true);
       centerNode(id);
     },
     [centerNode],
   );
+
+  const onHoverNode = useCallback((id) => {
+    setHoveredNodeId(id);
+  }, []);
 
   const pulseTourTarget = useCallback((selector) => {
     const el = document.querySelector(selector);
@@ -585,7 +292,6 @@ export default function ArchitectureDesignPage() {
         const sampleId = activeProject === "rate-limiter" ? "sidecar" : "api";
         if (nodeMap[sampleId]) {
           setSelectedId(sampleId);
-          setPanelOpen(true);
           centerNode(sampleId);
           await sleep(280);
           pulseTourTarget('[data-tour="sample-node"]');
@@ -665,126 +371,13 @@ export default function ArchitectureDesignPage() {
     }
   }, []);
 
-  const onPointerDown = (e) => {
-    if (e.button !== 0 && e.button !== 1) return;
-
-    // Pinch start (second finger)
-    if (e.isPrimary === false || (pinchRef.current && e.pointerId !== pinchRef.current.pointers[0]?.id)) {
-      const el = viewportRef.current;
-      if (!el) return;
-      const existing = pinchRef.current;
-      if (existing && existing.pointers.length === 1) {
-        existing.pointers.push({ id: e.pointerId, x: e.clientX, y: e.clientY });
-        const [a, b] = existing.pointers;
-        existing.startDist = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-        existing.startScale = transform.scale;
-        existing.startMid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-        dragRef.current = null;
-        el.setPointerCapture(e.pointerId);
-      }
-      return;
-    }
-
-    const onNode = Boolean(e.target.closest?.(".arch-canvas-node"));
-    const onCanvasSurface = Boolean(
-      e.target === e.currentTarget ||
-      e.target.dataset?.canvasBg === "1" ||
-      e.target.closest?.(".arch-canvas-world") ||
-      e.target.closest?.(".arch-canvas-group") ||
-      e.target.closest?.(".arch-canvas-edges"),
-    );
-    const panning =
-      e.button === 1 ||
-      spaceDown ||
-      onCanvasSurface ||
-      onNode;
-
-    if (!panning) return;
-
-    e.currentTarget.setPointerCapture(e.pointerId);
-    pinchRef.current = {
-      pointers: [{ id: e.pointerId, x: e.clientX, y: e.clientY }],
-      startDist: 0,
-      startScale: transform.scale,
-      startMid: { x: e.clientX, y: e.clientY },
-    };
-    dragRef.current = {
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      origX: transform.x,
-      origY: transform.y,
-      moved: false,
-      onNode,
-      nodeId: onNode ? e.target.closest(".arch-canvas-node")?.dataset?.nodeId : null,
-    };
-  };
-
-  const onPointerMove = (e) => {
-    const pinch = pinchRef.current;
-    if (pinch && pinch.pointers.length >= 1) {
-      const idx = pinch.pointers.findIndex((p) => p.id === e.pointerId);
-      if (idx >= 0) {
-        pinch.pointers[idx] = { id: e.pointerId, x: e.clientX, y: e.clientY };
-      }
-
-      if (pinch.pointers.length === 2 && pinch.startDist > 0) {
-        const [a, b] = pinch.pointers;
-        const dist = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-        const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-        const nextScale = clamp(pinch.startScale * (dist / pinch.startDist), MIN_SCALE, MAX_SCALE);
-        zoomAt(mid.x, mid.y, nextScale);
-        return;
-      }
-    }
-
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== e.pointerId) return;
-    const dx = e.clientX - drag.startX;
-    const dy = e.clientY - drag.startY;
-    if (!drag.moved && Math.hypot(dx, dy) > PAN_THRESHOLD) {
-      drag.moved = true;
-    }
-    if (!drag.moved && drag.onNode) return;
-
-    setTransform((prev) => ({
-      ...prev,
-      x: drag.origX + dx,
-      y: drag.origY + dy,
-    }));
-  };
-
-  const onPointerUp = (e) => {
-    const drag = dragRef.current;
-    if (drag && drag.pointerId === e.pointerId) {
-      if (!drag.moved && drag.onNode && drag.nodeId) {
-        selectNode(drag.nodeId);
-      }
-      dragRef.current = null;
-    }
-
-    const pinch = pinchRef.current;
-    if (pinch) {
-      pinch.pointers = pinch.pointers.filter((p) => p.id !== e.pointerId);
-      if (pinch.pointers.length < 2) {
-        pinch.startDist = 0;
-      }
-      if (pinch.pointers.length === 0) {
-        pinchRef.current = null;
-      }
-    }
-  };
-
   const runAutoLayout = useCallback(() => {
     const layout = computeDagLayout(baseNodes, baseEdges, baseGroups);
     setCustomLayout(layout);
-    setTimeout(() => {
-      fitToView();
-    }, 60);
-  }, [baseNodes, baseEdges, baseGroups, fitToView]);
+    // fitToView runs via the customLayout effect — avoid a second camera jump
+  }, [baseNodes, baseEdges, baseGroups]);
 
   const closePanel = () => {
-    setPanelOpen(false);
     setSelectedId(null);
     setActiveFlowId("");
     setActiveStepIndex(-1);
@@ -797,7 +390,7 @@ export default function ArchitectureDesignPage() {
     return new Set(
       nodes
         .filter((node) => {
-          const dec = getDecisionForNode(node.id, activeProject);
+          const dec = getDecisionForNode(node.id);
           return (
             node.label.toLowerCase().includes(query) ||
             (node.path && node.path.toLowerCase().includes(query)) ||
@@ -808,7 +401,7 @@ export default function ArchitectureDesignPage() {
         })
         .map((n) => n.id)
     );
-  }, [searchQuery, nodes, activeProject]);
+  }, [searchQuery, nodes, getDecisionForNode]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -850,45 +443,45 @@ export default function ArchitectureDesignPage() {
   }, [edges]);
 
   // Derived flow information for layout highlight
+  const activeFlow = useMemo(
+    () => (activeFlowId ? flows.find((f) => f.id === activeFlowId) ?? null : null),
+    [activeFlowId, flows],
+  );
+
   const flowNodeIds = useMemo(() => {
-    if (!activeFlowId) return new Set();
-    const flow = flows.find(f => f.id === activeFlowId);
-    return new Set(flow ? flow.steps.map(s => s.nodeId) : []);
-  }, [activeFlowId, flows]);
+    if (!activeFlow) return new Set();
+    return new Set(activeFlow.steps.map((s) => s.nodeId));
+  }, [activeFlow]);
 
   const flowEdges = useMemo(() => {
-    if (!activeFlowId) return new Set();
-    const flow = flows.find(f => f.id === activeFlowId);
-    if (!flow) return new Set();
+    if (!activeFlow) return new Set();
     const activeEdgeIds = new Set();
 
-    for (let i = 0; i < flow.steps.length - 1; i++) {
-      const fromNodeId = flow.steps[i].nodeId;
-      const toNodeId = flow.steps[i + 1].nodeId;
+    for (let i = 0; i < activeFlow.steps.length - 1; i++) {
+      const fromNodeId = activeFlow.steps[i].nodeId;
+      const toNodeId = activeFlow.steps[i + 1].nodeId;
       const pathEdgeIds = getEdgePathBetweenNodes(fromNodeId, toNodeId);
       for (const eid of pathEdgeIds) {
         activeEdgeIds.add(eid);
       }
     }
     return activeEdgeIds;
-  }, [activeFlowId, flows, getEdgePathBetweenNodes]);
+  }, [activeFlow, getEdgePathBetweenNodes]);
 
   const activeTransitionEdgeIds = useMemo(() => {
     // Residual highlight only on the hop that landed us on the current step
-    if (!activeFlowId || activeStepIndex <= 0) return new Set();
-    const flow = flows.find(f => f.id === activeFlowId);
-    if (!flow || !flow.steps[activeStepIndex]) return new Set();
+    if (!activeFlow || activeStepIndex <= 0) return new Set();
+    if (!activeFlow.steps[activeStepIndex]) return new Set();
 
-    const fromNodeId = flow.steps[activeStepIndex - 1].nodeId;
-    const toNodeId = flow.steps[activeStepIndex].nodeId;
+    const fromNodeId = activeFlow.steps[activeStepIndex - 1].nodeId;
+    const toNodeId = activeFlow.steps[activeStepIndex].nodeId;
     return new Set(getEdgePathBetweenNodes(fromNodeId, toNodeId));
-  }, [activeFlowId, activeStepIndex, flows, getEdgePathBetweenNodes]);
+  }, [activeFlow, activeStepIndex, getEdgePathBetweenNodes]);
 
   const activeStepNodeId = useMemo(() => {
-    if (!activeFlowId || activeStepIndex === -1) return null;
-    const flow = flows.find(f => f.id === activeFlowId);
-    return flow && flow.steps[activeStepIndex] ? flow.steps[activeStepIndex].nodeId : null;
-  }, [activeFlowId, activeStepIndex, flows]);
+    if (!activeFlow || activeStepIndex === -1) return null;
+    return activeFlow.steps[activeStepIndex] ? activeFlow.steps[activeStepIndex].nodeId : null;
+  }, [activeFlow, activeStepIndex]);
 
   // Keep refs in sync for the autoplay / signal loop (avoids stale closures)
   useEffect(() => {
@@ -1002,9 +595,8 @@ export default function ArchitectureDesignPage() {
 
   // Auto-play: advance only after the signal finishes travelling
   useEffect(() => {
-    if (!activeFlowId || !isPlayingFlow) return undefined;
-    const flow = flows.find((f) => f.id === activeFlowId);
-    if (!flow || flow.steps.length === 0) return undefined;
+    if (!activeFlow || !isPlayingFlow) return undefined;
+    if (activeFlow.steps.length === 0) return undefined;
 
     let cancelled = false;
     signalAbortRef.current.current = false;
@@ -1036,7 +628,7 @@ export default function ArchitectureDesignPage() {
       signalAbortRef.current.cancel?.();
       signalAbortRef.current.cancelSleep?.();
     };
-  }, [activeFlowId, isPlayingFlow, flows, transitionToFlowStep]);
+  }, [activeFlow, isPlayingFlow, flows, transitionToFlowStep]);
 
   const projectTitle = activeProject === "rate-limiter" ? "Distributed Rate Limiter" : "PebbleDB";
   const projectOverviewBody = activeProject === "rate-limiter"
@@ -1046,6 +638,69 @@ export default function ArchitectureDesignPage() {
   const projectOverviewLinkText = activeProject === "rate-limiter"
     ? "Read Rate Limiter Introduction →"
     : "Read PebbleDB System Overview →";
+
+  const fitEpoch = `${activeProject}:${customLayout ? "custom" : "base"}`;
+
+  const graphProps = useMemo(
+    () => ({
+      groups,
+      nodes,
+      edges,
+      bounds,
+      nodeMap,
+      selectedId,
+      searchQuery,
+      matchingNodeIds,
+      flowEdges,
+      activeTransitionEdgeIds,
+      executingEdgeIds,
+      edgeTravelDir,
+      activeFlowId,
+      activeFlow,
+      activeStepIndex,
+      flowNodeIds,
+      activeStepNodeId,
+      signalFocusNodeId,
+      connectionCounts,
+      activeProject,
+      hoveredNodeId,
+      onHoverNode,
+      isMobile,
+      onSelectNode: selectNode,
+      signalRef,
+      signalArrowRef,
+    }),
+    [
+      groups,
+      nodes,
+      edges,
+      bounds,
+      nodeMap,
+      selectedId,
+      searchQuery,
+      matchingNodeIds,
+      flowEdges,
+      activeTransitionEdgeIds,
+      executingEdgeIds,
+      edgeTravelDir,
+      activeFlowId,
+      activeFlow,
+      activeStepIndex,
+      flowNodeIds,
+      activeStepNodeId,
+      signalFocusNodeId,
+      connectionCounts,
+      activeProject,
+      hoveredNodeId,
+      onHoverNode,
+      isMobile,
+      selectNode,
+    ],
+  );
+
+  if (!packReady) {
+    return <RouteFallback />;
+  }
 
   return (
     <div className="arch-design-page">
@@ -1094,11 +749,11 @@ export default function ArchitectureDesignPage() {
             </div>
 
             <div className="arch-zoom-group" role="group" aria-label="Zoom controls">
-              <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(-ZOOM_STEP)} aria-label="Zoom out">
+              <button type="button" className="arch-zoom-btn" onClick={() => canvasApiRef.current?.zoomBy(-ZOOM_STEP)} aria-label="Zoom out">
                 −
               </button>
-              <span className="arch-zoom-label">{Math.round(transform.scale * 100)}%</span>
-              <button type="button" className="arch-zoom-btn" onClick={() => zoomByButton(ZOOM_STEP)} aria-label="Zoom in">
+              <span ref={zoomLabelRef} className="arch-zoom-label">55%</span>
+              <button type="button" className="arch-zoom-btn" onClick={() => canvasApiRef.current?.zoomBy(ZOOM_STEP)} aria-label="Zoom in">
                 +
               </button>
               <button type="button" className="arch-zoom-btn arch-zoom-btn--fit" onClick={fitToView} aria-label="Fit to view">
@@ -1169,219 +824,17 @@ export default function ArchitectureDesignPage() {
       </header>
 
       <div className="arch-design-body">
-        {/* Canvas wrapper: viewport + overlaid hints & FAB */}
-        <div className="arch-canvas-wrapper">
-          {/* Infinite interactive canvas */}
-          <div
-            ref={viewportRef}
-            className={`arch-canvas-viewport${activeFlowId ? " arch-canvas-viewport--flow-active" : ""}${searchQuery.trim() ? " arch-canvas-viewport--search-active" : ""}`}
-            data-tour="canvas"
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-            role="application"
-            aria-label={`${projectTitle} architecture canvas. Drag to pan, pinch/wheel to zoom.`}
-          >
-          <div className="arch-canvas-grid" data-canvas-bg="1" />
-          <div
-            className="arch-canvas-world"
-            style={{
-              transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-            }}
-          >
-            {groups.map((group) => (
-              <div
-                key={group.id}
-                className="arch-canvas-group"
-                style={{
-                  left: group.x,
-                  top: group.y,
-                  width: group.w,
-                  height: group.h,
-                }}
-              >
-                <span className="arch-canvas-group-label">{group.label}</span>
-              </div>
-            ))}
-
-            <svg className="arch-canvas-edges" width={Math.max(3000, (bounds.maxX || 1200) + 800)} height={Math.max(2400, (bounds.maxY || 1000) + 800)} aria-hidden="true">
-              <defs>
-                <marker id="arch-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff5cad" />
-                </marker>
-                <marker id="arch-arrow-flow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto">
-                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff8ec8" />
-                </marker>
-              </defs>
-              {edges.map((edge) => {
-                const fromNode = nodeMap[edge.from];
-                const toNode = nodeMap[edge.to];
-                if (!fromNode || !toNode) return null;
-
-                const isInFlow = flowEdges.has(edge.id);
-                const isExecuting = executingEdgeIds.has(edge.id);
-                const isTransition = activeTransitionEdgeIds.has(edge.id) || isExecuting;
-                if (activeFlowId && !isInFlow && !isTransition) return null;
-
-                // Reorient curve + markerEnd to follow the message travel direction
-                const travel = edgeTravelDir.get(edge.id);
-                const curve =
-                  travel && nodeMap[travel.from] && nodeMap[travel.to]
-                    ? buildEdgeCurve(nodeMap[travel.from], nodeMap[travel.to])
-                    : buildEdgeCurve(fromNode, toNode);
-
-                const isSelectedEdge = selectedId && (edge.from === selectedId || edge.to === selectedId);
-                const isSearchMatchEdge =
-                  searchQuery.trim() !== "" &&
-                  (matchingNodeIds.has(edge.from) || matchingNodeIds.has(edge.to));
-
-                let edgeClass = "arch-canvas-edge";
-                if (isSelectedEdge) edgeClass += " arch-canvas-edge--active";
-                if (isInFlow) edgeClass += " is-in-flow";
-                if (isExecuting) edgeClass += " is-executing";
-                else if (isTransition) edgeClass += " is-in-flow-active";
-                if (isSearchMatchEdge) edgeClass += " is-search-match";
-
-                const markerId =
-                  isExecuting || isTransition || isSelectedEdge || isSearchMatchEdge
-                    ? "url(#arch-arrow-flow)"
-                    : "url(#arch-arrow)";
-
-                return (
-                  <g key={edge.id}>
-                    <path d={curve.d} className={edgeClass} fill="none" markerEnd={markerId} />
-                  </g>
-                );
-              })}
-              {/* Runtime signal + traveling arrow tip — driven by rAF */}
-              <circle
-                ref={signalRef}
-                className="arch-runtime-signal"
-                r="2.5"
-                cx="0"
-                cy="0"
-                visibility="hidden"
-              />
-              <polygon
-                ref={signalArrowRef}
-                className="arch-runtime-signal-arrow"
-                points="5,0 -3.5,-3 -3.5,3"
-                visibility="hidden"
-              />
-            </svg>
-
-            {nodes.map((node) => {
-              const w = node.w || 160;
-              const h = node.h || 56;
-              const isSelected = selectedId === node.id;
-              const connCount = connectionCounts[node.id] || 0;
-              const kindLabel = getNodeKindBadgeLabel(node.kind);
-
-              const isInFlow = flowNodeIds.has(node.id);
-              const isActiveStepNode = node.id === activeStepNodeId;
-              const isSignalFocus = node.id === signalFocusNodeId;
-              const isSearchMatch = searchQuery.trim() !== "" && matchingNodeIds.has(node.id);
-
-              // Past / current / future tiers for walkthrough opacity
-              let flowTier = "";
-              if (activeFlowId && isInFlow) {
-                const flow = flows.find((f) => f.id === activeFlowId);
-                const stepIdx = flow?.steps.findIndex((s) => s.nodeId === node.id) ?? -1;
-                if (stepIdx >= 0) {
-                  if (activeStepIndex < 0) flowTier = " is-flow-future";
-                  else if (stepIdx < activeStepIndex) flowTier = " is-flow-past";
-                  else if (stepIdx === activeStepIndex) flowTier = " is-flow-current";
-                  else flowTier = " is-flow-future";
-                }
-              }
-
-              let nodeClasses = kindClass(node.kind);
-              if (isSelected) nodeClasses += " is-selected";
-              if (isInFlow) nodeClasses += " is-in-flow";
-              if (isActiveStepNode) nodeClasses += " is-in-flow-active";
-              if (isSignalFocus) nodeClasses += " is-signal-focus";
-              if (isSearchMatch) nodeClasses += " is-search-match";
-              nodeClasses += flowTier;
-
-              return (
-                <button
-                  key={node.id}
-                  type="button"
-                  data-node-id={node.id}
-                  data-tour={
-                    (activeProject === "pebbledb" && node.id === "api") ||
-                    (activeProject === "rate-limiter" && node.id === "sidecar")
-                      ? "sample-node"
-                      : undefined
-                  }
-                  className={nodeClasses}
-                  style={{ left: node.x, top: node.y, width: w, height: h }}
-                  onMouseEnter={() => setHoveredNodeId(node.id)}
-                  onMouseLeave={() => setHoveredNodeId(null)}
-                  onClick={(ev) => {
-                    if (!isMobile) {
-                      ev.stopPropagation();
-                      selectNode(node.id);
-                    }
-                  }}
-                >
-                  <div className="arch-canvas-node-header">
-                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      <span className={`arch-node-status-dot arch-node-status-dot--${node.kind || "default"}`} />
-                      <span className="arch-canvas-node-kind-badge">{kindLabel}</span>
-                    </div>
-                    <span className="arch-canvas-node-conn-badge" title={`${connCount} connections`}>{connCount}</span>
-                  </div>
-                  <span className="arch-canvas-node-label">{node.label}</span>
-                  {node.path && <span className="arch-canvas-node-path">{node.path}</span>}
-                </button>
-              );
-            })}
-
-            {/* Hover Node Tooltip Card */}
-            {hoveredNodeId && nodeMap[hoveredNodeId] && (
-              <div
-                className="arch-canvas-node-tooltip"
-                style={{
-                  left: nodeMap[hoveredNodeId].x + (nodeMap[hoveredNodeId].w || 160) / 2,
-                  top: nodeMap[hoveredNodeId].y - 8,
-                }}
-              >
-                <div className="arch-canvas-node-tooltip-header">
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span className={`arch-node-status-dot arch-node-status-dot--${nodeMap[hoveredNodeId].kind || "default"}`} />
-                    <span className="arch-canvas-node-tooltip-title">{nodeMap[hoveredNodeId].label}</span>
-                  </div>
-                  <span className="arch-canvas-node-kind-badge">{getNodeKindBadgeLabel(nodeMap[hoveredNodeId].kind)}</span>
-                </div>
-                {nodeMap[hoveredNodeId].path && <div className="arch-canvas-node-tooltip-path">{nodeMap[hoveredNodeId].path}</div>}
-                <p className="arch-canvas-node-tooltip-summary">{nodeMap[hoveredNodeId].summary}</p>
-              </div>
-            )}
-          </div>
-          </div>{/* end arch-canvas-viewport */}
-
-          {/* Interactive Canvas Minimap Navigator Widget */}
-          <CanvasMinimap
-            nodes={nodes}
-            groups={groups}
-            bounds={bounds}
-            transform={transform}
-            setTransform={setTransform}
-            viewportRef={viewportRef}
-          />
-
-          {/* Canvas hints — outside viewport so pointer events work */}
-          <p className="arch-canvas-hint arch-canvas-hint--desktop">
-            Drag to pan · Scroll to zoom · Space+drag · Click a node for detailed HLD/LLD inspector
-          </p>
-          <p className="arch-canvas-hint arch-canvas-hint--mobile">
-            Drag to pan · Pinch or +/− to zoom · Tap a node for detailed inspector
-          </p>
-
-          {/* FAB removed — zoom controls live in the toolbar above */}
-        </div>{/* end arch-canvas-wrapper */}
+        <ArchCanvasViewport
+          ref={canvasApiRef}
+          zoomLabelRef={zoomLabelRef}
+          spaceDown={spaceDown}
+          bounds={bounds}
+          fitEpoch={fitEpoch}
+          projectTitle={projectTitle}
+          activeFlowId={activeFlowId}
+          searchQuery={searchQuery}
+          graphProps={graphProps}
+        />
 
         {/* Desktop Side Inspector Panel with Horizontal Resizer */}
         <aside
@@ -1503,11 +956,11 @@ export default function ArchitectureDesignPage() {
               </select>
               {activeFlowId && (
                 <p className="arch-design-flow-desc">
-                  {flows.find(f => f.id === activeFlowId)?.description}
+                  {activeFlow?.description}
                 </p>
               )}
             </div>
-            {activeFlowId && (
+            {activeFlow && (
               <div style={{ display: "flex", gap: 6, marginTop: 8 }} data-tour="flow-controls">
                 <button
                   type="button"
@@ -1516,7 +969,7 @@ export default function ArchitectureDesignPage() {
                   disabled={activeStepIndex <= 0}
                   onClick={() => {
                     setIsPlayingFlow(false);
-                    selectFlowStep(flows.find((f) => f.id === activeFlowId), activeStepIndex - 1);
+                    selectFlowStep(activeFlow, activeStepIndex - 1);
                   }}
                 >
                   ◀ Prev
@@ -1542,10 +995,10 @@ export default function ArchitectureDesignPage() {
                   type="button"
                   className="arch-design-link-btn"
                   style={{ flex: 1, textAlign: "center", fontSize: 11, padding: "6px 4px" }}
-                  disabled={activeStepIndex >= flows.find((f) => f.id === activeFlowId).steps.length - 1}
+                  disabled={activeStepIndex >= activeFlow.steps.length - 1}
                   onClick={() => {
                     setIsPlayingFlow(false);
-                    selectFlowStep(flows.find((f) => f.id === activeFlowId), activeStepIndex + 1);
+                    selectFlowStep(activeFlow, activeStepIndex + 1);
                   }}
                 >
                   Next ▶
@@ -1591,13 +1044,13 @@ export default function ArchitectureDesignPage() {
           {/* Inspector Content Panel */}
           <div className="arch-design-panel-content" ref={panelContentRef}>
             {!selectedId ? (
-              activeFlowId ? (
+              activeFlow ? (
                 // Walkthrough steps list
                 <div className="arch-design-flow-steps">
                   <span style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", color: "#71717a", marginBottom: 4 }}>
                     Flow Progression Steps
                   </span>
-                  {flows.find(f => f.id === activeFlowId).steps.map((step, idx) => {
+                  {activeFlow.steps.map((step, idx) => {
                     const isStepActive = idx === activeStepIndex;
                     const isStepPast = activeStepIndex >= 0 && idx < activeStepIndex;
                     return (
@@ -1608,7 +1061,7 @@ export default function ArchitectureDesignPage() {
                           else stepCardRefs.current.delete(idx);
                         }}
                         className={`arch-design-flow-step-card${isStepActive ? " arch-design-flow-step-card--active" : ""}${isStepPast ? " arch-design-flow-step-card--past" : ""}`}
-                        onClick={() => selectFlowStep(flows.find(f => f.id === activeFlowId), idx)}
+                        onClick={() => selectFlowStep(activeFlow, idx)}
                       >
                         <div className="arch-design-flow-step-header">
                           <span className="arch-design-flow-step-label">{step.label}</span>

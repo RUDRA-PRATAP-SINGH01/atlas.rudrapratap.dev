@@ -85,6 +85,13 @@ export default function ArchitectureTour({
   const [visible, setVisible] = useState(false);
   const targetElRef = useRef(null);
   const prevTargetRef = useRef(null);
+  const onStepEnterRef = useRef(onStepEnter);
+  const ensureTargetVisibleRef = useRef(ensureTargetVisible);
+  const onCloseRef = useRef(onClose);
+
+  onStepEnterRef.current = onStepEnter;
+  ensureTargetVisibleRef.current = ensureTargetVisible;
+  onCloseRef.current = onClose;
 
   const step = TOUR_STEPS[stepIndex];
   const total = TOUR_STEPS.length;
@@ -102,8 +109,8 @@ export default function ArchitectureTour({
 
     clearHighlight();
 
-    if (typeof onStepEnter === "function") {
-      await onStepEnter(step, stepIndex);
+    if (typeof onStepEnterRef.current === "function") {
+      await onStepEnterRef.current(step, stepIndex);
     }
 
     // Allow DOM updates (flow controls mount, etc.)
@@ -125,8 +132,8 @@ export default function ArchitectureTour({
       return;
     }
 
-    if (typeof ensureTargetVisible === "function") {
-      await ensureTargetVisible(el, step);
+    if (typeof ensureTargetVisibleRef.current === "function") {
+      await ensureTargetVisibleRef.current(el, step);
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     }
 
@@ -156,7 +163,7 @@ export default function ArchitectureTour({
       style: tooltipStyleFor(padded, placement),
     });
     setVisible(true);
-  }, [open, step, stepIndex, onStepEnter, ensureTargetVisible, clearHighlight]);
+  }, [open, step, stepIndex, clearHighlight]);
 
   useLayoutEffect(() => {
     if (!open) {
@@ -186,9 +193,9 @@ export default function ArchitectureTour({
       clearHighlight();
       setVisible(false);
       setStepIndex(0);
-      onClose?.({ replay });
+      onCloseRef.current?.({ replay });
     },
-    [clearHighlight, onClose],
+    [clearHighlight],
   );
 
   const goNext = useCallback(() => {
