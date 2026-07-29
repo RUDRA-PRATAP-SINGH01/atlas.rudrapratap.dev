@@ -1,139 +1,214 @@
 /**
- * Layered Sugiyama DAG Auto-Layout Algorithm
- * 
- * Computes optimal 2D node coordinates (x, y) and dynamic group bounding boxes
- * for directed acyclic architecture graph topologies using a 3-phase Sugiyama layout:
- * 1. Layer Assignment (Topological Sort / Longest Path Rank)
- * 2. Layer Ordering (Barycenter Median Crossing Minimization)
- * 3. Coordinate Assignment & Group Bounding Box Fitting
+ * Group-aware layered layout for architecture canvases.
+ *
+ * Keeps hand-authored layer bands (Client → Memory → …) and places nodes
+ * inside each band with equal gaps and generous padding so the diagram
+ * reads cleanly instead of as a dense topological scramble.
  */
+
+function nodeCenter(node) {
+  return {
+    x: node.x + (node.w || 180) / 2,
+    y: node.y + (node.h || 60) / 2,
+  };
+}
+
+function groupContains(group, node) {
+  const c = nodeCenter(node);
+  return (
+    c.x >= group.x &&
+    c.x <= group.x + group.w &&
+    c.y >= group.y &&
+    c.y <= group.y + group.h
+  );
+}
+
+function assignNodesToGroups(nodes, groups) {
+  const assignment = new Map();
+  const byGroup = new Map(groups.map((g) => [g.id, []]));
+
+  for (const node of nodes) {
+    if (node.groupId && byGroup.has(node.groupId)) {
+      assignment.set(node.id, node.groupId);
+      byGroup.get(node.groupId).push(node);
+      continue;
+    }
+    const hit = groups.find((g) => groupContains(g, node));
+    if (hit) {
+      assignment.set(node.id, hit.id);
+      byGroup.get(hit.id).push(node);
+    }
+  }
+
+  for (const node of nodes) {
+    if (assignment.has(node.id)) continue;
+    const c = nodeCenter(node);
+    let best = groups[0];
+    let bestDist = Infinity;
+    for (const g of groups) {
+      const midY = g.y + g.h / 2;
+      const dist = Math.abs(c.y - midY);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = g;
+      }
+    }
+    assignment.set(node.id, best.id);
+    byGroup.get(best.id).push(node);
+  }
+
+  return { assignment, byGroup };
+}
+
+/** Keep the hand-authored left→right narrative inside each layer. */
+function preserveReadingOrder(groupNodes) {
+  return [...groupNodes].sort((a, b) => a.x - b.x || a.y - b.y || a.id.localeCompare(b.id));
+}
+
+/**
+ * Place nodes in a single row with a fixed edge-to-edge gap.
+ */
+function packRow(nodes, startX, y, gapX) {
+  let x = startX;
+  let maxH = 0;
+  for (const node of nodes) {
+    const w = node.w || 180;
+    const h = node.h || 60;
+    node.x = x;
+    node.y = y;
+    x += w + gapX;
+    maxH = Math.max(maxH, h);
+  }
+  return {
+    width: nodes.length === 0 ? 0 : x - startX - gapX,
+    height: maxH,
+  };
+}
+
+/**
+ * Place nodes on a regular grid with equal column widths and row heights
+ * so spacing looks even even when individual node sizes differ.
+ */
+function packGrid(nodes, startX, startY, gapX, gapY, cols) {
+  if (nodes.length === 0) return { width: 0, height: 0 };
+
+  const colCount = Math.min(cols, nodes.length);
+  const colW = Math.max(...nodes.map((n) => n.w || 180));
+  const rowH = Math.max(...nodes.map((n) => n.h || 60));
+  const rows = Math.ceil(nodes.length / colCount);
+
+  nodes.forEach((node, i) => {
+    const col = i % colCount;
+    const row = Math.floor(i / colCount);
+    const w = node.w || 180;
+    const h = node.h || 60;
+    node.x = startX + col * (colW + gapX) + (colW - w) / 2;
+    node.y = startY + row * (rowH + gapY) + (rowH - h) / 2;
+  });
+
+  return {
+    width: colCount * colW + (colCount - 1) * gapX,
+    height: rows * rowH + (rows - 1) * gapY,
+  };
+}
+
+function packIntoBand(nodes, startX, startY, gapX, gapY, maxRowWidth) {
+  if (nodes.length === 0) return { width: 0, height: 0 };
+
+  const singleW =
+    nodes.reduce((sum, n) => sum + (n.w || 180), 0) + gapX * Math.max(0, nodes.length - 1);
+
+  // Prefer one clean row whenever it fits
+  if (singleW <= maxRowWidth || nodes.length <= 4) {
+    return packRow(nodes, startX, startY, gapX);
+  }
+
+  // Otherwise a tidy 2-row grid (ceil(n/2) columns)
+  const cols = Math.ceil(nodes.length / 2);
+  return packGrid(nodes, startX, startY, gapX, gapY, cols);
+}
 
 export function computeDagLayout(inputNodes = [], inputEdges = [], inputGroups = []) {
   if (!inputNodes || inputNodes.length === 0) {
-    return { nodes: [], groups: [], bounds: { minX: 0, minY: 0, maxX: 800, maxY: 600, width: 800, height: 600 } };
+    return {
+      nodes: [],
+      groups: [],
+      bounds: { minX: 0, minY: 0, maxX: 800, maxY: 600, width: 800, height: 600 },
+    };
   }
 
   const nodes = inputNodes.map((n) => ({ ...n }));
-  const edges = inputEdges.map((e) => ({ ...e }));
   const groups = inputGroups.map((g) => ({ ...g }));
 
-  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
-  const inDegree = new Map(nodes.map((n) => [n.id, 0]));
-  const outEdges = new Map(nodes.map((n) => [n.id, []]));
+  groups.sort((a, b) => a.y - b.y || a.x - b.x);
 
-  for (const edge of edges) {
-    if (nodeMap.has(edge.from) && nodeMap.has(edge.to)) {
-      inDegree.set(edge.to, (inDegree.get(edge.to) || 0) + 1);
-      const outList = outEdges.get(edge.from) || [];
-      outList.push(edge.to);
-      outEdges.set(edge.from, outList);
-    }
+  const { byGroup } = assignNodesToGroups(nodes, groups);
+
+  const PAD_X = 40;
+  const PAD_Y_TOP = 48;
+  const PAD_Y_BOTTOM = 28;
+  const GAP_X = 48;
+  const GAP_Y_IN_BAND = 28;
+  const GAP_BETWEEN_GROUPS = 56;
+  const MAX_ROW_WIDTH = 1280;
+  const BAND_START_X = 48;
+
+  let bandY = 48;
+  let maxGroupWidth = 0;
+  const laidOut = [];
+
+  for (let gi = 0; gi < groups.length; gi++) {
+    const group = groups[gi];
+    const members = byGroup.get(group.id) || [];
+    const ordered = preserveReadingOrder(members);
+
+    const innerX = BAND_START_X + PAD_X;
+    const innerY = bandY + PAD_Y_TOP;
+    const packed = packIntoBand(ordered, innerX, innerY, GAP_X, GAP_Y_IN_BAND, MAX_ROW_WIDTH);
+
+    const contentW = Math.max(packed.width, ordered.length ? 0 : 220);
+    const contentH = Math.max(packed.height, 64);
+
+    group.x = BAND_START_X;
+    group.y = bandY;
+    group.w = contentW + PAD_X * 2;
+    group.h = contentH + PAD_Y_TOP + PAD_Y_BOTTOM;
+    maxGroupWidth = Math.max(maxGroupWidth, group.w);
+    laidOut.push({ group, ordered });
+
+    bandY = group.y + group.h + GAP_BETWEEN_GROUPS;
   }
 
-  // Phase 1: Topological Layer Assignment (Longest Path)
-  const rankMap = new Map();
-  const queue = [];
+  // Center narrower bands under the widest layer
+  for (const { group, ordered } of laidOut) {
+    const offsetX = (maxGroupWidth - group.w) / 2;
+    group.x = BAND_START_X + offsetX;
+    if (ordered.length === 0) continue;
 
-  for (const [id, deg] of inDegree.entries()) {
-    if (deg === 0) {
-      rankMap.set(id, 0);
-      queue.push(id);
-    }
+    const minX = Math.min(...ordered.map((n) => n.x));
+    const maxX = Math.max(...ordered.map((n) => n.x + (n.w || 180)));
+    const usedW = maxX - minX;
+    const shiftX = group.x + PAD_X + (group.w - PAD_X * 2 - usedW) / 2 - minX;
+    for (const n of ordered) n.x += shiftX;
   }
 
-  // Process nodes in topological order
-  let maxRank = 0;
-  while (queue.length > 0) {
-    const currId = queue.shift();
-    const currRank = rankMap.get(currId) || 0;
+  const allX = [
+    ...nodes.map((n) => n.x),
+    ...nodes.map((n) => n.x + (n.w || 180)),
+    ...groups.map((g) => g.x),
+    ...groups.map((g) => g.x + g.w),
+  ];
+  const allY = [
+    ...nodes.map((n) => n.y),
+    ...nodes.map((n) => n.y + (n.h || 60)),
+    ...groups.map((g) => g.y),
+    ...groups.map((g) => g.y + g.h),
+  ];
 
-    const children = outEdges.get(currId) || [];
-    for (const childId of children) {
-      const nextRank = Math.max(rankMap.get(childId) || 0, currRank + 1);
-      rankMap.set(childId, nextRank);
-      maxRank = Math.max(maxRank, nextRank);
-
-      const nextDeg = (inDegree.get(childId) || 1) - 1;
-      inDegree.set(childId, nextDeg);
-      if (nextDeg === 0) {
-        queue.push(childId);
-      }
-    }
-  }
-
-  // Fallback for any unranked nodes (e.g. isolated nodes or cycles)
-  for (const node of nodes) {
-    if (!rankMap.has(node.id)) {
-      rankMap.set(node.id, 0);
-    }
-  }
-
-  // Group nodes into layers
-  const layers = Array.from({ length: maxRank + 1 }, () => []);
-  for (const node of nodes) {
-    const r = rankMap.get(node.id) || 0;
-    layers[r].push(node);
-  }
-
-  // Phase 2: Barycenter Ordering within layers to minimize edge crossings
-  for (let r = 1; r < layers.length; r++) {
-    const prevLayer = layers[r - 1];
-    const prevIndexMap = new Map(prevLayer.map((n, idx) => [n.id, idx]));
-
-    layers[r].sort((a, b) => {
-      const parentsA = edges.filter((e) => e.to === a.id).map((e) => prevIndexMap.get(e.from) ?? 0);
-      const parentsB = edges.filter((e) => e.to === b.id).map((e) => prevIndexMap.get(e.from) ?? 0);
-
-      const avgA = parentsA.length > 0 ? parentsA.reduce((sum, p) => sum + p, 0) / parentsA.length : 0;
-      const avgB = parentsB.length > 0 ? parentsB.reduce((sum, p) => sum + p, 0) / parentsB.length : 0;
-
-      return avgA - avgB;
-    });
-  }
-
-  // Phase 3: Coordinate Assignment
-  const startX = 60;
-  const startY = 60;
-  const gapX = 36;
-  const gapY = 110;
-
-  for (let r = 0; r < layers.length; r++) {
-    const layer = layers[r];
-    const y = startY + r * gapY;
-    let currX = startX;
-
-    for (const node of layer) {
-      node.x = currX;
-      node.y = y;
-      const w = node.w || 180;
-      currX += w + gapX;
-    }
-  }
-
-  // Recalculate dynamic group bounding boxes to fit child nodes
-  for (const group of groups) {
-    const groupNodes = nodes.filter((n) => n.groupId === group.id);
-    if (groupNodes.length > 0) {
-      const minNodeX = Math.min(...groupNodes.map((n) => n.x));
-      const minNodeY = Math.min(...groupNodes.map((n) => n.y));
-      const maxNodeX = Math.max(...groupNodes.map((n) => n.x + (n.w || 180)));
-      const maxNodeY = Math.max(...groupNodes.map((n) => n.y + (n.h || 60)));
-
-      const padX = 24;
-      const padY = 32;
-
-      group.x = minNodeX - padX;
-      group.y = minNodeY - padY;
-      group.w = maxNodeX - minNodeX + padX * 2;
-      group.h = maxNodeY - minNodeY + padY * 2;
-    }
-  }
-
-  // Compute total graph bounds
-  const minX = Math.min(...nodes.map((n) => n.x), ...groups.map((g) => g.x));
-  const minY = Math.min(...nodes.map((n) => n.y), ...groups.map((g) => g.y));
-  const maxX = Math.max(...nodes.map((n) => n.x + (n.w || 180)), ...groups.map((g) => g.x + g.w));
-  const maxY = Math.max(...nodes.map((n) => n.y + (n.h || 60)), ...groups.map((g) => g.y + g.h));
+  const minX = Math.min(...allX);
+  const minY = Math.min(...allY);
+  const maxX = Math.max(...allX);
+  const maxY = Math.max(...allY);
 
   return {
     nodes,

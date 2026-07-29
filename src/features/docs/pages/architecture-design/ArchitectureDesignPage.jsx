@@ -313,7 +313,10 @@ export default function ArchitectureDesignPage() {
   const baseNodes = activeProject === "rate-limiter" ? ratelimiterNodes : pebbledbNodes;
   const baseEdges = activeProject === "rate-limiter" ? ratelimiterEdges : pebbledbEdges;
   const baseGroups = activeProject === "rate-limiter" ? ratelimiterGroups : pebbledbGroups;
-  const baseBounds = activeProject === "rate-limiter" ? ratelimiterBounds() : pebbledbBounds();
+  const baseBounds = useMemo(
+    () => (activeProject === "rate-limiter" ? ratelimiterBounds() : pebbledbBounds()),
+    [activeProject],
+  );
   const flows = activeProject === "rate-limiter" ? ratelimiterFlows : pebbledbFlows;
 
   const [customLayout, setCustomLayout] = useState(null);
@@ -345,7 +348,7 @@ export default function ArchitectureDesignPage() {
   }, []);
 
   const nodeMap = useMemo(() => {
-    return new Map(nodes.map((n) => [n.id, n]));
+    return Object.fromEntries(nodes.map((n) => [n.id, n]));
   }, [nodes]);
 
   const connectionCounts = useMemo(() => {
@@ -376,6 +379,7 @@ export default function ArchitectureDesignPage() {
     setIsPlayingFlow(false);
     setHoveredNodeId(null);
     setSearchQuery("");
+    setCustomLayout(null);
   };
 
   const fitToView = useCallback(() => {
@@ -435,7 +439,7 @@ export default function ArchitectureDesignPage() {
 
   useEffect(() => {
     fitToView();
-  }, [fitToView]);
+  }, [activeProject, customLayout, fitToView]);
 
   const zoomAt = useCallback((clientX, clientY, nextScale) => {
     const el = viewportRef.current;
@@ -551,11 +555,17 @@ export default function ArchitectureDesignPage() {
     }
 
     const onNode = Boolean(e.target.closest?.(".arch-canvas-node"));
+    const onCanvasSurface = Boolean(
+      e.target === e.currentTarget ||
+      e.target.dataset?.canvasBg === "1" ||
+      e.target.closest?.(".arch-canvas-world") ||
+      e.target.closest?.(".arch-canvas-group") ||
+      e.target.closest?.(".arch-canvas-edges"),
+    );
     const panning =
       e.button === 1 ||
       spaceDown ||
-      e.target === e.currentTarget ||
-      e.target.dataset?.canvasBg === "1" ||
+      onCanvasSurface ||
       onNode;
 
     if (!panning) return;
@@ -843,16 +853,16 @@ export default function ArchitectureDesignPage() {
             <button type="button" className="arch-zoom-btn arch-zoom-btn--fit" onClick={fitToView} aria-label="Fit to view">
               Fit
             </button>
-            <button
-              type="button"
-              className="arch-zoom-btn arch-zoom-btn--fit"
-              style={{ color: "#00f0ff", borderColor: "rgba(0, 240, 255, 0.45)", paddingLeft: 6, paddingRight: 6 }}
-              onClick={runAutoLayout}
-              title="Run Sugiyama Layered DAG Auto-Layout Algorithm"
-            >
-              ⚡ Auto-Layout DAG
-            </button>
           </div>
+
+          <button
+            type="button"
+            className="arch-autolayout-btn"
+            onClick={runAutoLayout}
+            title="Run group-aware layered DAG auto-layout"
+          >
+            Auto-Layout
+          </button>
 
           <div className="arch-action-group">
             <Link to={projectMeta.guideEntry} className="arch-nav-action-btn">
@@ -916,66 +926,6 @@ export default function ArchitectureDesignPage() {
               transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
             }}
           >
-            <svg className="arch-canvas-edges" width={Math.max(3000, (bounds.maxX || 1200) + 800)} height={Math.max(2400, (bounds.maxY || 1000) + 800)} aria-hidden="true">
-              <defs>
-                <marker id="arch-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto">
-                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff5cad" />
-                </marker>
-                <marker id="arch-arrow-flow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="10" markerHeight="10" orient="auto">
-                  <path d="M 0 1 L 9 5 L 0 9 z" fill="#00f0ff" />
-                </marker>
-                <marker id="arch-arrow-dim" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                  <path d="M 0 2 L 7 5 L 0 8 z" fill="#71717a" />
-                </marker>
-              </defs>
-              {edges.map((edge) => {
-                const fromNode = nodeMap[edge.from];
-                const toNode = nodeMap[edge.to];
-                if (!fromNode || !toNode) return null;
-                const centerA = nodeCenter(fromNode);
-                const centerB = nodeCenter(toNode);
-                const a = getNodeEdgePoint(fromNode, centerB);
-                const b = getNodeEdgePoint(toNode, centerA);
-                const midY = Math.abs(a.y - b.y) < 15 ? a.y - 36 : (a.y + b.y) / 2;
-                const d = `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
-                
-                // Determine flow and search highlight classes
-                const isSelectedEdge = selectedId && (edge.from === selectedId || edge.to === selectedId);
-                const isInFlow = flowEdges.has(edge.id);
-                const isTransition = activeTransitionEdgeIds.has(edge.id);
-                const isSearchMatchEdge = searchQuery.trim() !== "" && (matchingNodeIds.has(edge.from) || matchingNodeIds.has(edge.to));
-                
-                let edgeClass = "arch-canvas-edge";
-                if (isSelectedEdge) edgeClass += " arch-canvas-edge--active";
-                if (isInFlow) edgeClass += " is-in-flow";
-                if (isTransition) edgeClass += " is-in-flow-active";
-                if (isSearchMatchEdge) edgeClass += " is-search-match";
-
-                const markerId = isTransition || isSearchMatchEdge
-                  ? "url(#arch-arrow-flow)"
-                  : isSelectedEdge || isInFlow
-                  ? "url(#arch-arrow)"
-                  : "url(#arch-arrow-dim)";
-
-                return (
-                  <g key={edge.id}>
-                    <path
-                      d={d}
-                      className={edgeClass}
-                      markerEnd={markerId}
-                    />
-                    {isTransition && (
-                      <path
-                        d={d}
-                        className="arch-canvas-edge-pulse"
-                        markerEnd="url(#arch-arrow-flow)"
-                      />
-                    )}
-                  </g>
-                );
-              })}
-            </svg>
-
             {groups.map((group) => (
               <div
                 key={group.id}
@@ -990,6 +940,74 @@ export default function ArchitectureDesignPage() {
                 <span className="arch-canvas-group-label">{group.label}</span>
               </div>
             ))}
+
+            <svg className="arch-canvas-edges" width={Math.max(3000, (bounds.maxX || 1200) + 800)} height={Math.max(2400, (bounds.maxY || 1000) + 800)} aria-hidden="true">
+              <defs>
+                <marker id="arch-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff5cad" />
+                </marker>
+                <marker id="arch-arrow-flow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff8ec8" />
+                </marker>
+              </defs>
+              {edges.map((edge) => {
+                const fromNode = nodeMap[edge.from];
+                const toNode = nodeMap[edge.to];
+                if (!fromNode || !toNode) return null;
+
+                const isInFlow = flowEdges.has(edge.id);
+                const isTransition = activeTransitionEdgeIds.has(edge.id);
+                // During an operational flow, only show edges that belong to that flow
+                if (activeFlowId && !isInFlow && !isTransition) return null;
+
+                const centerA = nodeCenter(fromNode);
+                const centerB = nodeCenter(toNode);
+                const a = getNodeEdgePoint(fromNode, centerB);
+                const b = getNodeEdgePoint(toNode, centerA);
+                const midY = Math.abs(a.y - b.y) < 15 ? a.y - 36 : (a.y + b.y) / 2;
+                const d = `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
+
+                const isSelectedEdge = selectedId && (edge.from === selectedId || edge.to === selectedId);
+                const isSearchMatchEdge = searchQuery.trim() !== "" && (matchingNodeIds.has(edge.from) || matchingNodeIds.has(edge.to));
+                const isStrongHighlight = isTransition || isSelectedEdge || isSearchMatchEdge;
+
+                let edgeClass = "arch-canvas-edge";
+                if (isSelectedEdge) edgeClass += " arch-canvas-edge--active";
+                if (isInFlow) edgeClass += " is-in-flow";
+                if (isTransition) edgeClass += " is-in-flow-active";
+                if (isSearchMatchEdge) edgeClass += " is-search-match";
+
+                const markerId = isStrongHighlight
+                  ? "url(#arch-arrow-flow)"
+                  : "url(#arch-arrow)";
+
+                return (
+                  <g key={edge.id}>
+                    <path
+                      d={d}
+                      className={edgeClass}
+                      fill="none"
+                      stroke={isStrongHighlight ? "#ff8ec8" : "#ff5cad"}
+                      strokeWidth={isStrongHighlight ? 2.4 : 1.8}
+                      strokeDasharray="7 7"
+                      strokeOpacity={isStrongHighlight ? 0.95 : 0.55}
+                      markerEnd={markerId}
+                    />
+                    {isTransition && (
+                      <path
+                        d={d}
+                        className="arch-canvas-edge-pulse"
+                        fill="none"
+                        stroke="#ff8ec8"
+                        strokeWidth="2.8"
+                        strokeDasharray="10 8"
+                        markerEnd="url(#arch-arrow-flow)"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
 
             {nodes.map((node) => {
               const w = node.w || 160;
