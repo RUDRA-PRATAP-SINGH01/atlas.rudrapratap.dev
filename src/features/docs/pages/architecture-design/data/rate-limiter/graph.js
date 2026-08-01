@@ -13,6 +13,7 @@ export const GRAPH_META = {
   subtitle: "Go Sidecar + Redis/Lua Rate Limiting Platform",
   evidence: "SOURCE VERIFIED — github.com/RUDRA-PRATAP-SINGH01/Distributed-rate-limiter",
   github: "https://github.com/RUDRA-PRATAP-SINGH01/Distributed-rate-limiter",
+  docsEntry: "/docs/distributed-rate-limiter/introduction/start-here",
   guideEntry: "/docs/distributed-rate-limiter/introduction/start-here",
 };
 

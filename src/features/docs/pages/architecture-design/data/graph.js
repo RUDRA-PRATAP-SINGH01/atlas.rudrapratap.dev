@@ -22,6 +22,7 @@ export const GRAPH_META = {
   // Evidence level corrected: SOURCE VERIFIED for all displayed relationships.
   evidence: "SOURCE VERIFIED — github.com/RUDRA-PRATAP-SINGH01/PebbleDB",
   github: "https://github.com/RUDRA-PRATAP-SINGH01/PebbleDB",
+  docsEntry: "/project-docs/guide/pebbledb/introduction",
   guideEntry: "/project-docs/guide/architecture/system-overview",
 };
 
